@@ -1,0 +1,193 @@
+<div class="competition-step">
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>سجل المسابقات السابق</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (loadingHistory()) {
+        <div class="state-panel">
+          <mat-progress-spinner diameter="32" mode="indeterminate" />
+          <p>جارٍ تحميل سجل المسابقات…</p>
+        </div>
+      } @else if (history().length === 0) {
+        <p class="empty-hint">لا يوجد سجل مسابقات سابق لهذا الشخص.</p>
+      } @else {
+        <table mat-table [dataSource]="history()" class="history-table">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>المسابقة</th>
+            <td mat-cell *matCellDef="let row" dir="rtl">
+              {{ row.competition.name.arabic }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="level">
+            <th mat-header-cell *matHeaderCellDef>المستوى</th>
+            <td mat-cell *matCellDef="let row" dir="rtl">
+              {{ row.level.name.arabic }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="partsCount">
+            <th mat-header-cell *matHeaderCellDef>عدد الأجزاء</th>
+            <td mat-cell *matCellDef="let row">{{ row.partsCount }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="score">
+            <th mat-header-cell *matHeaderCellDef>الدرجة</th>
+            <td mat-cell *matCellDef="let row">{{ row.score ?? "—" }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>إجراءات</th>
+            <td mat-cell *matCellDef="let row">
+              <button
+                mat-icon-button
+                matTooltip="تقييم المتسابق"
+                (click)="onEvaluate(row)"
+              >
+                <mat-icon>fact_check</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="historyColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: historyColumns"></tr>
+        </table>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>التسجيل في مسابقة جديدة</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>المسابقة</mat-label>
+            <mat-select formControlName="competitionId">
+              @for (item of competitions(); track item.id) {
+                <mat-option [value]="item.id">{{
+                  item.name.arabic
+                }}</mat-option>
+              }
+            </mat-select>
+            @if (
+              form.controls.competitionId.hasError("required") &&
+              form.controls.competitionId.touched
+            ) {
+              <mat-error>المسابقة مطلوبة.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>المستوى</mat-label>
+            <mat-select
+              formControlName="levelId"
+              [disabled]="!form.controls.competitionId.value"
+            >
+              @for (item of availableLevels(); track item.id) {
+                <mat-option [value]="item.id">{{
+                  item.name.arabic
+                }}</mat-option>
+              }
+            </mat-select>
+            @if (!form.controls.competitionId.value) {
+              <mat-hint>اختر المسابقة أولاً</mat-hint>
+            }
+            @if (
+              form.controls.levelId.hasError("required") &&
+              form.controls.levelId.touched
+            ) {
+              <mat-error>المستوى مطلوب.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>عدد الأجزاء</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="partsCount"
+              readonly
+            />
+            <mat-hint>يُحدَّد تلقائيًا حسب المستوى المختار</mat-hint>
+            @if (
+              form.controls.partsCount.hasError("required") &&
+              form.controls.partsCount.touched
+            ) {
+              <mat-error>عدد الأجزاء مطلوب.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>الشيخ</mat-label>
+            <mat-select formControlName="instructorId">
+              <mat-option [value]="null">بدون</mat-option>
+              @for (item of instructors(); track item.id) {
+                <mat-option [value]="item.id">{{
+                  item.name.arabic
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>المكان</mat-label>
+            <mat-select formControlName="placeId">
+              <mat-option [value]="null">بدون</mat-option>
+              @for (item of places(); track item.id) {
+                <mat-option [value]="item.id">{{
+                  item.name.arabic
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <app-tree-select
+            style="grid-column: 1 / -1"
+            formControlName="studyYearId"
+            label="المرحلة الدراسية"
+            placeholder="اختر المرحلة والصف"
+            [nodes]="studyLevels()"
+          />
+
+          <mat-form-field
+            appearance="outline"
+            class="full-width"
+            style="grid-column: 1 / -1"
+          >
+            <mat-label>ملاحظات</mat-label>
+            <textarea
+              matInput
+              formControlName="notes"
+              rows="2"
+              dir="rtl"
+            ></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="registering()"
+          >
+            @if (registering()) {
+              <span class="spinner-inline">
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+                جارٍ التسجيل&hellip;
+              </span>
+            } @else {
+              <span><mat-icon>emoji_events</mat-icon> تسجيل في المسابقة</span>
+            }
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

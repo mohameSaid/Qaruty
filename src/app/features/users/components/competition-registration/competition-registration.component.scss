@@ -1,0 +1,40 @@
+.competition-step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 10rem;
+}
+
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.empty-hint {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.history-table {
+  width: 100%;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.form-actions {
+  margin-top: 20px;
+}
+
+.spinner-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

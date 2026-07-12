@@ -1,0 +1,239 @@
+<div class="eval-page">
+  <button mat-button class="back-link" (click)="onCancel()">
+    <mat-icon>arrow_back</mat-icon>
+    العودة إلى بيانات المستخدم
+  </button>
+
+  @if (loading()) {
+    <div class="state-panel">
+      <mat-progress-spinner diameter="36" mode="indeterminate" />
+      <p>جارٍ تحميل بيانات التقييم…</p>
+    </div>
+  } @else if (loadError() || !user() || !currentEntry()) {
+    <div class="state-panel">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>تعذر تحميل بيانات هذا التقييم. تأكد من صحة الرابط.</p>
+      <button mat-stroked-button (click)="onCancel()">العودة</button>
+    </div>
+  } @else {
+    <div class="eval-layout">
+      <!-- Main content: 70% -->
+      <div class="eval-main">
+        <mat-card class="section-card intro-card">
+          <mat-card-header>
+            <mat-card-title>تقييم المتسابق</mat-card-title>
+            <mat-card-subtitle dir="rtl">
+              {{ currentEntry()!.competition.name.arabic }} — {{ currentEntry()!.level.name.arabic }}
+            </mat-card-subtitle>
+          </mat-card-header>
+        </mat-card>
+
+        <mat-card class="section-card">
+          <mat-card-header>
+            <mat-card-title>معايير التقييم</mat-card-title>
+            <mat-card-subtitle>كل معيار من 0 إلى {{ maxQuestionScore }} درجات</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="questions-list">
+              @for (q of questions; track q.id; let i = $index) {
+                <div class="question-row" [class]="'level-' + scoreLevel(scores()[q.id])">
+                  <div class="question-info">
+                    <span class="question-index">{{ i + 1 }}</span>
+                    <div class="question-text">
+                      <span class="question-label" dir="rtl">{{ q.label }}</span>
+                      @if (q.hint) {
+                        <span class="question-hint" dir="rtl">{{ q.hint }}</span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="question-control">
+                    <mat-slider
+                      class="question-slider"
+                      [min]="0"
+                      [max]="maxQuestionScore"
+                      [step]="1"
+                      discrete
+                      showTickMarks
+                    >
+                      <input
+                        matSliderThumb
+                        [value]="scores()[q.id]"
+                        (valueChange)="setScore(q.id, $event)"
+                      />
+                    </mat-slider>
+
+                    <span class="score-badge" [matTooltip]="q.label">
+                      {{ scores()[q.id] }} / {{ maxQuestionScore }}
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="section-card summary-card" [class.over-limit]="overLimit()">
+          <mat-card-content>
+            <div class="summary-row">
+              <div class="summary-total">
+                <span class="summary-label">المجموع الكلي</span>
+                <span class="summary-value">{{ totalScore() }} / {{ maxTotalScore }}</span>
+              </div>
+              @if (overLimit()) {
+                <span class="over-limit-hint">
+                  <mat-icon>warning</mat-icon>
+                  المجموع يتجاوز الحد الأقصى — لا يمكن الإرسال.
+                </span>
+              }
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="progressPercent()"
+              [color]="overLimit() ? 'warn' : progressPercent() >= 90 ? 'accent' : 'primary'"
+            />
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="section-card">
+          <mat-card-header>
+            <mat-card-title>ملاحظات الحكم</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>أضف ملاحظاتك حول أداء المتسابق</mat-label>
+              <textarea
+                matInput
+                rows="6"
+                dir="rtl"
+                [ngModel]="notes()"
+                (ngModelChange)="notes.set($event)"
+              ></textarea>
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+
+        <div class="eval-actions">
+          <button mat-stroked-button type="button" [disabled]="busy()" (click)="onCancel()">
+            <mat-icon>close</mat-icon>
+            إلغاء
+          </button>
+          <span class="actions-spacer"></span>
+          <button mat-stroked-button color="primary" type="button" [disabled]="busy()" (click)="saveDraft()">
+            @if (savingDraft()) {
+              <span class="spinner-inline">
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+                جارٍ الحفظ&hellip;
+              </span>
+            } @else {
+              <span><mat-icon>save</mat-icon> حفظ كمسودة</span>
+            }
+          </button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            [disabled]="busy() || overLimit()"
+            (click)="submitEvaluation()"
+          >
+            @if (submitting()) {
+              <span class="spinner-inline">
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+                جارٍ الإرسال&hellip;
+              </span>
+            } @else {
+              <span><mat-icon>check_circle</mat-icon> إرسال التقييم</span>
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar: 30%, sticky -->
+      <aside class="eval-sidebar">
+        <div class="sidebar-sticky">
+          <mat-card class="section-card">
+            <mat-card-header>
+              <mat-card-title>بيانات المتسابق</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="info-list">
+                <div class="info-item">
+                  <span class="info-label"><mat-icon>person</mat-icon> الاسم الكامل</span>
+                  <span class="info-value" dir="rtl">{{ user()!.name.arabic }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label"><mat-icon>badge</mat-icon> الرقم القومي</span>
+                  <span class="info-value">{{ user()!.nationalId }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label"><mat-icon>cake</mat-icon> العمر</span>
+                  <span class="info-value">{{ age() ?? '—' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label"><mat-icon>wc</mat-icon> النوع</span>
+                  <span class="info-value" dir="rtl">{{ user()!.gender.name.arabic }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label"><mat-icon>location_city</mat-icon> المحافظة / المدينة</span>
+                  <span class="info-value" dir="rtl">
+                    {{ user()!.address.governorate.name.arabic }} / {{ user()!.address.city.name.arabic }}
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label"><mat-icon>menu_book</mat-icon> مستوى الحفظ</span>
+                  <span class="info-value" dir="rtl">{{ currentEntry()!.level.name.arabic }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label"><mat-icon>emoji_events</mat-icon> فئة المسابقة الحالية</span>
+                  <span class="info-value" dir="rtl">{{ currentEntry()!.competition.name.arabic }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label"><mat-icon>school</mat-icon> الشيخ المشرف</span>
+                  <span class="info-value" dir="rtl">{{ currentEntry()!.instructor?.name?.arabic || '—' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label"><mat-icon>phone</mat-icon> رقم الهاتف</span>
+                  <span class="info-value">{{ user()!.contact.mobileNumber || '—' }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="section-card">
+            <mat-card-header>
+              <mat-card-title>سجل المسابقات السابق</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              @if (history().length === 0) {
+                <p class="empty-hint">لا يوجد سجل مسابقات سابق.</p>
+              } @else {
+                <div class="history-timeline">
+                  @for (item of history(); track item.id) {
+                    <div class="history-card" [class]="'status-' + historyStatus(item)">
+                      <div class="history-card-header">
+                        <span class="history-name" dir="rtl">{{ item.competition.name.arabic }}</span>
+                        @if (item.id === currentEntry()!.id) {
+                          <span class="current-chip">الحالية</span>
+                        }
+                      </div>
+                      <div class="history-meta" dir="rtl">
+                        <span>{{ item.competition.competitionYear }}</span>
+                        <span>•</span>
+                        <span>{{ item.level.name.arabic }}</span>
+                      </div>
+                      <div class="history-footer">
+                        <span class="history-score">{{ item.score ?? '—' }} / 100</span>
+                        <span class="status-chip">{{ historyStatusLabel(historyStatus(item)) }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </aside>
+    </div>
+  }
+</div>

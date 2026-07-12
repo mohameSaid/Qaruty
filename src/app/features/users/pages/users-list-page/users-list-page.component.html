@@ -1,0 +1,43 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">المستخدمون</h1>
+      <p class="page-subtitle">تصفح وابحث وأدر بيانات السكان المسجلين.</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button [disabled]="exporting()" (click)="onExportExcel()">
+        @if (exporting()) {
+          <mat-progress-spinner diameter="18" mode="indeterminate" />
+        } @else {
+          <mat-icon>file_download</mat-icon>
+        }
+        تصدير إلى Excel
+      </button>
+      <button mat-flat-button color="primary" (click)="onAddUser()">
+        <mat-icon>person_add</mat-icon>
+        إضافة مستخدم
+      </button>
+    </div>
+  </div>
+
+  <app-advanced-search
+    [searching]="store.loading()"
+    (search)="onFilter($event)"
+    (clear)="onClearFilters()"
+  />
+
+  <app-users-table
+    [users]="store.users()"
+    [totalElements]="store.totalElements()"
+    [pageNo]="store.pageNo()"
+    [pageSize]="store.pageSize()"
+    [loading]="store.loading()"
+    [deleting]="store.deleting()"
+    [isEmpty]="store.isEmpty()"
+    (view)="onViewDetails($event)"
+    (edit)="onEditRequested($event)"
+    (delete)="onDelete($event)"
+    (page)="onPage($event)"
+    (sortChange)="onSortChange($event)"
+  />
+</div>

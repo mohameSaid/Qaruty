@@ -1,0 +1,89 @@
+@use '@angular/material' as mat;
+
+html {
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$green-palette,
+        tertiary: mat.$orange-palette,
+      ),
+      typography: 'Roboto',
+      density: 0,
+    )
+  );
+
+  &.dark-theme {
+    color-scheme: dark;
+
+    @include mat.theme(
+      (
+        color: (
+          theme-type: dark,
+          primary: mat.$green-palette,
+          tertiary: mat.$orange-palette,
+        ),
+        typography: 'Roboto',
+        density: 0,
+      )
+    );
+  }
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Arial, sans-serif;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.section-card {
+  margin-bottom: 24px;
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 16px;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.spinner-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.empty-state {
+  padding: 32px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+}

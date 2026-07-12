@@ -1,0 +1,226 @@
+:host {
+  display: block;
+}
+
+.tree-select {
+  width: 100%;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  margin-bottom: 4px;
+}
+
+.tree-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: 8px;
+  background: var(--mat-sys-surface);
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+
+  &:hover {
+    border-color: var(--mat-sys-on-surface);
+  }
+}
+
+.open .tree-trigger {
+  border-color: var(--mat-sys-primary);
+  border-width: 2px;
+  box-shadow: 0 0 0 1px var(--mat-sys-primary);
+}
+
+.disabled .tree-trigger {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.trigger-icon {
+  flex: 0 0 auto;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.trigger-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.95rem;
+
+  &.placeholder {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.clear-btn {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+  color: var(--mat-sys-on-surface-variant);
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.chevron {
+  flex: 0 0 auto;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--mat-sys-on-surface-variant);
+  transition: transform 150ms ease;
+
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+// Rendered through the CDK overlay (portaled to <body>), so it's positioned and
+// sized by the overlay's flexible-connected-position strategy rather than by CSS
+// here. `max-height: inherit` picks up the max-height that strategy computes from
+// the actual free viewport space (above or below the trigger) — that's what makes
+// the full list reachable/scrollable instead of getting cut off by an ancestor's
+// `overflow: hidden`.
+.tree-panel {
+  width: 100%;
+  max-height: inherit;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--mat-sys-surface-container);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  padding: 6px;
+  box-sizing: border-box;
+  animation: tree-panel-in 120ms ease-out;
+
+  &.panel-above {
+    animation-name: tree-panel-in-above;
+  }
+}
+
+@keyframes tree-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tree-panel-in-above {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.empty-hint {
+  margin: 0;
+  padding: 12px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  padding-inline-end: 8px;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  &.selected {
+    background: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+    font-weight: 600;
+  }
+}
+
+.expand-btn {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+  color: var(--mat-sys-on-surface-variant);
+
+  &:hover {
+    background: var(--mat-sys-surface-container-highest);
+  }
+}
+
+.expand-spacer {
+  flex: 0 0 auto;
+  width: 24px;
+}
+
+.toggle-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  transition: transform 150ms ease;
+
+  &.collapsed {
+    transform: rotate(-90deg);
+  }
+}
+
+.row-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.check-icon {
+  flex: 0 0 auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--mat-sys-primary);
+}

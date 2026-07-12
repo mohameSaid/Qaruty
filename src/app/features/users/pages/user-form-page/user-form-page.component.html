@@ -1,0 +1,60 @@
+<div class="page-container">
+  <button mat-button class="back-link" (click)="onCancelEdit()">
+    <mat-icon>arrow_back</mat-icon>
+    العودة إلى المستخدمين
+  </button>
+
+  @if (resolving()) {
+    <div class="state-panel">
+      <mat-progress-spinner diameter="36" mode="indeterminate" />
+      <p>جارٍ تحميل المستخدم…</p>
+    </div>
+  } @else if (resolveError()) {
+    <div class="state-panel">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>تعذر العثور على هذا المستخدم. ربما تم حذفه.</p>
+      <button mat-stroked-button (click)="onCancelEdit()">العودة إلى المستخدمين</button>
+    </div>
+  } @else {
+    <mat-tab-group [selectedIndex]="activeTabIndex()" (selectedIndexChange)="activeTabIndex.set($event)">
+      <mat-tab label="بيانات التسجيل">
+        <app-user-form
+          [editingUser]="editingUser()"
+          [saving]="store.saving()"
+          (create)="onCreate($event)"
+          (update)="onUpdate($event)"
+          (cancelEdit)="onCancelEdit()"
+        />
+      </mat-tab>
+
+      @if (store.hasSimilarMatches()) {
+        <mat-tab label="أشخاص مشابهون">
+          <app-similar-persons
+            [matches]="store.similarMatches() ?? []"
+            [selectingId]="selectingMatchId()"
+            [submittingNew]="submittingNew()"
+            [busy]="store.saving()"
+            (selectPerson)="onSelectMatch($event)"
+            (continueNew)="onContinueNew()"
+          />
+        </mat-tab>
+      }
+
+      @if (finalizedPerson(); as person) {
+        <mat-tab label="التسجيل في مسابقة">
+          <p class="finalized-hint" dir="rtl">
+            تم تسجيل <strong>{{ person.name }}</strong> (#{{ person.id }}) — التسجيل غير مكتمل حتى يتم
+            تسجيله في مسابقة.
+          </p>
+          <app-competition-registration
+            [userId]="person.id"
+            [history]="competitionHistory()"
+            [loadingHistory]="loadingCompetitionHistory()"
+            [registering]="registeringCompetition()"
+            (register)="onRegisterCompetition($event)"
+          />
+        </mat-tab>
+      }
+    </mat-tab-group>
+  }
+</div>

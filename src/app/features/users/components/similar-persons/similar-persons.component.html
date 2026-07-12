@@ -1,0 +1,64 @@
+<div class="similar-persons">
+  <p class="hint">
+    تم العثور على أشخاص مشابهين للبيانات المدخلة. يرجى مراجعتهم واختيار السجل المطابق إن وُجد، أو المتابعة بإنشاء
+    شخص جديد.
+  </p>
+
+  <div class="matches-grid">
+    @for (match of matches(); track match.id) {
+      <mat-card class="match-card">
+        <mat-card-content>
+          <div class="match-header">
+            <span class="similarity-badge" [class]="'level-' + similarityLevel(match.similarity)">
+              {{ match.similarity }}% تطابق
+            </span>
+          </div>
+
+          <h4 class="match-name" dir="rtl">{{ match.name.arabic }}</h4>
+
+          <dl class="match-details">
+            <div class="detail-row">
+              <mat-icon>cake</mat-icon>
+              <dt>تاريخ الميلاد</dt>
+              <dd>{{ match.birthDate }}</dd>
+            </div>
+            <div class="detail-row">
+              <mat-icon>location_city</mat-icon>
+              <dt>المحافظة / المدينة</dt>
+              <dd>{{ match.address.governorate.name.arabic }} / {{ match.address.city.name.arabic }}</dd>
+            </div>
+            <div class="detail-row">
+              <mat-icon>phone</mat-icon>
+              <dt>رقم الهاتف</dt>
+              <dd>{{ match.contact.mobileNumber ?? '—' }}</dd>
+            </div>
+          </dl>
+
+          <button
+            mat-flat-button
+            color="primary"
+            class="select-button"
+            [disabled]="busy()"
+            (click)="onSelect(match)"
+          >
+            @if (selectingId() === match.id) {
+              <mat-progress-spinner diameter="18" mode="indeterminate" />
+            } @else {
+              <span><mat-icon>check_circle</mat-icon> استخدام هذا السجل</span>
+            }
+          </button>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+  <div class="continue-new">
+    <button mat-stroked-button type="button" [disabled]="busy()" (click)="onContinueNew()">
+      @if (submittingNew()) {
+        <mat-progress-spinner diameter="18" mode="indeterminate" />
+      } @else {
+        <span><mat-icon>person_add</mat-icon> لا يوجد تطابق، متابعة بإنشاء شخص جديد</span>
+      }
+    </button>
+  </div>
+</div>

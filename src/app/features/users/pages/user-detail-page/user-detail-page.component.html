@@ -1,0 +1,182 @@
+<div class="page-container">
+  <button mat-button class="back-link" (click)="onBack()">
+    <mat-icon>arrow_back</mat-icon>
+    العودة إلى المستخدمين
+  </button>
+
+  @if (loadingUser()) {
+    <div class="state-panel">
+      <mat-progress-spinner diameter="36" mode="indeterminate" />
+      <p>جارٍ تحميل بيانات المستخدم…</p>
+    </div>
+  } @else if (loadError() || !user()) {
+    <div class="state-panel">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>تعذر العثور على هذا المستخدم. ربما تم حذفه.</p>
+      <button mat-stroked-button (click)="onBack()">
+        العودة إلى المستخدمين
+      </button>
+    </div>
+  } @else {
+    <div class="page-header">
+      <div>
+        <h1 class="page-title" dir="rtl">{{ user()!.name.arabic }}</h1>
+        <p class="page-subtitle">
+          {{ user()!.name.english || "بدون اسم بالإنجليزية" }}
+        </p>
+      </div>
+      <button mat-flat-button color="primary" (click)="onEdit()">
+        <mat-icon>edit</mat-icon>
+        تعديل البيانات
+      </button>
+    </div>
+
+    <mat-tab-group>
+      <mat-tab label="بيانات المستخدم">
+        <div class="detail-tab">
+          <mat-card class="section-card">
+            <mat-card-header>
+              <mat-card-title>البيانات الشخصية</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>badge</mat-icon> الرقم القومي</span
+                  >
+                  <span class="detail-value">{{ user()!.nationalId }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>tag</mat-icon> المعرف</span
+                  >
+                  <span class="detail-value">{{ user()!.id }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>person</mat-icon> الاسم بالعربية</span
+                  >
+                  <span class="detail-value" dir="rtl">{{
+                    user()!.name.arabic
+                  }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>person_outline</mat-icon> الاسم بالإنجليزية</span
+                  >
+                  <span class="detail-value">{{
+                    user()!.name.english || "—"
+                  }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>wc</mat-icon> النوع</span
+                  >
+                  <span class="detail-value" dir="rtl">{{
+                    user()!.gender.name.arabic
+                  }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>cake</mat-icon> تاريخ الميلاد</span
+                  >
+                  <span class="detail-value">{{ user()!.birthDate }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="section-card">
+            <mat-card-header>
+              <mat-card-title>العنوان</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>location_city</mat-icon> المحافظة</span
+                  >
+                  <span class="detail-value" dir="rtl">{{
+                    user()!.address.governorate.name.arabic
+                  }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>apartment</mat-icon> المدينة</span
+                  >
+                  <span class="detail-value" dir="rtl">{{
+                    user()!.address.city.name.arabic
+                  }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>holiday_village</mat-icon> القرية</span
+                  >
+                  <span class="detail-value" dir="rtl">{{
+                    user()!.address.village.name.arabic
+                  }}</span>
+                </div>
+                <div class="detail-item full-width">
+                  <span class="detail-label"
+                    ><mat-icon>home</mat-icon> تفاصيل العنوان</span
+                  >
+                  <span class="detail-value" dir="rtl">{{
+                    user()!.address.details || "—"
+                  }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card class="section-card">
+            <mat-card-header>
+              <mat-card-title>بيانات التواصل</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>phone</mat-icon> رقم الهاتف</span
+                  >
+                  <span class="detail-value">{{
+                    user()!.contact.mobileNumber || "—"
+                  }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>phone_iphone</mat-icon> رقم هاتف آخر</span
+                  >
+                  <span class="detail-value">{{
+                    user()!.contact.otherMobileNumber || "—"
+                  }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>email</mat-icon> البريد الإلكتروني</span
+                  >
+                  <span class="detail-value">{{
+                    user()!.contact.email || "—"
+                  }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+      @if (shownewCompitionForm) {
+        <mat-tab label="المسابقات">
+          <div class="competition-tab">
+            <app-competition-registration
+              [userId]="user()!.id"
+              [history]="competitionHistory()"
+              [loadingHistory]="loadingHistory()"
+              [registering]="registering()"
+              (register)="onRegisterCompetition($event)"
+              (evaluate)="onEvaluate($event)"
+            />
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  }
+</div>

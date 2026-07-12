@@ -1,0 +1,62 @@
+<div class="login-shell">
+  <mat-card class="login-card">
+    <div class="brand">
+      <mat-icon class="brand-icon">groups</mat-icon>
+      <h1>قريتي</h1>
+      <p>كفر أبو الحسن</p>
+    </div>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>اسم المستخدم</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input matInput formControlName="username" autocomplete="username" />
+          @if (form.controls.username.hasError('required') && form.controls.username.touched) {
+            <mat-error>اسم المستخدم مطلوب.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>كلمة المرور</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            matInput
+            formControlName="password"
+            [type]="hidePassword() ? 'password' : 'text'"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="hidePassword.set(!hidePassword())"
+          >
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+            <mat-error>كلمة المرور مطلوبة.</mat-error>
+          }
+        </mat-form-field>
+
+        @if (loginFailed()) {
+          <p class="login-error">
+            <mat-icon>error_outline</mat-icon>
+            اسم المستخدم أو كلمة المرور غير صحيحة.
+          </p>
+        }
+
+        <button mat-flat-button color="primary" type="submit" class="full-width submit-btn" [disabled]="submitting()">
+          @if (submitting()) {
+            <span class="spinner-inline">
+              <mat-progress-spinner diameter="18" mode="indeterminate" />
+              جارٍ تسجيل الدخول&hellip;
+            </span>
+          } @else {
+            <span><mat-icon>login</mat-icon> تسجيل الدخول</span>
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

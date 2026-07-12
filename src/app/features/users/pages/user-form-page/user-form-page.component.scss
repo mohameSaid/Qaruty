@@ -1,0 +1,41 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.back-link {
+  align-self: flex-start;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.error-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--mat-sys-error, #b3261e);
+}
+
+mat-tab-group {
+  ::ng-deep .mat-mdc-tab-body-content {
+    padding-top: 16px;
+  }
+}
+
+.finalized-hint {
+  margin: 0 0 16px;
+  padding: 10px 16px;
+  border-radius: 4px;
+  background: #e8f5e9;
+  color: #1e7d32;
+}

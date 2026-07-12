@@ -1,0 +1,21 @@
+form {
+  display: block;
+}
+
+.section-heading {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--mat-sys-primary);
+}
+
+.section-divider {
+  margin: 24px 0 20px;
+}
+
+mat-icon[matPrefix] {
+  margin-inline-end: 8px;
+  color: var(--mat-sys-on-surface-variant);
+}

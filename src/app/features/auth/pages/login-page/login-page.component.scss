@@ -1,0 +1,88 @@
+.login-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--mat-sys-primary-container), var(--mat-sys-surface));
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 20px !important;
+  padding: 8px 8px 16px;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 28px 16px 8px;
+  text-align: center;
+
+  h1 {
+    margin: 4px 0 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.85rem;
+  }
+}
+
+.brand-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: var(--mat-sys-primary);
+}
+
+.full-width {
+  width: 100%;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+}
+
+mat-icon[matPrefix] {
+  margin-inline-end: 8px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mat-sys-error) 12%, transparent);
+  color: var(--mat-sys-error, #b3261e);
+  font-size: 0.85rem;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.submit-btn {
+  margin-top: 8px;
+  height: 44px;
+}
+
+.spinner-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

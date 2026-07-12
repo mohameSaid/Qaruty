@@ -1,0 +1,37 @@
+<mat-card class="section-card">
+  <mat-card-header>
+    <mat-card-title>البحث بالرقم القومي</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="search-row">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>الرقم القومي</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="control" maxlength="14" inputmode="numeric" (keyup.enter)="onSearch()" />
+        @if (control.hasError('required') && control.touched) {
+          <mat-error>الرقم القومي مطلوب.</mat-error>
+        }
+        @if (control.hasError('pattern') && control.touched) {
+          <mat-error>يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button color="accent" [disabled]="searching()" (click)="onSearch()">
+        @if (searching()) {
+          <mat-progress-spinner diameter="18" mode="indeterminate" />
+        } @else {
+          <span><mat-icon>manage_search</mat-icon> بحث</span>
+        }
+      </button>
+
+      <button mat-stroked-button type="button" (click)="onClear()">
+        <mat-icon>close</mat-icon> مسح
+      </button>
+    </div>
+
+    @if (notFound()) {
+      <p class="not-found">لم يتم العثور على مستخدم بهذا الرقم القومي.</p>
+    }
+  </mat-card-content>
+</mat-card>

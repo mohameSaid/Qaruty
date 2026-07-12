@@ -1,0 +1,57 @@
+<div #trigger class="tree-select" [class.open]="open()" [class.disabled]="disabled()">
+  <span class="field-label">{{ label() }}</span>
+
+  <div class="tree-trigger" (click)="toggleOpen()">
+    <mat-icon class="trigger-icon">account_tree</mat-icon>
+    <span class="trigger-value" [class.placeholder]="!selectedLabel()" dir="rtl">
+      {{ selectedLabel() || placeholder() }}
+    </span>
+    @if (selectedId() !== null && clearable()) {
+      <button type="button" class="clear-btn" (click)="clearSelection($event)" aria-label="مسح الاختيار">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+    <mat-icon class="chevron" [class.rotated]="open()">expand_more</mat-icon>
+  </div>
+</div>
+
+<ng-template #panelTpl>
+  <div class="tree-panel" [class.panel-above]="openAbove()" (click)="$event.stopPropagation()">
+    @if (nodes().length === 0) {
+      <p class="empty-hint">لا توجد بيانات متاحة.</p>
+    } @else {
+      @for (node of nodes(); track node.id) {
+        <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: node, depth: 0 }" />
+      }
+    }
+  </div>
+</ng-template>
+
+<ng-template #nodeTpl let-node let-depth="depth">
+  <div
+    class="tree-row"
+    [style.padding-inline-start.px]="depth * 20 + 8"
+    [class.selected]="selectedId() === node.id"
+    (click)="selectNode(node)"
+  >
+    @if (hasChildren(node)) {
+      <button type="button" class="expand-btn" (click)="toggleExpand(node, $event)">
+        <mat-icon class="toggle-icon" [class.collapsed]="!isExpanded(node)">expand_more</mat-icon>
+      </button>
+    } @else {
+      <span class="expand-spacer"></span>
+    }
+
+    <span class="row-label" dir="rtl">{{ node.name.arabic }}</span>
+
+    @if (selectedId() === node.id) {
+      <mat-icon class="check-icon">check</mat-icon>
+    }
+  </div>
+
+  @if (hasChildren(node) && isExpanded(node)) {
+    @for (child of node.children!; track child.id) {
+      <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: child, depth: depth + 1 }" />
+    }
+  }
+</ng-template>

@@ -1,0 +1,68 @@
+<mat-expansion-panel class="section-card advanced-search-panel" [expanded]="activeCount() > 0">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <mat-icon class="title-icon">manage_search</mat-icon>
+      بحث متقدم
+    </mat-panel-title>
+    <mat-panel-description>
+      @if (activeCount() > 0) {
+        <span class="filter-badge">{{ activeCount() }} فلتر مفعل</span>
+      } @else {
+        ابحث بالرقم القومي أو الاسم أو بيانات التواصل
+      }
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+  <form [formGroup]="form" (ngSubmit)="onSearch()">
+    <div class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>الرقم القومي</mat-label>
+        <mat-icon matPrefix>badge</mat-icon>
+        <input matInput formControlName="nationalId" maxlength="14" inputmode="numeric" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>الاسم بالعربية</mat-label>
+        <mat-icon matPrefix>person</mat-icon>
+        <input matInput formControlName="arabicName" dir="rtl" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>الاسم بالإنجليزية</mat-label>
+        <mat-icon matPrefix>person_outline</mat-icon>
+        <input matInput formControlName="englishName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>رقم الهاتف</mat-label>
+        <mat-icon matPrefix>phone</mat-icon>
+        <input matInput formControlName="mobileNumber" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>البريد الإلكتروني</mat-label>
+        <mat-icon matPrefix>email</mat-icon>
+        <input matInput formControlName="email" type="email" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>النوع</mat-label>
+        <mat-icon matPrefix>wc</mat-icon>
+        <mat-select formControlName="gender">
+          <mat-option [value]="null">الكل</mat-option>
+          <mat-option [value]="Gender.Male">ذكر</mat-option>
+          <mat-option [value]="Gender.Female">أنثى</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="searching()">
+        <mat-icon>search</mat-icon> بحث
+      </button>
+      <button mat-stroked-button type="button" [disabled]="searching()" (click)="onClear()">
+        <mat-icon>close</mat-icon> مسح الفلاتر
+      </button>
+    </div>
+  </form>
+</mat-expansion-panel>

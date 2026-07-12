@@ -1,0 +1,11 @@
+{
+  "/api": {
+    "target": "https://qaryati.onrender.com",
+    "changeOrigin": true,
+    "secure": true,
+    "pathRewrite": {
+      "^/api": ""
+    },
+    "logLevel": "debug"
+  }
+}

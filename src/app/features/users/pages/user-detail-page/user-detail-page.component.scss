@@ -1,0 +1,102 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.back-link {
+  align-self: flex-start;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.page-subtitle {
+  margin: 4px 0 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.error-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--mat-sys-error, #b3261e);
+}
+
+mat-tab-group {
+  ::ng-deep .mat-mdc-tab-body-content {
+    padding-top: 16px;
+  }
+}
+
+.detail-tab,
+.competition-tab {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px 24px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.detail-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 500;
+}
