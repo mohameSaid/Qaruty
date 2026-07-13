@@ -27,52 +27,134 @@
             </mat-card-subtitle>
           </mat-card-header>
         </mat-card>
+ 
+        @if (isQuranCompetition()) {
+          <mat-card class="section-card quran-card">
+            <mat-card-header>
+              <div class="quran-card-title">
+                <span class="quran-ornament" aria-hidden="true">﴾ ﴿</span>
+                <div>
+                  <mat-card-title>أسئلة الحفظ القرآني</mat-card-title>
+                  <mat-card-subtitle>
+                    10 أسئلة عشوائية حسب مستوى المتسابق ({{ currentEntry()!.level.name.arabic }}) — كل سؤال من
+                    {{ maxQuranQuestionScore }} درجات
+                  </mat-card-subtitle>
+                </div>
+              </div>
+            </mat-card-header>
 
-        <mat-card class="section-card">
-          <mat-card-header>
-            <mat-card-title>معايير التقييم</mat-card-title>
-            <mat-card-subtitle>كل معيار من 0 إلى {{ maxQuestionScore }} درجات</mat-card-subtitle>
-          </mat-card-header>
+            <mat-card-content>
+              @if (quranLoading()) {
+                <div class="state-panel quran-state-panel">
+                  <mat-progress-spinner diameter="32" mode="indeterminate" />
+                  <p>جارٍ إعداد أسئلة الحفظ من المصحف الشريف…</p>
+                </div>
+              } @else if (quranError()) {
+                <div class="state-panel quran-state-panel">
+                  <mat-icon class="error-icon">error_outline</mat-icon>
+                  <p>تعذر تحميل نص القرآن الكريم لإنشاء الأسئلة.</p>
+                </div>
+              } @else if (quranQuestions().length === 0) {
+                <p class="empty-hint">لا توجد أسئلة متاحة حاليًا.</p>
+              } @else {
+                <mat-accordion class="quran-accordion" [multi]="true">
+                  @for (q of quranQuestions(); track q.id; let i = $index) {
+                    <mat-expansion-panel class="quran-panel" [class]="'level-' + scoreLevel(quranScores()[q.id])">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          <span class="quran-question-index">{{ i + 1 }}</span>
+                          <span class="quran-question-sura" dir="rtl">
+                            سورة {{ q.suraName }} — الآية {{ q.ayaIndex }}
+                          </span>
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <span class="score-badge" dir="rtl">
+                            {{ quranScores()[q.id] }} / {{ maxQuranQuestionScore }}
+                          </span>
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
 
-          <mat-card-content>
-            <div class="questions-list">
-              @for (q of questions; track q.id; let i = $index) {
-                <div class="question-row" [class]="'level-' + scoreLevel(scores()[q.id])">
-                  <div class="question-info">
-                    <span class="question-index">{{ i + 1 }}</span>
-                    <div class="question-text">
-                      <span class="question-label" dir="rtl">{{ q.label }}</span>
-                      @if (q.hint) {
-                        <span class="question-hint" dir="rtl">{{ q.hint }}</span>
-                      }
-                    </div>
-                  </div>
+                      <div class="mushaf-frame">
+                        <div class="mushaf-heading" dir="rtl">
+                          <span class="sura-name">سورة {{ q.suraName }}</span>
+                          <span class="aya-ref">الآية {{ q.ayaIndex }}</span>
+                        </div>
+                        <p class="ayah-text" dir="rtl" lang="ar">
+                          {{ q.ayahText }}
+                          <span class="ayah-number" [attr.data-num]="q.ayaIndex"></span>
+                        </p>
+                        <p class="mushaf-instruction" dir="rtl">
+                          يُطلب من المتسابق إكمال تلاوة العشر آيات التالية لهذه الآية حفظًا.
+                        </p>
+                      </div>
 
-                  <div class="question-control">
-                    <mat-slider
-                      class="question-slider"
-                      [min]="0"
-                      [max]="maxQuestionScore"
-                      [step]="1"
-                      discrete
-                      showTickMarks
-                    >
-                      <input
-                        matSliderThumb
-                        [value]="scores()[q.id]"
-                        (valueChange)="setScore(q.id, $event)"
-                      />
-                    </mat-slider>
+                      <div class="answer-reveal">
+                        <button
+                          mat-stroked-button
+                          type="button"
+                          class="reveal-toggle"
+                          (click)="toggleAnswer(q.id)"
+                        >
+                          <mat-icon>{{ isAnswerRevealed(q.id) ? 'visibility_off' : 'visibility' }}</mat-icon>
+                          {{ isAnswerRevealed(q.id) ? 'إخفاء الإجابة' : 'إظهار الإجابة (للمقيّم فقط)' }}
+                        </button>
 
-                    <span class="score-badge" [matTooltip]="q.label">
-                      {{ scores()[q.id] }} / {{ maxQuestionScore }}
-                    </span>
+                        @if (isAnswerRevealed(q.id)) {
+                          <div class="mushaf-frame answer-frame" dir="rtl">
+                            <span class="answer-range">{{ quranAnswerRangeLabel(q) }}</span>
+                            <p class="ayah-text answer-text" dir="rtl" lang="ar">
+                              @for (a of q.answerAyahs; track a.globalIndex) {
+                                {{ a.text }}
+                                <span class="ayah-number" [attr.data-num]="a.ayaIndex"></span>
+                              }
+                            </p>
+                          </div>
+                        }
+                      </div>
+
+                      <div class="question-control quran-question-control">
+                        <mat-slider
+                          class="question-slider"
+                          [min]="0"
+                          [max]="maxQuranQuestionScore"
+                          [step]="1"
+                          discrete
+                          showTickMarks
+                        >
+                          <input
+                            matSliderThumb
+                            [value]="quranScores()[q.id]"
+                            (valueChange)="setQuranScore(q.id, $event)"
+                          />
+                        </mat-slider>
+                        <span class="score-badge">{{ quranScores()[q.id] }} / {{ maxQuranQuestionScore }}</span>
+                      </div>
+
+                      <mat-form-field appearance="outline" class="full-width quran-notes-field">
+                        <mat-label>ملاحظات المقيّم على هذا السؤال</mat-label>
+                        <textarea
+                          matInput
+                          rows="2"
+                          dir="rtl"
+                          [ngModel]="quranNotes()[q.id]"
+                          (ngModelChange)="setQuranNotes(q.id, $event)"
+                        ></textarea>
+                      </mat-form-field>
+                    </mat-expansion-panel>
+                  }
+                </mat-accordion>
+
+                <div class="summary-row quran-summary-row">
+                  <div class="summary-total">
+                    <span class="summary-label">مجموع درجات الحفظ</span>
+                    <span class="summary-value">{{ quranTotalScore() }} / {{ quranMaxTotalScore() }}</span>
                   </div>
                 </div>
+                <mat-progress-bar mode="determinate" [value]="quranProgressPercent()" color="primary" />
               }
-            </div>
-          </mat-card-content>
-        </mat-card>
+            </mat-card-content>
+          </mat-card>
+        }
 
         <mat-card class="section-card summary-card" [class.over-limit]="overLimit()">
           <mat-card-content>

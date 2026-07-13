@@ -143,7 +143,6 @@ export class UserDetailPageComponent implements OnInit {
       )
       .subscribe((page) => {
         this.competitionHistory.set(page?.data ?? []);
-        this.shownewCompitionForm = page ? page.totalRecords <= 2 : false;
       });
   }
 }

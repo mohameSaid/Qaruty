@@ -205,9 +205,9 @@ export class UserFormPageComponent implements OnInit {
         details: original.address.details || match.address.details || '',
       },
       contact: {
-        email: original.contact.email || match.contact.email || '',
-        mobileNumber: original.contact.mobileNumber || match.contact.mobileNumber || '',
-        otherMobileNumber: original.contact.otherMobileNumber || match.contact.otherMobileNumber || '',
+        email: original.contact.email || match.contact?.email || '',
+        mobileNumber: original.contact.mobileNumber || match.contact?.mobileNumber || '',
+        otherMobileNumber: original.contact.otherMobileNumber || match.contact?.otherMobileNumber || '',
       },
       birthDate: original.birthDate || match.birthDate,
       gender: original.gender ?? (match.gender?.id as Gender),

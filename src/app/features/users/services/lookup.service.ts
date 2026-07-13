@@ -80,6 +80,11 @@ export class LookupService {
     return this.getSimple<LookupItem>('place');
   }
 
+  /** Registration exceptions dropdown (e.g. "out of country", "three countries", "full Quran"). */
+  getExceptions(): Observable<PagedData<LookupItem>> {
+    return this.getSimpleLookup<LookupItem>('exception');
+  }
+
   /**
    * `GET /lookup/studyLevel?withChildren=true&...` — confirmed live. Returns a real
    * 2-level tree (educational stage -> grade, e.g. "ابتدائي" -> "الرابع"), unlike the

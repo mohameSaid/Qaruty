@@ -5,9 +5,8 @@ import { SnackbarService } from '../services/snackbar.service';
 
 /**
  * Global error handling interceptor.
- * Normalizes network / validation / server errors into a single
- * user-facing message and surfaces it via a Material snackbar,
- * while still propagating the error so callers can react (e.g. stop a spinner).
+ * Displays the most specific backend message available and
+ * propagates the error so callers can still handle it.
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const snackbar = inject(SnackbarService);
@@ -16,52 +15,108 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       const message = resolveErrorMessage(error);
       snackbar.error(message);
+
       return throwError(() => error);
     })
   );
 };
 
 function resolveErrorMessage(error: HttpErrorResponse): string {
-  if (error.status === 0) {
-    return 'خطأ في الاتصال بالشبكة: تعذر الوصول إلى الخادم. يرجى التحقق من اتصالك بالإنترنت.';
-  }
+  switch (error.status) {
+    case 0:
+      return (
+        extractServerMessage(error) ??
+        'خطأ في الاتصال بالشبكة: تعذر الوصول إلى الخادم. يرجى التحقق من اتصالك بالإنترنت.'
+      );
 
-  if (error.status === 400 || error.status === 422) {
-    return extractServerMessage(error) ?? 'خطأ في التحقق من البيانات: يرجى مراجعة البيانات المدخلة.';
-  }
+    case 400:
+    case 422:
+      return (
+        extractServerMessage(error) ??
+        'خطأ في التحقق من البيانات: يرجى مراجعة البيانات المدخلة.'
+      );
 
-  if (error.status === 404) {
-    return extractServerMessage(error) ?? 'لم يتم العثور على العنصر المطلوب.';
-  }
+    case 401:
+    case 403:
+      return (
+        extractServerMessage(error) ??
+        'غير مصرح لك بتنفيذ هذا الإجراء.'
+      );
 
-  if (error.status === 401 || error.status === 403) {
-    return 'غير مصرح لك بتنفيذ هذا الإجراء.';
-  }
+    case 404:
+      return (
+        extractServerMessage(error) ??
+        'لم يتم العثور على العنصر المطلوب.'
+      );
 
-  if (error.status >= 500) {
-    return 'خطأ في الخادم: حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقًا.';
-  }
+    default:
+      if (error.status >= 500) {
+        return (
+          extractServerMessage(error) ??
+          'خطأ في الخادم: حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقًا.'
+        );
+      }
 
-  return extractServerMessage(error) ?? 'حدث خطأ غير متوقع.';
+      return (
+        extractServerMessage(error) ??
+        'حدث خطأ غير متوقع.'
+      );
+  }
 }
 
-/** Backend errors follow the same envelope as successes: `message: { arabic, english }`. */
+/**
+ * Extracts the most meaningful message from the backend response.
+ *
+ * Priority:
+ * 1. data.message.arabic / english (business errors)
+ * 2. message.arabic / english (general API message)
+ * 3. message (string)
+ * 4. error (string)
+ */
 function extractServerMessage(error: HttpErrorResponse): string | null {
   const body = error.error;
+
   if (!body) {
     return null;
   }
+
   if (typeof body === 'string') {
     return body;
   }
-  if (body.message && typeof body.message === 'object') {
-    return body.message.arabic ?? body.message.english ?? null;
+
+  // Business error
+  if (body.data?.message) {
+    if (typeof body.data.message === 'object') {
+      return (
+        body.data.message.arabic ??
+        body.data.message.english ??
+        null
+      );
+    }
+
+    if (typeof body.data.message === 'string') {
+      return body.data.message;
+    }
   }
-  if (typeof body.message === 'string') {
-    return body.message;
+
+  // General API message
+  if (body.message) {
+    if (typeof body.message === 'object') {
+      return (
+        body.message.arabic ??
+        body.message.english ??
+        null
+      );
+    }
+
+    if (typeof body.message === 'string') {
+      return body.message;
+    }
   }
+
   if (typeof body.error === 'string') {
     return body.error;
   }
+
   return null;
 }

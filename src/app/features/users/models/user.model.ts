@@ -67,7 +67,7 @@ export interface PersonMatch {
     mobileNumber: string | null;
     otherMobileNumber: string | null;
     email: string | null;
-  };
+  } | null;
   /** 0-100 similarity score against the submitted registration data. */
   similarity: number;
 }

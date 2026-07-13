@@ -1,24 +1,43 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { catchError, of } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import {
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatIconModule } from "@angular/material/icon";
+import { MatInputModule } from "@angular/material/input";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatSelectModule } from "@angular/material/select";
+import { MatTableModule } from "@angular/material/table";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { catchError, of } from "rxjs";
+import { NgxMatSelectSearchModule } from "ngx-mat-select-search";
 
-import { LookupService } from '../../services/lookup.service';
-import { LookupItem } from '../../models/lookup.model';
-import { CompetitionHistoryItem, CompetitionOption, RegisterCompetitionRequest } from '../../models/competition.model';
-import { TreeSelectComponent } from '../../../../shared/components/tree-select/tree-select.component';
+import { LookupService } from "../../services/lookup.service";
+import { LookupItem } from "../../models/lookup.model";
+import {
+  CompetitionHistoryItem,
+  CompetitionOption,
+  RegisterCompetitionRequest,
+} from "../../models/competition.model";
+import { TreeSelectComponent } from "../../../../shared/components/tree-select/tree-select.component";
+import { nationalIdValidator } from "../../../../shared/validators/national-id.validator";
 
 @Component({
-  selector: 'app-competition-registration',
+  selector: "app-competition-registration",
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -32,10 +51,11 @@ import { TreeSelectComponent } from '../../../../shared/components/tree-select/t
     MatTableModule,
     MatTooltipModule,
     TreeSelectComponent,
+    NgxMatSelectSearchModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './competition-registration.component.html',
-  styleUrl: './competition-registration.component.scss',
+  templateUrl: "./competition-registration.component.html",
+  styleUrl: "./competition-registration.component.scss",
 })
 export class CompetitionRegistrationComponent {
   private readonly fb = inject(FormBuilder);
@@ -49,13 +69,31 @@ export class CompetitionRegistrationComponent {
   readonly register = output<RegisterCompetitionRequest>();
   readonly evaluate = output<CompetitionHistoryItem>();
 
-  readonly historyColumns = ['name', 'level', 'partsCount', 'score', 'actions'];
+  readonly historyColumns = ["name", "level", "partsCount", "score", "actions"];
 
   readonly competitions = signal<CompetitionOption[]>([]);
   readonly instructors = signal<LookupItem[]>([]);
   readonly places = signal<LookupItem[]>([]);
   readonly studyLevels = signal<LookupItem[]>([]);
+  readonly exceptions = signal<LookupItem[]>([]);
   readonly loadingLookups = signal(false);
+
+  readonly searchCtrl = new FormControl("");
+
+  private readonly instructorSearch = toSignal(
+    this.searchCtrl.valueChanges,
+    { initialValue: "" },
+  );
+
+  readonly filteredInstructors = computed(() => {
+    const term = (this.instructorSearch() ?? "").trim().toLowerCase();
+    if (!term) {
+      return this.instructors();
+    }
+    return this.instructors().filter((item) =>
+      item.name.arabic.toLowerCase().includes(term),
+    );
+  });
 
   readonly form = this.fb.nonNullable.group({
     competitionId: this.fb.control<number | null>(null, Validators.required),
@@ -64,17 +102,27 @@ export class CompetitionRegistrationComponent {
     studyYearId: this.fb.control<number | null>(null),
     instructorId: this.fb.control<number | null>(null),
     placeId: this.fb.control<number | null>(null),
-    notes: [''],
+    fatherName: [""],
+    fatherNationalId: ["", nationalIdValidator()],
+    exceptionId: this.fb.control<number | null>(null),
+    motherName: [""],
+    motherNationalId: ["", nationalIdValidator()],
+    notes: [""],
   });
 
   /** Tracks the competition select reactively so the level dropdown can cascade from it. */
-  private readonly selectedCompetitionId = toSignal(this.form.controls.competitionId.valueChanges, {
-    initialValue: this.form.controls.competitionId.value,
-  });
+  private readonly selectedCompetitionId = toSignal(
+    this.form.controls.competitionId.valueChanges,
+    {
+      initialValue: this.form.controls.competitionId.value,
+    },
+  );
 
   /** Levels come from the selected competition's own `levels` array — no separate endpoint. */
   readonly availableLevels = computed(
-    () => this.competitions().find((c) => c.id === this.selectedCompetitionId())?.levels ?? []
+    () =>
+      this.competitions().find((c) => c.id === this.selectedCompetitionId())
+        ?.levels ?? [],
   );
 
   constructor() {
@@ -98,7 +146,11 @@ export class CompetitionRegistrationComponent {
 
     this.lookupService
       .getActiveCompetitions()
-      .pipe(catchError(() => of({ data: [] as CompetitionOption[], totalRecords: 0 })))
+      .pipe(
+        catchError(() =>
+          of({ data: [] as CompetitionOption[], totalRecords: 0 }),
+        ),
+      )
       .subscribe((page) => this.competitions.set(page.data ?? []));
 
     this.lookupService
@@ -110,6 +162,11 @@ export class CompetitionRegistrationComponent {
       .getPlaces()
       .pipe(catchError(() => of({ data: [] as LookupItem[], totalRecords: 0 })))
       .subscribe((page) => this.places.set(page.data ?? []));
+
+    this.lookupService
+      .getExceptions()
+      .pipe(catchError(() => of({ data: [] as LookupItem[], totalRecords: 0 })))
+      .subscribe((page) => this.exceptions.set(page.data ?? []));
 
     this.lookupService
       .getStudyLevels()
@@ -140,6 +197,15 @@ export class CompetitionRegistrationComponent {
       partsCount: raw.partsCount!,
       studyYearId: raw.studyYearId,
       notes: raw.notes,
+      fatherName: raw.fatherName,
+      fatherNationalId: raw.fatherNationalId
+        ? Number(raw.fatherNationalId)
+        : null,
+      exceptionId: raw.exceptionId,
+      motherName: raw.motherName,
+      motherNationalId: raw.motherNationalId
+        ? Number(raw.motherNationalId)
+        : null,
     };
 
     this.register.emit(payload);

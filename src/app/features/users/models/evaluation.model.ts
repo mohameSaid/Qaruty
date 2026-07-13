@@ -35,12 +35,24 @@ export interface EvaluationScoreEntry {
   score: number;
 }
 
+/** One scored Quran memorization question (see `QuranQuestion` for the question itself). */
+export interface QuranEvaluationEntry {
+  questionId: string;
+  suraName: string;
+  ayaIndex: number;
+  score: number;
+  notes: string;
+}
+
 /**
  * Body for saving/submitting an evaluation. Posted against the specific
  * competition-registration record (`competitionUserId` = a `CompetitionHistoryItem.id`),
  * not the student directly, since a student can be evaluated separately per competition.
  * Endpoint/shape is NOT confirmed against a live backend — no evaluation endpoint exists
  * yet in the Postman collection this project was built from. See `EvaluationService`.
+ *
+ * `quranEvaluations` is additive and only populated for Quran competitions; omit it
+ * entirely rather than send an empty array so non-Quran submissions are unaffected.
  */
 export interface SubmitEvaluationRequest {
   competitionUserId: number;
@@ -48,4 +60,5 @@ export interface SubmitEvaluationRequest {
   totalScore: number;
   notes: string;
   status: EvaluationStatus;
+  quranEvaluations?: QuranEvaluationEntry[];
 }
