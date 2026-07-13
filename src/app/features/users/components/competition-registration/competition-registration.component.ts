@@ -75,7 +75,6 @@ export class CompetitionRegistrationComponent {
   readonly instructors = signal<LookupItem[]>([]);
   readonly places = signal<LookupItem[]>([]);
   readonly studyLevels = signal<LookupItem[]>([]);
-  readonly exceptions = signal<LookupItem[]>([]);
   readonly loadingLookups = signal(false);
 
   readonly searchCtrl = new FormControl("");
@@ -125,13 +124,21 @@ export class CompetitionRegistrationComponent {
         ?.levels ?? [],
   );
 
+  /** Exceptions come from the selected competition's own `exceptions` array — no separate endpoint. */
+  readonly availableExceptions = computed(
+    () =>
+      this.competitions().find((c) => c.id === this.selectedCompetitionId())
+        ?.exceptions ?? [],
+  );
+
   constructor() {
     this.loadLookups();
 
-    // Changing the competition invalidates the previously chosen level/parts.
+    // Changing the competition invalidates the previously chosen level/parts/exception.
     this.form.controls.competitionId.valueChanges.subscribe(() => {
       this.form.controls.levelId.setValue(null);
       this.form.controls.partsCount.setValue(null);
+      this.form.controls.exceptionId.setValue(null);
     });
 
     // Parts count is a property of the level, not something the judge types by hand.
@@ -162,11 +169,6 @@ export class CompetitionRegistrationComponent {
       .getPlaces()
       .pipe(catchError(() => of({ data: [] as LookupItem[], totalRecords: 0 })))
       .subscribe((page) => this.places.set(page.data ?? []));
-
-    this.lookupService
-      .getExceptions()
-      .pipe(catchError(() => of({ data: [] as LookupItem[], totalRecords: 0 })))
-      .subscribe((page) => this.exceptions.set(page.data ?? []));
 
     this.lookupService
       .getStudyLevels()

@@ -12,10 +12,17 @@ export interface CompetitionLevelOption {
   partsCount: number;
 }
 
+/** One registration exception nested inside a competition (e.g. "out of country", "full Quran"). */
+export interface CompetitionExceptionOption {
+  id: number;
+  name: LocalizedName;
+}
+
 /**
  * One row of `GET /competition?filters.active=true&...` — confirmed live. Used to
  * populate the "Competition" dropdown in the registration form; each competition's
- * `levels` then populates the dependent "Level" dropdown (no separate levels endpoint).
+ * `levels` and `exceptions` then populate their dependent dropdowns (no separate
+ * levels/exceptions endpoints — both come nested in this response).
  */
 export interface CompetitionOption {
   id: number;
@@ -26,6 +33,7 @@ export interface CompetitionOption {
   date: string | null;
   active: boolean;
   levels: CompetitionLevelOption[];
+  exceptions: CompetitionExceptionOption[];
 }
 
 export interface CompetitionRef {

@@ -80,11 +80,6 @@ export class LookupService {
     return this.getSimple<LookupItem>('place');
   }
 
-  /** Registration exceptions dropdown (e.g. "out of country", "three countries", "full Quran"). */
-  getExceptions(): Observable<PagedData<LookupItem>> {
-    return this.getSimpleLookup<LookupItem>('exception');
-  }
-
   /**
    * `GET /lookup/studyLevel?withChildren=true&...` — confirmed live. Returns a real
    * 2-level tree (educational stage -> grade, e.g. "ابتدائي" -> "الرابع"), unlike the
@@ -104,18 +99,6 @@ export class LookupService {
       .pipe(map((res) => res.data));
   }
 
-  /** `instructor` / `place` lookups are NOT confirmed live — same `/lookup/{type}` guess as before. */
-  private getSimpleLookup<T>(type: string): Observable<PagedData<T>> {
-    const params = new HttpParams()
-      .set('page.pageNo', 0)
-      .set('page.size', 100)
-      .set('sort.column', 'id')
-      .set('sort.direction', 'ASC');
-
-    return this.http
-      .get<ApiEnvelope<PagedData<T>>>(`${this.lookupBase}/${type}`, { params })
-      .pipe(map((res) => res.data));
-  }
   private getSimple<T>(type: string): Observable<PagedData<T>> {
     const params = new HttpParams()
       .set('page.pageNo', 0)
