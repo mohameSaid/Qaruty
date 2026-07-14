@@ -1,8 +1,15 @@
-@use '@angular/material' as mat;
-
+@use "@angular/material" as mat;
+@font-face {
+  font-family: "Quran";
+  src: url("app/shared/assets/kfgqpc_hafs_smart_font/HafsSmart_08.ttf")
+    format("truetype");
+  font-display: swap;
+}
 html {
   color-scheme: light;
-
+  .quran-text {
+    font-family: Quran;
+  }
   @include mat.theme(
     (
       color: (
@@ -10,7 +17,7 @@ html {
         primary: mat.$green-palette,
         tertiary: mat.$orange-palette,
       ),
-      typography: 'Roboto',
+      typography: "Roboto",
       density: 0,
     )
   );
@@ -25,7 +32,7 @@ html {
           primary: mat.$green-palette,
           tertiary: mat.$orange-palette,
         ),
-        typography: 'Roboto',
+        typography: "Roboto",
         density: 0,
       )
     );
@@ -36,7 +43,7 @@ html,
 body {
   height: 100%;
   margin: 0;
-  font-family: 'Roboto', 'Segoe UI', Tahoma, Arial, sans-serif;
+  font-family: "Roboto", "Segoe UI", Tahoma, Arial, sans-serif;
   background: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
 }
