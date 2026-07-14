@@ -162,6 +162,119 @@
         </mat-form-field>
       </div>
 
+      <mat-divider class="section-divider" />
+      <h3 class="section-heading">بيانات الوالدين (اختياري)</h3>
+
+      <mat-expansion-panel class="parent-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="title-icon">man</mat-icon>
+            بيانات الأب
+          </mat-panel-title>
+          <mat-panel-description>اختياري</mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="form-grid" formGroupName="father">
+          <mat-form-field appearance="outline">
+            <mat-label>الرقم القومي للأب</mat-label>
+            <mat-icon matPrefix>badge</mat-icon>
+            <input matInput formControlName="nationalId" maxlength="14" inputmode="numeric" />
+            @if (form.controls.father.controls.nationalId.hasError('nationalId') && form.controls.father.controls.nationalId.touched) {
+              <mat-error>يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error>
+            }
+            @if (fatherBirthDate(); as bd) {
+              <mat-hint>تاريخ الميلاد: {{ parentBirthDateLabel(bd) }}</mat-hint>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>الاسم بالعربية</mat-label>
+            <mat-icon matPrefix>person</mat-icon>
+            <input matInput formControlName="arabicName" dir="rtl" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>الاسم بالإنجليزية</mat-label>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input matInput formControlName="englishName" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>رقم الهاتف</mat-label>
+            <mat-icon matPrefix>phone</mat-icon>
+            <input matInput formControlName="mobileNumber" />
+            @if (form.controls.father.controls.mobileNumber.hasError('mobileNumber') && form.controls.father.controls.mobileNumber.touched) {
+              <mat-error>يرجى إدخال رقم هاتف صحيح.</mat-error>
+            }
+            <mat-hint>يُستخدم رقم هاتف المستخدم إذا تُرك فارغًا.</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>البريد الإلكتروني</mat-label>
+            <mat-icon matPrefix>email</mat-icon>
+            <input matInput formControlName="email" type="email" />
+            @if (form.controls.father.controls.email.hasError('email') && form.controls.father.controls.email.touched) {
+              <mat-error>يرجى إدخال بريد إلكتروني صحيح.</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel class="parent-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="title-icon">woman</mat-icon>
+            بيانات الأم
+          </mat-panel-title>
+          <mat-panel-description>اختياري</mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="form-grid" formGroupName="mother">
+          <mat-form-field appearance="outline">
+            <mat-label>الرقم القومي للأم</mat-label>
+            <mat-icon matPrefix>badge</mat-icon>
+            <input matInput formControlName="nationalId" maxlength="14" inputmode="numeric" />
+            @if (form.controls.mother.controls.nationalId.hasError('nationalId') && form.controls.mother.controls.nationalId.touched) {
+              <mat-error>يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error>
+            }
+            @if (motherBirthDate(); as bd) {
+              <mat-hint>تاريخ الميلاد: {{ parentBirthDateLabel(bd) }}</mat-hint>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>الاسم بالعربية</mat-label>
+            <mat-icon matPrefix>person</mat-icon>
+            <input matInput formControlName="arabicName" dir="rtl" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>الاسم بالإنجليزية</mat-label>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input matInput formControlName="englishName" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>رقم الهاتف</mat-label>
+            <mat-icon matPrefix>phone</mat-icon>
+            <input matInput formControlName="mobileNumber" />
+            @if (form.controls.mother.controls.mobileNumber.hasError('mobileNumber') && form.controls.mother.controls.mobileNumber.touched) {
+              <mat-error>يرجى إدخال رقم هاتف صحيح.</mat-error>
+            }
+            <mat-hint>يُستخدم رقم هاتف المستخدم إذا تُرك فارغًا.</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>البريد الإلكتروني</mat-label>
+            <mat-icon matPrefix>email</mat-icon>
+            <input matInput formControlName="email" type="email" />
+            @if (form.controls.mother.controls.email.hasError('email') && form.controls.mother.controls.email.touched) {
+              <mat-error>يرجى إدخال بريد إلكتروني صحيح.</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+
       <div class="form-actions">
         <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
           @if (saving()) {

@@ -83,10 +83,6 @@ export interface RegisterCompetitionRequest {
   partsCount: number;
   studyYearId: number | null;
   notes: string;
-  fatherName: string;
-  fatherNationalId: number | null;
   /** Id from the `exceptions` lookup (`GET /lookup/exceptions`). */
   exceptionId: number | null;
-  motherName: string;
-  motherNationalId: number | null;
 }

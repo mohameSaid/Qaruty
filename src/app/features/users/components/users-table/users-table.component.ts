@@ -48,9 +48,9 @@ export class UsersTableComponent {
     'id',
     'nationalId',
     'arabicName',
-    'englishName',
+    // 'englishName',
     'birthDate',
-    'email',
+    // 'email',
     'mobile',
     'actions',
   ];

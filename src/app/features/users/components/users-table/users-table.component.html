@@ -43,20 +43,20 @@
             <td mat-cell *matCellDef="let user" dir="rtl">{{ user.name.arabic }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="englishName">
+          <!-- <ng-container matColumnDef="englishName">
             <th mat-header-cell *matHeaderCellDef>الاسم بالإنجليزية</th>
             <td mat-cell *matCellDef="let user">{{ user.name.english ?? '—' }}</td>
-          </ng-container>
+          </ng-container> -->
 
           <ng-container matColumnDef="birthDate">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>تاريخ الميلاد</th>
             <td mat-cell *matCellDef="let user">{{ user.birthDate ?? '—' }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="email">
+          <!-- <ng-container matColumnDef="email">
             <th mat-header-cell *matHeaderCellDef>البريد الإلكتروني</th>
             <td mat-cell *matCellDef="let user">{{ user.email ?? '—' }}</td>
-          </ng-container>
+          </ng-container> -->
 
           <ng-container matColumnDef="mobile">
             <th mat-header-cell *matHeaderCellDef>رقم الهاتف</th>

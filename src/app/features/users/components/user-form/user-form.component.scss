@@ -19,3 +19,21 @@ mat-icon[matPrefix] {
   margin-inline-end: 8px;
   color: var(--mat-sys-on-surface-variant);
 }
+
+.parent-panel {
+  margin-bottom: 16px;
+
+  &:last-of-type {
+    margin-bottom: 24px;
+  }
+
+  .form-grid {
+    padding-top: 12px;
+  }
+}
+
+.title-icon {
+  margin-inline-end: 8px;
+  vertical-align: middle;
+  color: var(--mat-sys-primary);
+}

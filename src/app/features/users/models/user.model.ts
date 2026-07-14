@@ -41,9 +41,41 @@ export interface CreateUserRequest {
   contact: UserContact;
   birthDate: string; // ISO date, e.g. 1993-05-17
   gender: Gender;
+  father: ParentPayload | null;
+  mother: ParentPayload | null;
 }
 
 export type UpdateUserRequest = CreateUserRequest;
+
+/**
+ * Nested inside `CreateUserRequest.father` / `.mother`. Mirrors the shape of a
+ * top-level user but always reuses the primary user's own address and never
+ * nests a grandparent — `father`/`mother` are always null here.
+ */
+export interface ParentPayload {
+  id: number | null;
+  nationalId: number | null;
+  name: UserName;
+  contact: UserContact;
+  birthDate: string | null; // derived from nationalId; null if not derivable
+  address: UserAddress;
+  gender: Gender;
+  father: null;
+  mother: null;
+}
+
+/**
+ * Best-effort read shape for `UserDetail.father` / `.mother` — not confirmed
+ * against a live response since father/mother didn't previously exist on this
+ * endpoint. `populateForm()` falls back to blank fields when absent.
+ */
+export interface ParentDetail {
+  id: number;
+  nationalId: number | null;
+  name: UserName;
+  contact: UserContact;
+  birthDate: string | null;
+}
 
 /**
  * One candidate returned by `POST /user` when the backend detects possible
@@ -117,6 +149,8 @@ export interface UserDetail {
     details: string;
   };
   contact: UserContact;
+  father?: ParentDetail | null;
+  mother?: ParentDetail | null;
 }
 
 /**

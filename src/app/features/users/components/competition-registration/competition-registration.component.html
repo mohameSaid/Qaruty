@@ -83,6 +83,13 @@
             }
           </mat-form-field>
 
+          <app-tree-select
+            style="grid-column: 1 / -1"
+            formControlName="studyYearId"
+            placeholder="اختر المرحلة الدراسية والصف"
+            [nodes]="studyLevels()"
+          />
+
           <mat-form-field appearance="outline">
             <mat-label>المستوى</mat-label>
             <mat-select
@@ -153,37 +160,6 @@
             </mat-select>
           </mat-form-field>
 
-          <app-tree-select
-            style="grid-column: 1 / -1"
-            formControlName="studyYearId"
-            label="المرحلة الدراسية"
-            placeholder="اختر المرحلة والصف"
-            [nodes]="studyLevels()"
-          />
-
-          <mat-form-field appearance="outline">
-            <mat-label>اسم الأب</mat-label>
-            <input matInput formControlName="fatherName" dir="rtl" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>الرقم القومي للأب</mat-label>
-            <input
-              matInput
-              formControlName="fatherNationalId"
-              maxlength="14"
-              inputmode="numeric"
-            />
-            @if (
-              form.controls.fatherNationalId.hasError("nationalId") &&
-              form.controls.fatherNationalId.touched
-            ) {
-              <mat-error
-                >يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error
-              >
-            }
-          </mat-form-field>
-
           <mat-form-field appearance="outline">
             <mat-label>استثناءات</mat-label>
             <mat-select
@@ -197,29 +173,6 @@
                 }}</mat-option>
               }
             </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>اسم الأم</mat-label>
-            <input matInput formControlName="motherName" dir="rtl" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>الرقم القومي للأم</mat-label>
-            <input
-              matInput
-              formControlName="motherNationalId"
-              maxlength="14"
-              inputmode="numeric"
-            />
-            @if (
-              form.controls.motherNationalId.hasError("nationalId") &&
-              form.controls.motherNationalId.touched
-            ) {
-              <mat-error
-                >يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error
-              >
-            }
           </mat-form-field>
 
           <mat-form-field

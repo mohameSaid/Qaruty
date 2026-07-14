@@ -18,13 +18,41 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  height: 44px;
+  height: 60px;
   padding: 0 12px;
   border: 1px solid var(--mat-sys-outline);
   border-radius: 8px;
   background: var(--mat-sys-surface);
   cursor: pointer;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+
+  --mat-mdc-form-field-floating-label-scale: 0.75;
+  display: inline-flex;
+  min-width: 0;
+   -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-family: var(
+    --mat-form-field-container-text-font,
+    var(--mat-sys-body-large-font)
+  );
+  line-height: var(
+    --mat-form-field-container-text-line-height,
+    var(--mat-sys-body-large-line-height)
+  );
+  font-size: var(
+    --mat-form-field-container-text-size,
+    var(--mat-sys-body-large-size)
+  );
+  letter-spacing: var(
+    --mat-form-field-container-text-tracking,
+    var(--mat-sys-body-large-tracking)
+  );
+  font-weight: var(
+    --mat-form-field-container-text-weight,
+    var(--mat-sys-body-large-weight)
+  );
 
   &:hover {
     border-color: var(--mat-sys-on-surface);

@@ -34,7 +34,6 @@ import {
   RegisterCompetitionRequest,
 } from "../../models/competition.model";
 import { TreeSelectComponent } from "../../../../shared/components/tree-select/tree-select.component";
-import { nationalIdValidator } from "../../../../shared/validators/national-id.validator";
 
 @Component({
   selector: "app-competition-registration",
@@ -101,11 +100,7 @@ export class CompetitionRegistrationComponent {
     studyYearId: this.fb.control<number | null>(null),
     instructorId: this.fb.control<number | null>(null),
     placeId: this.fb.control<number | null>(null),
-    fatherName: [""],
-    fatherNationalId: ["", nationalIdValidator()],
     exceptionId: this.fb.control<number | null>(null),
-    motherName: [""],
-    motherNationalId: ["", nationalIdValidator()],
     notes: [""],
   });
 
@@ -199,15 +194,7 @@ export class CompetitionRegistrationComponent {
       partsCount: raw.partsCount!,
       studyYearId: raw.studyYearId,
       notes: raw.notes,
-      fatherName: raw.fatherName,
-      fatherNationalId: raw.fatherNationalId
-        ? Number(raw.fatherNationalId)
-        : null,
       exceptionId: raw.exceptionId,
-      motherName: raw.motherName,
-      motherNationalId: raw.motherNationalId
-        ? Number(raw.motherNationalId)
-        : null,
     };
 
     this.register.emit(payload);

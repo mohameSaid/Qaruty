@@ -211,6 +211,8 @@ export class UserFormPageComponent implements OnInit {
       },
       birthDate: original.birthDate || match.birthDate,
       gender: original.gender ?? (match.gender?.id as Gender),
+      father: original.father,
+      mother: original.mother,
     };
   }
 

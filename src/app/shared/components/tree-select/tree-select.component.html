@@ -1,6 +1,5 @@
 <div #trigger class="tree-select" [class.open]="open()" [class.disabled]="disabled()">
-  <span class="field-label">{{ label() }}</span>
-
+ 
   <div class="tree-trigger" (click)="toggleOpen()">
     <mat-icon class="trigger-icon">account_tree</mat-icon>
     <span class="trigger-value" [class.placeholder]="!selectedLabel()" dir="rtl">
