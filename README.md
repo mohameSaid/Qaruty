@@ -80,3 +80,10 @@ flagged the gaps in code comments so you can correct them quickly:
 - Delete requires confirmation via a Material dialog.
 - Sortable, paginated Material table; responsive two-column form that
   collapses to one column on mobile.
+
+
+<!-- 
+npm run build:gh
+npm run deploy 
+
+-->
