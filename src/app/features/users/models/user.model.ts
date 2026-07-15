@@ -41,6 +41,8 @@ export interface CreateUserRequest {
   contact: UserContact;
   birthDate: string; // ISO date, e.g. 1993-05-17
   gender: Gender;
+  /** Id from the tree-shaped `/lookup/studyLevel` lookup (educational stage -> grade). */
+  studyYearId: number | null;
   father: ParentPayload | null;
   mother: ParentPayload | null;
 }
@@ -149,6 +151,16 @@ export interface UserDetail {
     details: string;
   };
   contact: UserContact;
+  /** Confirmed live. `studyYear` is the educational grade, same tree as `/lookup/studyLevel`; its `parent` is the enclosing stage (e.g. "ابتدائي"). */
+  study?: {
+    id: number;
+    schoolName: string | null;
+    studyYear: {
+      id: number;
+      name: UserName;
+      parent?: { id: number; name: UserName } | null;
+    } | null;
+  } | null;
   father?: ParentDetail | null;
   mother?: ParentDetail | null;
 }

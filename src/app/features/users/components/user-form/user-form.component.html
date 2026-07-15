@@ -76,6 +76,13 @@
             <mat-error>النوع مطلوب.</mat-error>
           }
         </mat-form-field>
+
+        <app-tree-select
+          style="grid-column: 1 / -1"
+          formControlName="studyYearId"
+          placeholder="اختر المرحلة الدراسية والصف"
+          [nodes]="studyLevels()"
+        />
       </div>
 
       <mat-divider class="section-divider" />
@@ -182,8 +189,14 @@
             @if (form.controls.father.controls.nationalId.hasError('nationalId') && form.controls.father.controls.nationalId.touched) {
               <mat-error>يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error>
             }
+            @if (form.controls.father.controls.nationalId.hasError('parentGender') && form.controls.father.controls.nationalId.touched) {
+              <mat-error>الرقم القومي المدخل يشير إلى أنثى، ويجب أن يكون الرقم القومي للأب مخصصًا لذكر.</mat-error>
+            }
             @if (fatherBirthDate(); as bd) {
               <mat-hint>تاريخ الميلاد: {{ parentBirthDateLabel(bd) }}</mat-hint>
+            }
+            @if (fatherGender(); as g) {
+              <mat-hint align="end">النوع: {{ parentGenderLabel(g) }}</mat-hint>
             }
           </mat-form-field>
 
@@ -237,8 +250,14 @@
             @if (form.controls.mother.controls.nationalId.hasError('nationalId') && form.controls.mother.controls.nationalId.touched) {
               <mat-error>يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error>
             }
+            @if (form.controls.mother.controls.nationalId.hasError('parentGender') && form.controls.mother.controls.nationalId.touched) {
+              <mat-error>الرقم القومي المدخل يشير إلى ذكر، ويجب أن يكون الرقم القومي للأم مخصصًا لأنثى.</mat-error>
+            }
             @if (motherBirthDate(); as bd) {
               <mat-hint>تاريخ الميلاد: {{ parentBirthDateLabel(bd) }}</mat-hint>
+            }
+            @if (motherGender(); as g) {
+              <mat-hint align="end">النوع: {{ parentGenderLabel(g) }}</mat-hint>
             }
           </mat-form-field>
 

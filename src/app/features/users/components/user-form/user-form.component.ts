@@ -24,7 +24,8 @@ import { MatSelectModule } from "@angular/material/select";
 import { distinctUntilChanged, switchMap, of, catchError } from "rxjs";
 
 import { LookupService } from "../../services/lookup.service";
-import { City, Governorate, Village } from "../../models/lookup.model";
+import { City, Governorate, LookupItem, Village } from "../../models/lookup.model";
+import { TreeSelectComponent } from "../../../../shared/components/tree-select/tree-select.component";
 import {
   CreateUserRequest,
   Gender,
@@ -36,6 +37,7 @@ import {
 import {
   nationalIdValidator,
   mobileNumberValidator,
+  parentGenderValidator,
 } from "../../../../shared/validators/national-id.validator";
 import {
   extractBirthDateFromNationalId,
@@ -62,6 +64,7 @@ const DEFAULT_ADDRESS = { governorate: 10, city: 1, village: 1, details: "" };
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressSpinnerModule,
+    TreeSelectComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./user-form.component.html",
@@ -89,6 +92,7 @@ export class UserFormComponent {
   readonly governorates = signal<Governorate[]>([]);
   readonly cities = signal<City[]>([]);
   readonly villages = signal<Village[]>([]);
+  readonly studyLevels = signal<LookupItem[]>([]);
   readonly loadingLookups = signal(false);
 
   readonly form = this.fb.nonNullable.group({
@@ -110,12 +114,13 @@ export class UserFormComponent {
       Validators.required,
     ),
     addressDetails: [DEFAULT_ADDRESS.details],
+    studyYearId: this.fb.control<number | null>(null),
     mobileNumber: ["", [Validators.required, mobileNumberValidator()]],
     otherMobileNumber: ["", mobileNumberValidator()],
     email: ["", [Validators.email]],
     father: this.fb.nonNullable.group({
       id: this.fb.control<number | null>(null),
-      nationalId: ["", nationalIdValidator()],
+      nationalId: ["", [nationalIdValidator(), parentGenderValidator(Gender.Male)]],
       arabicName: [""],
       englishName: [""],
       mobileNumber: ["", mobileNumberValidator()],
@@ -123,7 +128,7 @@ export class UserFormComponent {
     }),
     mother: this.fb.nonNullable.group({
       id: this.fb.control<number | null>(null),
-      nationalId: ["", nationalIdValidator()],
+      nationalId: ["", [nationalIdValidator(), parentGenderValidator(Gender.Female)]],
       arabicName: [""],
       englishName: [""],
       mobileNumber: ["", mobileNumberValidator()],
@@ -131,12 +136,15 @@ export class UserFormComponent {
     }),
   });
 
-  /** Derived, display-only — the parent sections have no editable birth date field. */
+  /** Derived, display-only — the parent sections have no editable birth date/gender fields. */
   readonly fatherBirthDate = signal<Date | null>(null);
   readonly motherBirthDate = signal<Date | null>(null);
+  readonly fatherGender = signal<Gender | null>(null);
+  readonly motherGender = signal<Gender | null>(null);
 
   constructor() {
     this.loadGovernorates();
+    this.loadStudyLevels();
     this.loadDependentLookupsFor(
       DEFAULT_ADDRESS.governorate,
       DEFAULT_ADDRESS.city,
@@ -168,6 +176,13 @@ export class UserFormComponent {
         this.governorates.set(page.data ?? []);
         this.loadingLookups.set(false);
       });
+  }
+
+  private loadStudyLevels(): void {
+    this.lookupService
+      .getStudyLevels()
+      .pipe(catchError(() => of({ data: [] as LookupItem[], totalRecords: 0 })))
+      .subscribe((page) => this.studyLevels.set(page.data ?? []));
   }
 
   private loadDependentLookupsFor(governorateId: number, cityId: number): void {
@@ -274,12 +289,14 @@ export class UserFormComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         this.fatherBirthDate.set(extractBirthDateFromNationalId(value));
+        this.fatherGender.set(extractGenderFromNationalId(value));
       });
 
     this.form.controls.mother.controls.nationalId.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((value) => {
         this.motherBirthDate.set(extractBirthDateFromNationalId(value));
+        this.motherGender.set(extractGenderFromNationalId(value));
       });
   }
 
@@ -297,6 +314,7 @@ export class UserFormComponent {
       city: user.address.city.id,
       village: user.address.village.id,
       addressDetails: user.address.details,
+      studyYearId: user.study?.studyYear?.id ?? null,
       email: user.contact.email,
       mobileNumber: user.contact.mobileNumber,
       otherMobileNumber: user.contact.otherMobileNumber,
@@ -355,6 +373,7 @@ export class UserFormComponent {
       },
       birthDate: this.toIsoDate(raw.birthDate!),
       gender: raw.gender!,
+      studyYearId: raw.studyYearId,
       father: this.buildParentPayload(
         raw.father,
         Gender.Male,
@@ -426,6 +445,12 @@ export class UserFormComponent {
 
   parentBirthDateLabel(date: Date | null): string {
     return date ? this.toIsoDate(date) : "";
+  }
+
+  parentGenderLabel(gender: Gender | null): string {
+    if (gender === Gender.Male) return "ذكر";
+    if (gender === Gender.Female) return "أنثى";
+    return "";
   }
 
   private parentToFormValue(parent: ParentDetail | null | undefined) {

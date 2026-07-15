@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,6 +34,8 @@ import { Gender, UserFilters } from '../../models/user.model';
 })
 export class AdvancedSearchComponent {
   readonly searching = input<boolean>(false);
+  /** Currently-applied filters (e.g. from the store), used to rebind the form when this panel is re-created. */
+  readonly initialFilters = input<UserFilters>({});
 
   readonly search = output<UserFilters>();
   readonly clear = output<void>();
@@ -57,6 +59,24 @@ export class AdvancedSearchComponent {
   readonly activeCount = computed(
     () => Object.values(this.formValue()).filter((v) => v !== null && v !== undefined && v !== '').length
   );
+
+  constructor() {
+    
+    effect(() => {
+      const filters = this.initialFilters();
+      this.form.patchValue(
+        {
+          nationalId: filters.nationalId ?? '',
+          arabicName: filters.arabicName ?? '',
+          englishName: filters.englishName ?? '',
+          mobileNumber: filters.mobileNumber ?? '',
+          email: filters.email ?? '',
+          gender: filters.gender ?? null,
+        },
+        { emitEvent: false }
+      );
+    });
+  }
 
   onSearch(): void {
     if (this.form.invalid) {

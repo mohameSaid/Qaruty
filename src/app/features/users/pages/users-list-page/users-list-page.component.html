@@ -28,6 +28,7 @@
 
   <app-advanced-search
     [searching]="store.loading()"
+    [initialFilters]="store.filters()"
     (search)="onFilter($event)"
     (clear)="onClearFilters()"
   />

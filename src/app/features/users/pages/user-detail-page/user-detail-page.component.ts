@@ -62,6 +62,8 @@ export class UserDetailPageComponent implements OnInit {
   readonly competitionHistory = signal<CompetitionHistoryItem[]>([]);
   readonly loadingHistory = signal(false);
   readonly registering = signal(false);
+  /** Bumped after each successful registration so the form clears itself and re-hides behind the Add button. */
+  readonly competitionFormResetCounter = signal(0);
   shownewCompitionForm: boolean = true;
   readonly Gender = Gender;
 
@@ -125,6 +127,7 @@ export class UserDetailPageComponent implements OnInit {
         if (userId) {
           this.loadCompetitionHistory(userId);
         }
+        this.competitionFormResetCounter.update((v) => v + 1);
       });
   }
 

@@ -82,6 +82,21 @@
                   >
                   <span class="detail-value">{{ user()!.birthDate }}</span>
                 </div>
+                <div class="detail-item">
+                  <span class="detail-label"
+                    ><mat-icon>school</mat-icon> المرحلة الدراسية</span
+                  >
+                  <span class="detail-value" dir="rtl">
+                    @if (user()!.study?.studyYear; as studyYear) {
+                      @if (studyYear.parent) {
+                        {{ studyYear.parent.name.arabic }} -
+                      }
+                      {{ studyYear.name.arabic }}
+                    } @else {
+                      —
+                    }
+                  </span>
+                </div>
               </div>
             </mat-card-content>
           </mat-card>
@@ -161,6 +176,126 @@
               </div>
             </mat-card-content>
           </mat-card>
+
+          @if (user()!.father; as father) {
+            <mat-card class="section-card">
+              <mat-card-header>
+                <mat-card-title>بيانات الأب</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>badge</mat-icon> الرقم القومي</span
+                    >
+                    <span class="detail-value">{{
+                      father.nationalId ?? "—"
+                    }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>person</mat-icon> الاسم بالعربية</span
+                    >
+                    <span class="detail-value" dir="rtl">{{
+                      father.name.arabic || "—"
+                    }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>person_outline</mat-icon> الاسم بالإنجليزية</span
+                    >
+                    <span class="detail-value">{{
+                      father.name.english || "—"
+                    }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>cake</mat-icon> تاريخ الميلاد</span
+                    >
+                    <span class="detail-value">{{
+                      father.birthDate || "—"
+                    }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>phone</mat-icon> رقم الهاتف</span
+                    >
+                    <span class="detail-value">{{
+                      father.contact.mobileNumber || "—"
+                    }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>email</mat-icon> البريد الإلكتروني</span
+                    >
+                    <span class="detail-value">{{
+                      father.contact.email || "—"
+                    }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+
+          @if (user()!.mother; as mother) {
+            <mat-card class="section-card">
+              <mat-card-header>
+                <mat-card-title>بيانات الأم</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>badge</mat-icon> الرقم القومي</span
+                    >
+                    <span class="detail-value">{{
+                      mother.nationalId ?? "—"
+                    }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>person</mat-icon> الاسم بالعربية</span
+                    >
+                    <span class="detail-value" dir="rtl">{{
+                      mother.name.arabic || "—"
+                    }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>person_outline</mat-icon> الاسم بالإنجليزية</span
+                    >
+                    <span class="detail-value">{{
+                      mother.name.english || "—"
+                    }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>cake</mat-icon> تاريخ الميلاد</span
+                    >
+                    <span class="detail-value">{{
+                      mother.birthDate || "—"
+                    }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>phone</mat-icon> رقم الهاتف</span
+                    >
+                    <span class="detail-value">{{
+                      mother.contact.mobileNumber || "—"
+                    }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label"
+                      ><mat-icon>email</mat-icon> البريد الإلكتروني</span
+                    >
+                    <span class="detail-value">{{
+                      mother.contact.email || "—"
+                    }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
         </div>
       </mat-tab>
       @if (shownewCompitionForm) {
@@ -171,6 +306,7 @@
               [history]="competitionHistory()"
               [loadingHistory]="loadingHistory()"
               [registering]="registering()"
+              [resetTrigger]="competitionFormResetCounter()"
               (register)="onRegisterCompetition($event)"
               (evaluate)="onEvaluate($event)"
             />

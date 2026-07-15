@@ -47,10 +47,14 @@ export function extractBirthDateFromNationalId(nationalId: string | number): Dat
 
 
 export function extractGenderFromNationalId(nationalId: string | number): Gender | null {
+  const id = nationalId.toString().trim();
 
-  const genderDigit = Number(nationalId.toString().trim().charAt(12));
+  if (!/^\d{14}$/.test(id)) {
+    return null;
+  }
 
-        const male = genderDigit % 2 == 1;
+  const genderDigit = Number(id.charAt(12));
+  const male = genderDigit % 2 == 1;
 
-        return male ? Gender.Male : Gender.Female;
+  return male ? Gender.Male : Gender.Female;
 }

@@ -64,6 +64,12 @@
     </mat-card-header>
 
     <mat-card-content>
+      @if (!showForm()) {
+        <button mat-flat-button color="primary" (click)="openForm()">
+          <mat-icon>add</mat-icon>
+          تسجيل في مسابقة جديدة
+        </button>
+      } @else {
       <form [formGroup]="form" (ngSubmit)="submit()">
         <div class="form-grid">
           <mat-form-field appearance="outline" style="grid-column: 1 / -1">
@@ -82,13 +88,6 @@
               <mat-error>المسابقة مطلوبة.</mat-error>
             }
           </mat-form-field>
-
-          <app-tree-select
-            style="grid-column: 1 / -1"
-            formControlName="studyYearId"
-            placeholder="اختر المرحلة الدراسية والصف"
-            [nodes]="studyLevels()"
-          />
 
           <mat-form-field appearance="outline">
             <mat-label>المستوى</mat-label>
@@ -138,7 +137,7 @@
                 </ngx-mat-select-search>
               </mat-option>
 
-              <mat-option [value]="null">بدون</mat-option>
+              <!-- <mat-option [value]="null">بدون</mat-option> -->
 
               @for (item of filteredInstructors(); track item.id) {
                 <mat-option [value]="item.id">
@@ -151,7 +150,7 @@
           <mat-form-field appearance="outline">
             <mat-label>المكان</mat-label>
             <mat-select formControlName="placeId">
-              <mat-option [value]="null">بدون</mat-option>
+              <!-- <mat-option [value]="null">بدون</mat-option> -->
               @for (item of places(); track item.id) {
                 <mat-option [value]="item.id">{{
                   item.name.arabic
@@ -166,7 +165,7 @@
               formControlName="exceptionId"
               [disabled]="!form.controls.competitionId.value"
             >
-              <mat-option [value]="null">بدون</mat-option>
+              <!-- <mat-option [value]="null">بدون</mat-option> -->
               @for (item of availableExceptions(); track item.id) {
                 <mat-option [value]="item.id">{{
                   item.name.arabic
@@ -206,8 +205,17 @@
               <span><mat-icon>emoji_events</mat-icon> تسجيل في المسابقة</span>
             }
           </button>
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="registering()"
+            (click)="cancelForm()"
+          >
+            إلغاء
+          </button>
         </div>
       </form>
+      }
     </mat-card-content>
   </mat-card>
 </div>

@@ -1,4 +1,4 @@
-import { LocalizedName, LookupRef } from './lookup.model';
+import { LocalizedName, LookupRef } from "./lookup.model";
 
 /**
  * One level/track *nested inside* a competition, as returned by `GET /competition`
@@ -81,8 +81,7 @@ export interface RegisterCompetitionRequest {
   placeId: number | null;
   levelId: number;
   partsCount: number;
-  studyYearId: number | null;
   notes: string;
   /** Id from the `exceptions` lookup (`GET /lookup/exceptions`). */
-  exceptionId: number | null;
+  exceptionId: null | number[];
 }

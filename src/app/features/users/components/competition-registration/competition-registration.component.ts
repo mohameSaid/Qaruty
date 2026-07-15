@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   output,
@@ -33,7 +34,6 @@ import {
   CompetitionOption,
   RegisterCompetitionRequest,
 } from "../../models/competition.model";
-import { TreeSelectComponent } from "../../../../shared/components/tree-select/tree-select.component";
 
 @Component({
   selector: "app-competition-registration",
@@ -49,7 +49,6 @@ import { TreeSelectComponent } from "../../../../shared/components/tree-select/t
     MatProgressSpinnerModule,
     MatTableModule,
     MatTooltipModule,
-    TreeSelectComponent,
     NgxMatSelectSearchModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,24 +63,26 @@ export class CompetitionRegistrationComponent {
   readonly history = input<CompetitionHistoryItem[]>([]);
   readonly loadingHistory = input<boolean>(false);
   readonly registering = input<boolean>(false);
+  readonly resetTrigger = input<number>(0);
 
   readonly register = output<RegisterCompetitionRequest>();
   readonly evaluate = output<CompetitionHistoryItem>();
 
   readonly historyColumns = ["name", "level", "partsCount", "score", "actions"];
 
+  /** Form starts hidden behind the "Add" button; only one registration is edited at a time. */
+  readonly showForm = signal(false);
+
   readonly competitions = signal<CompetitionOption[]>([]);
   readonly instructors = signal<LookupItem[]>([]);
   readonly places = signal<LookupItem[]>([]);
-  readonly studyLevels = signal<LookupItem[]>([]);
   readonly loadingLookups = signal(false);
 
   readonly searchCtrl = new FormControl("");
 
-  private readonly instructorSearch = toSignal(
-    this.searchCtrl.valueChanges,
-    { initialValue: "" },
-  );
+  private readonly instructorSearch = toSignal(this.searchCtrl.valueChanges, {
+    initialValue: "",
+  });
 
   readonly filteredInstructors = computed(() => {
     const term = (this.instructorSearch() ?? "").trim().toLowerCase();
@@ -97,7 +98,6 @@ export class CompetitionRegistrationComponent {
     competitionId: this.fb.control<number | null>(null, Validators.required),
     levelId: this.fb.control<number | null>(null, Validators.required),
     partsCount: this.fb.control<number | null>(null, Validators.required),
-    studyYearId: this.fb.control<number | null>(null),
     instructorId: this.fb.control<number | null>(null),
     placeId: this.fb.control<number | null>(null),
     exceptionId: this.fb.control<number | null>(null),
@@ -141,6 +141,41 @@ export class CompetitionRegistrationComponent {
       const level = this.availableLevels().find((l) => l.id === levelId);
       this.form.controls.partsCount.setValue(level?.partsCount ?? null);
     });
+
+    let previousResetTrigger = this.resetTrigger();
+    effect(() => {
+      const trigger = this.resetTrigger();
+      if (trigger !== previousResetTrigger) {
+        previousResetTrigger = trigger;
+        this.form.reset({
+          competitionId: null,
+          levelId: null,
+          partsCount: null,
+          instructorId: null,
+          placeId: null,
+          exceptionId: null,
+          notes: "",
+        });
+        this.showForm.set(false);
+      }
+    });
+  }
+
+  openForm(): void {
+    this.showForm.set(true);
+  }
+
+  cancelForm(): void {
+    this.showForm.set(false);
+    this.form.reset({
+      competitionId: null,
+      levelId: null,
+      partsCount: null,
+      instructorId: null,
+      placeId: null,
+      exceptionId: null,
+      notes: "",
+    });
   }
 
   private loadLookups(): void {
@@ -163,13 +198,8 @@ export class CompetitionRegistrationComponent {
     this.lookupService
       .getPlaces()
       .pipe(catchError(() => of({ data: [] as LookupItem[], totalRecords: 0 })))
-      .subscribe((page) => this.places.set(page.data ?? []));
-
-    this.lookupService
-      .getStudyLevels()
-      .pipe(catchError(() => of({ data: [] as LookupItem[], totalRecords: 0 })))
       .subscribe((page) => {
-        this.studyLevels.set(page.data ?? []);
+        this.places.set(page.data ?? []);
         this.loadingLookups.set(false);
       });
   }
@@ -192,9 +222,8 @@ export class CompetitionRegistrationComponent {
       placeId: raw.placeId,
       levelId: raw.levelId!,
       partsCount: raw.partsCount!,
-      studyYearId: raw.studyYearId,
       notes: raw.notes,
-      exceptionId: raw.exceptionId,
+      exceptionId: raw.exceptionId ? [raw.exceptionId] : null,
     };
 
     this.register.emit(payload);

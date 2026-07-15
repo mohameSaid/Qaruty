@@ -59,6 +59,8 @@ export class UserFormPageComponent implements OnInit {
   readonly competitionHistory = signal<CompetitionHistoryItem[]>([]);
   readonly loadingCompetitionHistory = signal(false);
   readonly registeringCompetition = signal(false);
+  /** Bumped after each successful registration so the form can clear itself for the next entry. */
+  readonly competitionFormResetCounter = signal(0);
 
   /** The original submit's payload, kept so "continue as new" can resubmit it unchanged. */
   private lastSubmittedPayload: CreateUserRequest | null = null;
@@ -164,7 +166,9 @@ export class UserFormPageComponent implements OnInit {
       .subscribe((page) => this.competitionHistory.set(page?.data ?? []));
   }
 
-  /** Final step — registration is only complete once this succeeds, so success here is what navigates away. */
+  /** Registration is only complete once this succeeds, but the user may still want to register the
+   *  same person in another competition, so success here stays on this tab and refreshes the history
+   *  instead of navigating away. */
   onRegisterCompetition(payload: RegisterCompetitionRequest): void {
     this.registeringCompetition.set(true);
     this.competitionService
@@ -178,7 +182,11 @@ export class UserFormPageComponent implements OnInit {
           return;
         }
         this.snackbar.success('تم التسجيل في المسابقة بنجاح.');
-        this.goToList();
+        const person = this.finalizedPerson();
+        if (person) {
+          this.loadCompetitionHistory(person.id);
+        }
+        this.competitionFormResetCounter.update((v) => v + 1);
       });
   }
 
@@ -211,6 +219,7 @@ export class UserFormPageComponent implements OnInit {
       },
       birthDate: original.birthDate || match.birthDate,
       gender: original.gender ?? (match.gender?.id as Gender),
+      studyYearId: original.studyYearId,
       father: original.father,
       mother: original.mother,
     };
