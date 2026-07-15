@@ -247,9 +247,10 @@ export class UserFormComponent {
       .subscribe((value) => {
         const birthDate = extractBirthDateFromNationalId(value);
         if (birthDate) {
-          this.form.controls.birthDate.setValue(birthDate, {
-            emitEvent: false,
-          });
+          const birthDateControl = this.form.controls.birthDate;
+
+          birthDateControl.setValue(birthDate, { emitEvent: false });
+          birthDateControl.disable({ emitEvent: false });
         }
       });
   }
@@ -260,7 +261,10 @@ export class UserFormComponent {
       .subscribe((value) => {
         const gender = extractGenderFromNationalId(value);
         if (gender) {
-          this.form.controls.gender.setValue(gender, { emitEvent: false });
+          const genderControl = this.form.controls.gender;
+
+          genderControl.setValue(gender, { emitEvent: false });
+          genderControl.disable({ emitEvent: false });
         }
       });
   }
@@ -284,7 +288,7 @@ export class UserFormComponent {
     this.form.controls.village.enable({ emitEvent: false });
 
     this.form.patchValue({
-      nationalId: String(user.nationalId),
+      nationalId: user.nationalId != null ? String(user.nationalId) : undefined,
       arabicName: user.name.arabic,
       englishName: user.name.english,
       birthDate: user.birthDate ? new Date(user.birthDate) : null,
@@ -299,10 +303,6 @@ export class UserFormComponent {
       father: this.parentToFormValue(user.father),
       mother: this.parentToFormValue(user.mother),
     });
-
-    // National ID should not change once a record exists.
-    if (user.nationalId)
-      this.form.controls.nationalId.disable({ emitEvent: false });
 
     // Load dependent lookups directly so the saved city/village show up
     // without waiting on the cascading valueChanges pipeline.

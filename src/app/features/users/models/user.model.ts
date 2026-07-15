@@ -1,4 +1,4 @@
-import { LookupRef } from './lookup.model';
+import { LookupRef } from "./lookup.model";
 
 export enum Gender {
   Male = 1,
@@ -112,8 +112,8 @@ export interface PersonMatch {
  * distinguishes the two by checking whether `data` is itself paged.
  */
 export type CreateUserResult =
-  | { kind: 'created'; person: UserDetail }
-  | { kind: 'similar'; matches: PersonMatch[] };
+  | { kind: "created"; person: UserDetail }
+  | { kind: "similar"; matches: PersonMatch[] };
 
 /**
  * Shape of each item in the paged `GET /user` list response.
@@ -138,7 +138,7 @@ export interface UserListItem {
  */
 export interface UserDetail {
   id: number;
-  nationalId: number;
+  nationalId?: string | null;
   name: UserName;
   gender: LookupRef;
   birthDate: string;

@@ -142,7 +142,7 @@
 
               @for (item of filteredInstructors(); track item.id) {
                 <mat-option [value]="item.id">
-                  {{ item.name.arabic }}
+                  {{ item.name?.arabic }}
                 </mat-option>
               }
             </mat-select>

@@ -2,10 +2,16 @@
   <div class="page-header">
     <div>
       <h1 class="page-title">المستخدمون</h1>
-      <p class="page-subtitle">تصفح وابحث وأدر بيانات السكان المسجلين.</p>
+      <p class="page-subtitle">
+        تصفح وابحث وأدر بيانات السكان المسجلين بسهولة وكفاءة.
+      </p>
     </div>
     <div class="header-actions">
-      <button mat-stroked-button [disabled]="exporting()" (click)="onExportExcel()">
+      <button
+        mat-stroked-button
+        [disabled]="exporting()"
+        (click)="onExportExcel()"
+      >
         @if (exporting()) {
           <mat-progress-spinner diameter="18" mode="indeterminate" />
         } @else {
