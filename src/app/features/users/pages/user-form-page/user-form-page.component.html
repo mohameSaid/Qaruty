@@ -48,6 +48,7 @@
           </p>
           <app-competition-registration
             [userId]="person.id"
+            [defaultStudyYearId]="person.studyYearId"
             [history]="competitionHistory()"
             [loadingHistory]="loadingCompetitionHistory()"
             [registering]="registeringCompetition()"

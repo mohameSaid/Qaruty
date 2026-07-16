@@ -5,7 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "build:gh": "npm run build -- --base-href=/Qaruty/",
+    "deploy": "npx angular-cli-ghpages --dir=dist/qaryati-app/browser"
   },
   "private": true,
   "dependencies": {

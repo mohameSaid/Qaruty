@@ -7,6 +7,7 @@ export const environment = {
   baseUrl: "https://qaryati.onrender.com",
 
   // baseUrl: "https://qaryati-java-production.up.railway.app",
+  // baseUrl: "https://qaryati-uat.onrender.com",
 
   auth: {
     username: "admin",

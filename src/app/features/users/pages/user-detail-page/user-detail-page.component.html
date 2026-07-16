@@ -303,6 +303,7 @@
           <div class="competition-tab">
             <app-competition-registration
               [userId]="user()!.id"
+              [defaultStudyYearId]="user()!.study?.studyYear?.id ?? null"
               [history]="competitionHistory()"
               [loadingHistory]="loadingHistory()"
               [registering]="registering()"

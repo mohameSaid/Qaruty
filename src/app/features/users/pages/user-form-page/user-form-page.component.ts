@@ -54,7 +54,11 @@ export class UserFormPageComponent implements OnInit {
   readonly submittingNew = signal(false);
 
   /** Set once the person is created/selected — the registration stays on this page until competition assignment succeeds. */
-  readonly finalizedPerson = signal<{ id: number; name: string } | null>(null);
+  readonly finalizedPerson = signal<{
+    id: number;
+    name: string;
+    studyYearId: number | null;
+  } | null>(null);
 
   readonly competitionHistory = signal<CompetitionHistoryItem[]>([]);
   readonly loadingCompetitionHistory = signal(false);
@@ -100,7 +104,7 @@ export class UserFormPageComponent implements OnInit {
 
   onUpdate(event: { id: number; payload: CreateUserRequest }): void {
     this.store.updateUser(event.id, event.payload, () =>
-      this.finalizePerson(event.id, event.payload.name.arabic)
+      this.finalizePerson(event.id, event.payload.name.arabic, event.payload.studyYearId)
     );
   }
 
@@ -146,11 +150,11 @@ export class UserFormPageComponent implements OnInit {
       return;
     }
 
-    this.finalizePerson(userId, payload.name.arabic || person?.name?.arabic || '');
+    this.finalizePerson(userId, payload.name.arabic || person?.name?.arabic || '', payload.studyYearId);
   }
 
-  private finalizePerson(id: number, name: string): void {
-    this.finalizedPerson.set({ id, name });
+  private finalizePerson(id: number, name: string, studyYearId: number | null): void {
+    this.finalizedPerson.set({ id, name, studyYearId });
     this.activeTabIndex.set(1);
     this.loadCompetitionHistory(id);
   }

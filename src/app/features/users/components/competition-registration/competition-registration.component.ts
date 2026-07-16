@@ -34,6 +34,7 @@ import {
   CompetitionOption,
   RegisterCompetitionRequest,
 } from "../../models/competition.model";
+import { TreeSelectComponent } from "../../../../shared/components/tree-select/tree-select.component";
 
 @Component({
   selector: "app-competition-registration",
@@ -49,6 +50,7 @@ import {
     MatProgressSpinnerModule,
     MatTableModule,
     MatTooltipModule,
+    TreeSelectComponent,
     NgxMatSelectSearchModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,6 +66,8 @@ export class CompetitionRegistrationComponent {
   readonly loadingHistory = input<boolean>(false);
   readonly registering = input<boolean>(false);
   readonly resetTrigger = input<number>(0);
+  /** The person's own study year (from `UserDetail.study.studyYear`) — prefills the field below but stays editable. */
+  readonly defaultStudyYearId = input<number | null>(null);
 
   readonly register = output<RegisterCompetitionRequest>();
   readonly evaluate = output<CompetitionHistoryItem>();
@@ -76,6 +80,7 @@ export class CompetitionRegistrationComponent {
   readonly competitions = signal<CompetitionOption[]>([]);
   readonly instructors = signal<LookupItem[]>([]);
   readonly places = signal<LookupItem[]>([]);
+  readonly studyLevels = signal<LookupItem[]>([]);
   readonly loadingLookups = signal(false);
 
   readonly searchCtrl = new FormControl("");
@@ -98,10 +103,11 @@ export class CompetitionRegistrationComponent {
     competitionId: this.fb.control<number | null>(null, Validators.required),
     levelId: this.fb.control<number | null>(null, Validators.required),
     partsCount: this.fb.control<number | null>(null, Validators.required),
+    studyYearId: this.fb.control<number | null>(null),
     instructorId: this.fb.control<number | null>(null),
     placeId: this.fb.control<number | null>(null),
-    exceptionId: this.fb.control<number | null>(null),
-    notes: [""],
+    exceptionId: this.fb.nonNullable.control<number[]>([]),
+    notes: [null],
   });
 
   /** Tracks the competition select reactively so the level dropdown can cascade from it. */
@@ -129,11 +135,18 @@ export class CompetitionRegistrationComponent {
   constructor() {
     this.loadLookups();
 
+    // Prefills the study-year field from the person's own record; stays editable afterwards.
+    effect(() => {
+      this.form.controls.studyYearId.setValue(this.defaultStudyYearId(), {
+        emitEvent: false,
+      });
+    });
+
     // Changing the competition invalidates the previously chosen level/parts/exception.
     this.form.controls.competitionId.valueChanges.subscribe(() => {
       this.form.controls.levelId.setValue(null);
       this.form.controls.partsCount.setValue(null);
-      this.form.controls.exceptionId.setValue(null);
+      this.form.controls.exceptionId.setValue([]);
     });
 
     // Parts count is a property of the level, not something the judge types by hand.
@@ -151,10 +164,11 @@ export class CompetitionRegistrationComponent {
           competitionId: null,
           levelId: null,
           partsCount: null,
+          studyYearId: this.defaultStudyYearId(),
           instructorId: null,
           placeId: null,
-          exceptionId: null,
-          notes: "",
+          exceptionId: [],
+          notes: null,
         });
         this.showForm.set(false);
       }
@@ -171,10 +185,11 @@ export class CompetitionRegistrationComponent {
       competitionId: null,
       levelId: null,
       partsCount: null,
+      studyYearId: this.defaultStudyYearId(),
       instructorId: null,
       placeId: null,
-      exceptionId: null,
-      notes: "",
+      exceptionId: [],
+      notes: null,
     });
   }
 
@@ -198,8 +213,13 @@ export class CompetitionRegistrationComponent {
     this.lookupService
       .getPlaces()
       .pipe(catchError(() => of({ data: [] as LookupItem[], totalRecords: 0 })))
+      .subscribe((page) => this.places.set(page.data ?? []));
+
+    this.lookupService
+      .getStudyLevels()
+      .pipe(catchError(() => of({ data: [] as LookupItem[], totalRecords: 0 })))
       .subscribe((page) => {
-        this.places.set(page.data ?? []);
+        this.studyLevels.set(page.data ?? []);
         this.loadingLookups.set(false);
       });
   }
@@ -222,8 +242,9 @@ export class CompetitionRegistrationComponent {
       placeId: raw.placeId,
       levelId: raw.levelId!,
       partsCount: raw.partsCount!,
+      studyYearId: raw.studyYearId,
       notes: raw.notes,
-      exceptionId: raw.exceptionId ? [raw.exceptionId] : null,
+      exceptionId: raw.exceptionId.length ? raw.exceptionId : null,
     };
 
     this.register.emit(payload);

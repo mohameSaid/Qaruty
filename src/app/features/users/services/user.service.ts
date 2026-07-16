@@ -83,6 +83,27 @@ export class UserService {
       .pipe(map((res) => res.data));
   }
 
+  getFathers(): Observable<UserListItem[]> {
+    return this.http
+      .get<ApiEnvelope<UserListItem[] | PagedData<UserListItem>>>(`${this.baseUrl}/father`)
+      .pipe(map((res) => this.toFlatList(res.data)));
+  }
+
+  getMothers(): Observable<UserListItem[]> {
+    return this.http
+      .get<ApiEnvelope<UserListItem[] | PagedData<UserListItem>>>(`${this.baseUrl}/mother`)
+      .pipe(map((res) => this.toFlatList(res.data)));
+  }
+
+  /**
+   * `/father` and `/mother` weren't confirmed against a live paged response like the rest of this
+   * service's list endpoints — this normalizes either a bare array or the usual `{ data, totalRecords }`
+   * envelope so a shape mismatch can't crash callers with "list.filter is not a function".
+   */
+  private toFlatList<T>(data: T[] | PagedData<T>): T[] {
+    return Array.isArray(data) ? data : (data?.data ?? []);
+  }
+
   createUser(payload: CreateUserRequest): Observable<CreateUserResult> {
     return this.http
       .post<

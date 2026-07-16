@@ -11,14 +11,14 @@ import {
   inject,
   input,
   signal,
-} from '@angular/core';
-import { NgTemplateOutlet } from '@angular/common';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
-import { ConnectedPosition, Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { TemplatePortal } from '@angular/cdk/portal';
+} from "@angular/core";
+import { NgTemplateOutlet } from "@angular/common";
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
+import { MatIconModule } from "@angular/material/icon";
+import { ConnectedPosition, Overlay, OverlayRef } from "@angular/cdk/overlay";
+import { TemplatePortal } from "@angular/cdk/portal";
 
-import { LookupItem } from '../../../features/users/models/lookup.model';
+import { LookupItem } from "../../../features/users/models/lookup.model";
 
 /**
  * Dropdown "tree select" for hierarchical lookups (e.g. `/lookup/studyLevel?withChildren=true`,
@@ -37,7 +37,7 @@ import { LookupItem } from '../../../features/users/models/lookup.model';
  * available — when there isn't room below the trigger.
  */
 @Component({
-  selector: 'app-tree-select',
+  selector: "app-tree-select",
   standalone: true,
   imports: [MatIconModule, NgTemplateOutlet],
   providers: [
@@ -48,17 +48,19 @@ import { LookupItem } from '../../../features/users/models/lookup.model';
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './tree-select.component.html',
-  styleUrl: './tree-select.component.scss',
+  templateUrl: "./tree-select.component.html",
+  styleUrl: "./tree-select.component.scss",
 })
 export class TreeSelectComponent implements ControlValueAccessor, OnDestroy {
   readonly nodes = input<LookupItem[]>([]);
-  readonly label = input('اختر');
-  readonly placeholder = input('اختر من القائمة');
+  readonly label = input("اختر");
+  readonly placeholder = input("اختر من القائمة");
   readonly clearable = input(true);
 
-  @ViewChild('trigger', { static: true }) private readonly triggerRef!: ElementRef<HTMLElement>;
-  @ViewChild('panelTpl', { static: true }) private readonly panelTpl!: TemplateRef<unknown>;
+  @ViewChild("trigger", { static: true })
+  private readonly triggerRef!: ElementRef<HTMLElement>;
+  @ViewChild("panelTpl", { static: true })
+  private readonly panelTpl!: TemplateRef<unknown>;
 
   private readonly overlay = inject(Overlay);
   private readonly viewContainerRef = inject(ViewContainerRef);
@@ -74,9 +76,9 @@ export class TreeSelectComponent implements ControlValueAccessor, OnDestroy {
   readonly selectedLabel = computed(() => {
     const id = this.selectedId();
     if (id == null) {
-      return '';
+      return "";
     }
-    return this.findPath(this.nodes(), id) ?? '';
+    return this.findPath(this.nodes(), id) ?? "";
   });
 
   private onChange: (value: number | null) => void = () => {};
@@ -114,12 +116,6 @@ export class TreeSelectComponent implements ControlValueAccessor, OnDestroy {
     return !!node.children?.length;
   }
 
-  selectNode(node: LookupItem): void {
-    this.selectedId.set(node.id);
-    this.onChange(node.id);
-    this.closePanel();
-  }
-
   clearSelection(event: MouseEvent): void {
     event.stopPropagation();
     this.selectedId.set(null);
@@ -127,14 +123,22 @@ export class TreeSelectComponent implements ControlValueAccessor, OnDestroy {
     this.onTouched();
   }
 
-  ngOnDestroy(): void {
-    this.overlayRef?.dispose();
-  }
-
   private openPanel(): void {
     const positions: ConnectedPosition[] = [
-      { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 4 },
-      { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -4 },
+      {
+        originX: "start",
+        originY: "bottom",
+        overlayX: "start",
+        overlayY: "top",
+        offsetY: 4,
+      },
+      {
+        originX: "start",
+        originY: "top",
+        overlayX: "start",
+        overlayY: "bottom",
+        offsetY: -4,
+      },
     ];
 
     const positionStrategy = this.overlay
@@ -147,25 +151,29 @@ export class TreeSelectComponent implements ControlValueAccessor, OnDestroy {
       .withPush(true);
 
     positionStrategy.positionChanges.subscribe((change) => {
-      this.openAbove.set(change.connectionPair.overlayY === 'bottom');
+      this.openAbove.set(change.connectionPair.overlayY === "bottom");
     });
 
     this.overlayRef = this.overlay.create({
       positionStrategy,
-      scrollStrategy: this.overlay.scrollStrategies.reposition({ scrollThrottle: 20 }),
+      scrollStrategy: this.overlay.scrollStrategies.reposition({
+        scrollThrottle: 20,
+      }),
       hasBackdrop: true,
-      backdropClass: 'cdk-overlay-transparent-backdrop',
+      backdropClass: "cdk-overlay-transparent-backdrop",
       width: this.triggerRef.nativeElement.getBoundingClientRect().width,
     });
 
     this.overlayRef.backdropClick().subscribe(() => this.closePanel());
     this.overlayRef.keydownEvents().subscribe((event) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         this.closePanel();
       }
     });
 
-    this.overlayRef.attach(new TemplatePortal(this.panelTpl, this.viewContainerRef));
+    this.overlayRef.attach(
+      new TemplatePortal(this.panelTpl, this.viewContainerRef),
+    );
     this.open.set(true);
   }
 
@@ -179,11 +187,15 @@ export class TreeSelectComponent implements ControlValueAccessor, OnDestroy {
     this.onTouched();
   }
 
-  private findPath(nodes: LookupItem[], id: number, trail: string[] = []): string | null {
+  private findPath(
+    nodes: LookupItem[],
+    id: number,
+    trail: string[] = [],
+  ): string | null {
     for (const node of nodes) {
       const path = [...trail, node.name.arabic];
       if (node.id === id) {
-        return path.join(' > ');
+        return path.join(" > ");
       }
       if (node.children?.length) {
         const found = this.findPath(node.children, id, path);
@@ -214,5 +226,26 @@ export class TreeSelectComponent implements ControlValueAccessor, OnDestroy {
     if (isDisabled) {
       this.closePanel();
     }
+  }
+
+  onNodeClick(node: LookupItem, event: MouseEvent): void {
+    event.stopPropagation();
+
+    if (this.hasChildren(node)) {
+      this.toggleExpand(node, event);
+      return;
+    }
+
+    this.selectNode(node);
+  }
+
+  selectNode(node: LookupItem): void {
+    this.selectedId.set(node.id);
+    this.onChange(node.id);
+    this.closePanel();
+  }
+
+  ngOnDestroy(): void {
+    this.overlayRef?.dispose();
   }
 }

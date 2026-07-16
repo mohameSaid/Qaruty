@@ -7,9 +7,15 @@ import {
   input,
   output,
   signal,
+  WritableSignal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  Validators,
+} from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDatepickerModule } from "@angular/material/datepicker";
@@ -21,10 +27,25 @@ import { MatInputModule } from "@angular/material/input";
 import { MatNativeDateModule } from "@angular/material/core";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
-import { distinctUntilChanged, switchMap, of, catchError } from "rxjs";
+import {
+  distinctUntilChanged,
+  switchMap,
+  of,
+  catchError,
+  debounceTime,
+  filter,
+  finalize,
+  tap,
+} from "rxjs";
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
 
 import { LookupService } from "../../services/lookup.service";
-import { City, Governorate, LookupItem, Village } from "../../models/lookup.model";
+import {
+  City,
+  Governorate,
+  LookupItem,
+  Village,
+} from "../../models/lookup.model";
 import { TreeSelectComponent } from "../../../../shared/components/tree-select/tree-select.component";
 import {
   CreateUserRequest,
@@ -33,6 +54,7 @@ import {
   ParentPayload,
   UserAddress,
   UserDetail,
+  UserListItem,
 } from "../../models/user.model";
 import {
   nationalIdValidator,
@@ -44,6 +66,7 @@ import {
   extractGenderFromNationalId,
 } from "../../../../shared/utils/national-id.util";
 import { minWordsValidator } from "../../../../shared/validators/shared-validators";
+import { UserService } from "../../services/user.service";
 
 /** Fallback address applied to new (create-mode) records. */
 const DEFAULT_ADDRESS = { governorate: 10, city: 1, village: 1, details: "" };
@@ -65,6 +88,7 @@ const DEFAULT_ADDRESS = { governorate: 10, city: 1, village: 1, details: "" };
     MatNativeDateModule,
     MatProgressSpinnerModule,
     TreeSelectComponent,
+    MatAutocompleteModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./user-form.component.html",
@@ -73,6 +97,7 @@ const DEFAULT_ADDRESS = { governorate: 10, city: 1, village: 1, details: "" };
 export class UserFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly lookupService = inject(LookupService);
+  private readonly userService = inject(UserService);
 
   /** When set, the form is in Edit Mode; otherwise Create Mode. */
   readonly editingUser = input<UserDetail | null>(null);
@@ -94,6 +119,12 @@ export class UserFormComponent {
   readonly villages = signal<Village[]>([]);
   readonly studyLevels = signal<LookupItem[]>([]);
   readonly loadingLookups = signal(false);
+
+  readonly userArabicNames = signal<UserListItem[]>([]);
+  readonly fatherArabicNames = signal<UserListItem[]>([]);
+  readonly motherArabicNames = signal<UserListItem[]>([]);
+  readonly fathers = signal<UserListItem[]>([]);
+  readonly mothers = signal<UserListItem[]>([]);
 
   readonly form = this.fb.nonNullable.group({
     nationalId: ["", [Validators.required, nationalIdValidator()]],
@@ -120,7 +151,10 @@ export class UserFormComponent {
     email: ["", [Validators.email]],
     father: this.fb.nonNullable.group({
       id: this.fb.control<number | null>(null),
-      nationalId: ["", [nationalIdValidator(), parentGenderValidator(Gender.Male)]],
+      nationalId: [
+        "",
+        [nationalIdValidator(), parentGenderValidator(Gender.Male)],
+      ],
       arabicName: [""],
       englishName: [""],
       mobileNumber: ["", mobileNumberValidator()],
@@ -128,7 +162,10 @@ export class UserFormComponent {
     }),
     mother: this.fb.nonNullable.group({
       id: this.fb.control<number | null>(null),
-      nationalId: ["", [nationalIdValidator(), parentGenderValidator(Gender.Female)]],
+      nationalId: [
+        "",
+        [nationalIdValidator(), parentGenderValidator(Gender.Female)],
+      ],
       arabicName: [""],
       englishName: [""],
       mobileNumber: ["", mobileNumberValidator()],
@@ -143,6 +180,7 @@ export class UserFormComponent {
   readonly motherGender = signal<Gender | null>(null);
 
   constructor() {
+    this.loadFathersAndMothers();
     this.loadGovernorates();
     this.loadStudyLevels();
     this.loadDependentLookupsFor(
@@ -153,6 +191,7 @@ export class UserFormComponent {
     this.wireBirthDateAutofill();
     this.wireGenderAutofill();
     this.wireParentBirthDateAutofill();
+    this.subscribeToArabicNameSearch();
 
     // Populate the form whenever the parent hands us a user to edit (or clears it).
     effect(() => {
@@ -165,6 +204,18 @@ export class UserFormComponent {
     });
   }
 
+  private loadFathersAndMothers(): void {
+    this.loadingLookups.set(true);
+    this.userService.getMothers().subscribe((page) => {
+      this.mothers.set(page ?? []);
+      this.loadingLookups.set(false);
+    });
+    this.loadingLookups.set(true);
+    this.userService.getFathers().subscribe((page) => {
+      this.fathers.set(page ?? []);
+      this.loadingLookups.set(false);
+    });
+  }
   private loadGovernorates(): void {
     this.loadingLookups.set(true);
     this.lookupService
@@ -469,5 +520,81 @@ export class UserFormComponent {
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
+  }
+  private normalizeArabic(value: string): string {
+    return value
+      .trim()
+      .toLowerCase()
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ى/g, "ي")
+      .replace(/ة/g, "ه")
+      .replace(/[ًٌٍَُِّْـ]/g, "")
+      .replace(/\s+/g, " ");
+  }
+
+  displayUser(value: UserListItem | string | null): string {
+    if (!value) {
+      return "";
+    }
+    return typeof value === "string" ? value : value.name.arabic;
+  }
+
+  /** User picked a match from the autocomplete — reuse that person's own record instead of retyping it. */
+  onSelectFather(user: UserListItem): void {
+    this.form.controls.father.patchValue({
+      id: user.id,
+      nationalId: user.nationalId != null ? String(user.nationalId) : "",
+      arabicName: user.name.arabic,
+      englishName: user.name.english ?? "",
+      mobileNumber: user.mobileNumber ?? "",
+      email: user.email ?? "",
+    });
+  }
+
+  onSelectMother(user: UserListItem): void {
+    this.form.controls.mother.patchValue({
+      id: user.id,
+      nationalId: user.nationalId != null ? String(user.nationalId) : "",
+      arabicName: user.name.arabic,
+      englishName: user.name.english ?? "",
+      mobileNumber: user.mobileNumber ?? "",
+      email: user.email ?? "",
+    });
+  }
+
+   private subscribeToArabicNameSearch(): void {
+    this.form.controls.father.controls.arabicName.valueChanges
+      .pipe(
+        debounceTime(150),
+        filter((value): value is string => typeof value === "string"),
+        takeUntilDestroyed(),
+      )
+      .subscribe((value) => {
+        this.fatherArabicNames.set(
+          this.filterByArabicName(this.fathers(), value),
+        );
+      });
+
+    this.form.controls.mother.controls.arabicName.valueChanges
+      .pipe(
+        debounceTime(150),
+        filter((value): value is string => typeof value === "string"),
+        takeUntilDestroyed(),
+      )
+      .subscribe((value) => {
+        this.motherArabicNames.set(
+          this.filterByArabicName(this.mothers(), value),
+        );
+      });
+  }
+
+  private filterByArabicName(list: UserListItem[], value: string): UserListItem[] {
+    const term = this.normalizeArabic(value);
+    if (!term) {
+      return [];
+    }
+    return list.filter((item) =>
+      this.normalizeArabic(item.name.arabic).includes(term),
+    );
   }
 }
