@@ -84,5 +84,5 @@ export interface RegisterCompetitionRequest {
   studyYearId: number | null;
   notes: string | null;
   /** Id from the `exceptions` lookup (`GET /lookup/exceptions`). */
-  exceptionId: null | number[];
+  exceptionIdList: null | number[];
 }

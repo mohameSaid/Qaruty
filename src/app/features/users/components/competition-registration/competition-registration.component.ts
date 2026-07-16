@@ -106,7 +106,7 @@ export class CompetitionRegistrationComponent {
     studyYearId: this.fb.control<number | null>(null),
     instructorId: this.fb.control<number | null>(null),
     placeId: this.fb.control<number | null>(null),
-    exceptionId: this.fb.nonNullable.control<number[]>([]),
+    exceptionIdList: this.fb.nonNullable.control<number[]>([]),
     notes: [null],
   });
 
@@ -146,7 +146,7 @@ export class CompetitionRegistrationComponent {
     this.form.controls.competitionId.valueChanges.subscribe(() => {
       this.form.controls.levelId.setValue(null);
       this.form.controls.partsCount.setValue(null);
-      this.form.controls.exceptionId.setValue([]);
+      this.form.controls.exceptionIdList.setValue([]);
     });
 
     // Parts count is a property of the level, not something the judge types by hand.
@@ -167,7 +167,7 @@ export class CompetitionRegistrationComponent {
           studyYearId: this.defaultStudyYearId(),
           instructorId: null,
           placeId: null,
-          exceptionId: [],
+          exceptionIdList: [],
           notes: null,
         });
         this.showForm.set(false);
@@ -188,7 +188,7 @@ export class CompetitionRegistrationComponent {
       studyYearId: this.defaultStudyYearId(),
       instructorId: null,
       placeId: null,
-      exceptionId: [],
+      exceptionIdList: [],
       notes: null,
     });
   }
@@ -244,7 +244,7 @@ export class CompetitionRegistrationComponent {
       partsCount: raw.partsCount!,
       studyYearId: raw.studyYearId,
       notes: raw.notes,
-      exceptionId: raw.exceptionId.length ? raw.exceptionId : null,
+      exceptionIdList: raw.exceptionIdList.length ? raw.exceptionIdList : null,
     };
 
     this.register.emit(payload);

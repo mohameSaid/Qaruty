@@ -4,26 +4,14 @@
       <mat-icon class="brand-icon">groups</mat-icon>
       <span class="brand-title">قريتي - كفر أبو الحسن</span>
       <span class="spacer"></span>
-      <!-- <p class="ayah">‏ ‏‏ ‏‏‏‏ ‏‏‏‏‏‏  </p> -->
-      <span class="spacer"></span>
       <button
         mat-icon-button
-        [matTooltip]="
-          theme.mode() === 'dark'
-            ? 'التبديل إلى الوضع الفاتح'
-            : 'التبديل إلى الوضع الداكن'
-        "
+        [matTooltip]="theme.mode() === 'dark' ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الداكن'"
         (click)="theme.toggle()"
       >
-        <mat-icon>{{
-          theme.mode() === "dark" ? "light_mode" : "dark_mode"
-        }}</mat-icon>
+        <mat-icon>{{ theme.mode() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
-      <button
-        mat-icon-button
-        matTooltip="تسجيل الخروج ({{ auth.username() }})"
-        (click)="logout()"
-      >
+      <button mat-icon-button matTooltip="تسجيل الخروج ({{ auth.username() }})" (click)="logout()">
         <mat-icon>logout</mat-icon>
       </button>
     </mat-toolbar>
