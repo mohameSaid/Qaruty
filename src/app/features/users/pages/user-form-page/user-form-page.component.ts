@@ -1,23 +1,39 @@
-import { ChangeDetectionStrategy, Component, OnInit, effect, inject, input, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTabsModule } from '@angular/material/tabs';
-import { catchError, finalize, of } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  effect,
+  inject,
+  input,
+  signal,
+} from "@angular/core";
+import { Router } from "@angular/router";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatTabsModule } from "@angular/material/tabs";
+import { catchError, finalize, of } from "rxjs";
 
-import { UsersStore } from '../../store/users.store';
-import { UserService } from '../../services/user.service';
-import { CompetitionService } from '../../services/competition.service';
-import { SnackbarService } from '../../../../core/services/snackbar.service';
-import { UserFormComponent } from '../../components/user-form/user-form.component';
-import { SimilarPersonsComponent } from '../../components/similar-persons/similar-persons.component';
-import { CompetitionRegistrationComponent } from '../../components/competition-registration/competition-registration.component';
-import { CreateUserRequest, Gender, PersonMatch, UserDetail } from '../../models/user.model';
-import { CompetitionHistoryItem, RegisterCompetitionRequest } from '../../models/competition.model';
+import { UsersStore } from "../../store/users.store";
+import { UserService } from "../../services/user.service";
+import { CompetitionService } from "../../services/competition.service";
+import { SnackbarService } from "../../../../core/services/snackbar.service";
+import { UserFormComponent } from "../../components/user-form/user-form.component";
+import { SimilarPersonsComponent } from "../../components/similar-persons/similar-persons.component";
+import { CompetitionRegistrationComponent } from "../../components/competition-registration/competition-registration.component";
+import {
+  CreateUserRequest,
+  Gender,
+  PersonMatch,
+  UserDetail,
+} from "../../models/user.model";
+import {
+  CompetitionHistoryItem,
+  RegisterCompetitionRequest,
+} from "../../models/competition.model";
 
 @Component({
-  selector: 'app-user-form-page',
+  selector: "app-user-form-page",
   standalone: true,
   imports: [
     MatButtonModule,
@@ -29,8 +45,8 @@ import { CompetitionHistoryItem, RegisterCompetitionRequest } from '../../models
     CompetitionRegistrationComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './user-form-page.component.html',
-  styleUrl: './user-form-page.component.scss',
+  templateUrl: "./user-form-page.component.html",
+  styleUrl: "./user-form-page.component.scss",
 })
 export class UserFormPageComponent implements OnInit {
   /** Bound from the `:nationalId` route param via withComponentInputBinding(); absent on /users/new. */
@@ -92,19 +108,25 @@ export class UserFormPageComponent implements OnInit {
           this.resolveError.set(true);
           return of(null);
         }),
-        finalize(() => this.resolving.set(false))
+        finalize(() => this.resolving.set(false)),
       )
       .subscribe((user) => this.editingUser.set(user));
   }
 
   onCreate(payload: CreateUserRequest): void {
     this.lastSubmittedPayload = payload;
-    this.store.createUser(payload, (person) => this.onPersonFinalized(payload, person));
+    this.store.createUser(payload, (person) =>
+      this.onPersonFinalized(payload, person),
+    );
   }
 
   onUpdate(event: { id: number; payload: CreateUserRequest }): void {
     this.store.updateUser(event.id, event.payload, () =>
-      this.finalizePerson(event.id, event.payload.name.arabic, event.payload.studyYearId)
+      this.finalizePerson(
+        event.id,
+        event.payload.name.arabic,
+        event.payload.studyYearId,
+      ),
     );
   }
 
@@ -115,7 +137,7 @@ export class UserFormPageComponent implements OnInit {
     this.store.createUser(
       payload,
       (person) => this.onPersonFinalized(payload, person),
-      () => this.selectingMatchId.set(null)
+      () => this.selectingMatchId.set(null),
     );
   }
 
@@ -125,11 +147,12 @@ export class UserFormPageComponent implements OnInit {
       return;
     }
     const payload = this.lastSubmittedPayload;
+    payload.id = 0;
     this.submittingNew.set(true);
     this.store.createUser(
       payload,
       (person) => this.onPersonFinalized(payload, person),
-      () => this.submittingNew.set(false)
+      () => this.submittingNew.set(false),
     );
   }
 
@@ -144,16 +167,27 @@ export class UserFormPageComponent implements OnInit {
    * and student id are built from what we submitted — which is always complete — falling back to the
    * response only when the payload itself didn't carry that field (a genuinely new record's id).
    */
-  private onPersonFinalized(payload: CreateUserRequest, person: UserDetail): void {
-    const userId = payload.id ?? person?.id;
+  private onPersonFinalized(
+    payload: CreateUserRequest,
+    person: UserDetail,
+  ): void {
+    const userId = payload.id ? payload.id : person?.id;
     if (!userId) {
       return;
     }
 
-    this.finalizePerson(userId, payload.name.arabic || person?.name?.arabic || '', payload.studyYearId);
+    this.finalizePerson(
+      userId,
+      payload.name.arabic || person?.name?.arabic || "",
+      payload.studyYearId,
+    );
   }
 
-  private finalizePerson(id: number, name: string, studyYearId: number | null): void {
+  private finalizePerson(
+    id: number,
+    name: string,
+    studyYearId: number | null,
+  ): void {
     this.finalizedPerson.set({ id, name, studyYearId });
     this.activeTabIndex.set(1);
     this.loadCompetitionHistory(id);
@@ -162,10 +196,15 @@ export class UserFormPageComponent implements OnInit {
   private loadCompetitionHistory(userId: number): void {
     this.loadingCompetitionHistory.set(true);
     this.competitionService
-      .getStudentHistory(userId, { pageNo: 0, size: 10, sortColumn: 'id', sortDirection: 'DESC' })
+      .getStudentHistory(userId, {
+        pageNo: 0,
+        size: 10,
+        sortColumn: "id",
+        sortDirection: "DESC",
+      })
       .pipe(
         catchError(() => of(null)),
-        finalize(() => this.loadingCompetitionHistory.set(false))
+        finalize(() => this.loadingCompetitionHistory.set(false)),
       )
       .subscribe((page) => this.competitionHistory.set(page?.data ?? []));
   }
@@ -179,13 +218,13 @@ export class UserFormPageComponent implements OnInit {
       .registerCompetition(payload)
       .pipe(
         catchError(() => of(null)),
-        finalize(() => this.registeringCompetition.set(false))
+        finalize(() => this.registeringCompetition.set(false)),
       )
       .subscribe((result) => {
         if (!result) {
           return;
         }
-        this.snackbar.success('تم التسجيل في المسابقة بنجاح.');
+        this.snackbar.success("تم التسجيل في المسابقة بنجاح.");
         const person = this.finalizedPerson();
         if (person) {
           this.loadCompetitionHistory(person.id);
@@ -208,18 +247,23 @@ export class UserFormPageComponent implements OnInit {
       nationalId: original.nationalId || match.nationalId || 0,
       name: {
         arabic: original.name.arabic || match.name.arabic,
-        english: original.name.english || match.name.english || '',
+        english: original.name.english || match.name.english || "",
       },
       address: {
-        governorate: original.address.governorate || match.address.governorate?.id || 0,
+        governorate:
+          original.address.governorate || match.address.governorate?.id || 0,
         city: original.address.city || match.address.city?.id || 0,
         village: original.address.village || match.address.village?.id || 0,
-        details: original.address.details || match.address.details || '',
+        details: original.address.details || match.address.details || "",
       },
       contact: {
-        email: original.contact.email || match.contact?.email || '',
-        mobileNumber: original.contact.mobileNumber || match.contact?.mobileNumber || '',
-        otherMobileNumber: original.contact.otherMobileNumber || match.contact?.otherMobileNumber || '',
+        email: original.contact.email || match.contact?.email || "",
+        mobileNumber:
+          original.contact.mobileNumber || match.contact?.mobileNumber || "",
+        otherMobileNumber:
+          original.contact.otherMobileNumber ||
+          match.contact?.otherMobileNumber ||
+          "",
       },
       birthDate: original.birthDate || match.birthDate,
       gender: original.gender ?? (match.gender?.id as Gender),
@@ -230,6 +274,6 @@ export class UserFormPageComponent implements OnInit {
   }
 
   private goToList(): void {
-    this.router.navigate(['/users']);
+    this.router.navigate(["/users"]);
   }
 }

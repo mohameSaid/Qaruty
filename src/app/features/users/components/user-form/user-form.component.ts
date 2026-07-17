@@ -18,13 +18,11 @@ import {
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
-import { MatNativeDateModule } from "@angular/material/core";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
 import {
@@ -84,8 +82,6 @@ const DEFAULT_ADDRESS = { governorate: 10, city: 1, village: 1, details: "" };
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatProgressSpinnerModule,
     TreeSelectComponent,
     MatAutocompleteModule,
@@ -108,11 +104,6 @@ export class UserFormComponent {
   readonly cancelEdit = output<void>();
 
   readonly isEditMode = computed(() => this.editingUser() !== null);
-
-  readonly genders = [
-    { value: Gender.Male, label: "ذكر" },
-    { value: Gender.Female, label: "أنثى" },
-  ];
 
   readonly governorates = signal<Governorate[]>([]);
   readonly cities = signal<City[]>([]);

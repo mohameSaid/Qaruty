@@ -36,10 +36,34 @@
             <mat-error>الرقم القومي مطلوب.</mat-error>
           }
           @if (
-            form.controls.nationalId.hasError("nationalId") &&
+            form.controls.nationalId.hasError("invalidLength") &&
             form.controls.nationalId.touched
           ) {
             <mat-error>يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error>
+          }
+          @if (
+            form.controls.nationalId.hasError("invalidCentury") &&
+            form.controls.nationalId.touched
+          ) {
+            <mat-error>رقم القرن في الرقم القومي غير صحيح.</mat-error>
+          }
+          @if (
+            form.controls.nationalId.hasError("invalidDate") &&
+            form.controls.nationalId.touched
+          ) {
+            <mat-error>تاريخ الميلاد المستخرج من الرقم القومي غير صحيح.</mat-error>
+          }
+          @if (
+            form.controls.nationalId.hasError("invalidGovernorate") &&
+            form.controls.nationalId.touched
+          ) {
+            <mat-error>رمز المحافظة في الرقم القومي غير صحيح.</mat-error>
+          }
+          @if (form.controls.birthDate.value; as bd) {
+            <mat-hint>تاريخ الميلاد: {{ parentBirthDateLabel(bd) }}</mat-hint>
+          }
+          @if (form.controls.gender.value; as g) {
+            <mat-hint align="end">النوع: {{ parentGenderLabel(g) }}</mat-hint>
           }
         </mat-form-field>
 
@@ -67,40 +91,6 @@
             form.controls.englishName.touched
           ) {
             <mat-error>الاسم بالإنجليزية مطلوب.</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>تاريخ الميلاد</mat-label>
-          <mat-icon matPrefix>cake</mat-icon>
-          <input
-            matInput
-            [matDatepicker]="birthDatePicker"
-            formControlName="birthDate"
-          />
-          <mat-datepicker-toggle matIconSuffix [for]="birthDatePicker" />
-          <mat-datepicker #birthDatePicker />
-          @if (
-            form.controls.birthDate.hasError("required") &&
-            form.controls.birthDate.touched
-          ) {
-            <mat-error>تاريخ الميلاد مطلوب.</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>النوع</mat-label>
-          <mat-icon matPrefix>wc</mat-icon>
-          <mat-select formControlName="gender">
-            @for (g of genders; track g.value) {
-              <mat-option [value]="g.value">{{ g.label }}</mat-option>
-            }
-          </mat-select>
-          @if (
-            form.controls.gender.hasError("required") &&
-            form.controls.gender.touched
-          ) {
-            <mat-error>النوع مطلوب.</mat-error>
           }
         </mat-form-field>
 
@@ -272,12 +262,36 @@
               inputmode="numeric"
             />
             @if (
-              form.controls.father.controls.nationalId.hasError("nationalId") &&
-              form.controls.father.controls.nationalId.touched
+              form.controls.father.controls.nationalId.hasError(
+                "invalidLength"
+              ) && form.controls.father.controls.nationalId.touched
             ) {
               <mat-error
                 >يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error
               >
+            }
+            @if (
+              form.controls.father.controls.nationalId.hasError(
+                "invalidCentury"
+              ) && form.controls.father.controls.nationalId.touched
+            ) {
+              <mat-error>رقم القرن في الرقم القومي غير صحيح.</mat-error>
+            }
+            @if (
+              form.controls.father.controls.nationalId.hasError(
+                "invalidDate"
+              ) && form.controls.father.controls.nationalId.touched
+            ) {
+              <mat-error
+                >تاريخ الميلاد المستخرج من الرقم القومي غير صحيح.</mat-error
+              >
+            }
+            @if (
+              form.controls.father.controls.nationalId.hasError(
+                "invalidGovernorate"
+              ) && form.controls.father.controls.nationalId.touched
+            ) {
+              <mat-error>رمز المحافظة في الرقم القومي غير صحيح.</mat-error>
             }
             @if (
               form.controls.father.controls.nationalId.hasError(
@@ -376,12 +390,36 @@
               inputmode="numeric"
             />
             @if (
-              form.controls.mother.controls.nationalId.hasError("nationalId") &&
-              form.controls.mother.controls.nationalId.touched
+              form.controls.mother.controls.nationalId.hasError(
+                "invalidLength"
+              ) && form.controls.mother.controls.nationalId.touched
             ) {
               <mat-error
                 >يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error
               >
+            }
+            @if (
+              form.controls.mother.controls.nationalId.hasError(
+                "invalidCentury"
+              ) && form.controls.mother.controls.nationalId.touched
+            ) {
+              <mat-error>رقم القرن في الرقم القومي غير صحيح.</mat-error>
+            }
+            @if (
+              form.controls.mother.controls.nationalId.hasError(
+                "invalidDate"
+              ) && form.controls.mother.controls.nationalId.touched
+            ) {
+              <mat-error
+                >تاريخ الميلاد المستخرج من الرقم القومي غير صحيح.</mat-error
+              >
+            }
+            @if (
+              form.controls.mother.controls.nationalId.hasError(
+                "invalidGovernorate"
+              ) && form.controls.mother.controls.nationalId.touched
+            ) {
+              <mat-error>رمز المحافظة في الرقم القومي غير صحيح.</mat-error>
             }
             @if (
               form.controls.mother.controls.nationalId.hasError(
