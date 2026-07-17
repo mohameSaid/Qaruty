@@ -17,6 +17,7 @@ import {
 } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
+import { MatDialog } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
@@ -33,8 +34,10 @@ import {
   CompetitionHistoryItem,
   CompetitionOption,
   RegisterCompetitionRequest,
+  UpdateCompetitionRequest,
 } from "../../models/competition.model";
 import { TreeSelectComponent } from "../../../../shared/components/tree-select/tree-select.component";
+import { ConfirmDialogComponent } from "../../../../shared/components/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: "app-competition-registration",
@@ -60,6 +63,7 @@ import { TreeSelectComponent } from "../../../../shared/components/tree-select/t
 export class CompetitionRegistrationComponent {
   private readonly fb = inject(FormBuilder);
   private readonly lookupService = inject(LookupService);
+  private readonly dialog = inject(MatDialog);
 
   readonly userId = input.required<number>();
   readonly history = input<CompetitionHistoryItem[]>([]);
@@ -70,12 +74,18 @@ export class CompetitionRegistrationComponent {
   readonly defaultStudyYearId = input<number | null>(null);
 
   readonly register = output<RegisterCompetitionRequest>();
+  readonly edit = output<UpdateCompetitionRequest>();
   readonly evaluate = output<CompetitionHistoryItem>();
+  readonly deactivate = output<CompetitionHistoryItem>();
+  readonly delete = output<CompetitionHistoryItem>();
 
   readonly historyColumns = ["name", "level", "partsCount", "score", "actions"];
 
   /** Form starts hidden behind the "Add" button; only one registration is edited at a time. */
   readonly showForm = signal(false);
+
+  /** Set to the history row's id while editing an existing registration; null while creating a new one. */
+  readonly editingId = signal<number | null>(null);
 
   readonly competitions = signal<CompetitionOption[]>([]);
   readonly instructors = signal<LookupItem[]>([]);
@@ -171,16 +181,35 @@ export class CompetitionRegistrationComponent {
           notes: null,
         });
         this.showForm.set(false);
+        this.editingId.set(null);
       }
     });
   }
 
   openForm(): void {
+    this.editingId.set(null);
+    this.showForm.set(true);
+  }
+
+  /** Opens the form pre-filled with a history row's data; submit() then emits `edit` instead of `register`. */
+  onEditItem(item: CompetitionHistoryItem): void {
+    this.editingId.set(item.id);
+    this.form.reset({
+      competitionId: item.competition.id,
+      levelId: item.level.id,
+      partsCount: item.partsCount,
+      studyYearId: item.studyClass?.year?.id ?? null,
+      instructorId: item.instructor?.id ?? null,
+      placeId: item.placeDto?.id ?? null,
+      exceptionIdList: [],
+      notes: null,
+    });
     this.showForm.set(true);
   }
 
   cancelForm(): void {
     this.showForm.set(false);
+    this.editingId.set(null);
     this.form.reset({
       competitionId: null,
       levelId: null,
@@ -228,6 +257,37 @@ export class CompetitionRegistrationComponent {
     this.evaluate.emit(item);
   }
 
+  onDeactivate(item: CompetitionHistoryItem): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: "إلغاء تفعيل التسجيل",
+        message: `هل أنت متأكد من إلغاء تفعيل التسجيل في "${item.competition.name.arabic}"؟`,
+        confirmLabel: "إلغاء التفعيل",
+      },
+    });
+
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.deactivate.emit(item);
+      }
+    });
+  }
+
+  onDelete(item: CompetitionHistoryItem): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: "حذف التسجيل",
+        message: `هل أنت متأكد من حذف التسجيل في "${item.competition.name.arabic}" نهائيًا؟ لا يمكن التراجع عن هذا الإجراء.`,
+      },
+    });
+
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.delete.emit(item);
+      }
+    });
+  }
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -247,6 +307,11 @@ export class CompetitionRegistrationComponent {
       exceptionIdList: raw.exceptionIdList.length ? raw.exceptionIdList : null,
     };
 
-    this.register.emit(payload);
+    const editingId = this.editingId();
+    if (editingId != null) {
+      this.edit.emit({ ...payload, id: editingId });
+    } else {
+      this.register.emit(payload);
+    }
   }
 }

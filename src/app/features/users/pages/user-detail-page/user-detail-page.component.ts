@@ -12,7 +12,7 @@ import { MatCardModule } from "@angular/material/card";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTabsModule } from "@angular/material/tabs";
-import { catchError, finalize, of } from "rxjs";
+import { catchError, finalize, of, tap } from "rxjs";
 
 import { GetUsersOptions, UserService } from "../../services/user.service";
 import { CompetitionService } from "../../services/competition.service";
@@ -22,6 +22,7 @@ import { Gender, UserDetail } from "../../models/user.model";
 import {
   CompetitionHistoryItem,
   RegisterCompetitionRequest,
+  UpdateCompetitionRequest,
 } from "../../models/competition.model";
 
 /**
@@ -129,6 +130,59 @@ export class UserDetailPageComponent implements OnInit {
         }
         this.competitionFormResetCounter.update((v) => v + 1);
       });
+  }
+
+  onEditParticipant(payload: UpdateCompetitionRequest): void {
+    this.registering.set(true);
+    this.competitionService
+      .updateParticipant(payload.id, payload)
+      .pipe(
+        catchError(() => of(null)),
+        finalize(() => this.registering.set(false)),
+      )
+      .subscribe((result) => {
+        if (!result) {
+          return;
+        }
+        this.snackbar.success("تم تعديل التسجيل بنجاح.");
+        const userId = this.user()?.id;
+        if (userId) {
+          this.loadCompetitionHistory(userId);
+        }
+        this.competitionFormResetCounter.update((v) => v + 1);
+      });
+  }
+
+  onDeactivateParticipant(item: CompetitionHistoryItem): void {
+    this.competitionService
+      .deactivateParticipant(item.id)
+      .pipe(
+        tap(() => {
+          this.snackbar.success("تم إلغاء تفعيل التسجيل بنجاح.");
+          const userId = this.user()?.id;
+          if (userId) {
+            this.loadCompetitionHistory(userId);
+          }
+        }),
+        catchError(() => of(null)),
+      )
+      .subscribe();
+  }
+
+  onDeleteParticipant(item: CompetitionHistoryItem): void {
+    this.competitionService
+      .deleteParticipant(item.id)
+      .pipe(
+        tap(() => {
+          this.snackbar.success("تم حذف التسجيل نهائيًا بنجاح.");
+          const userId = this.user()?.id;
+          if (userId) {
+            this.loadCompetitionHistory(userId);
+          }
+        }),
+        catchError(() => of(null)),
+      )
+      .subscribe();
   }
 
   private loadCompetitionHistory(userId: number): void {

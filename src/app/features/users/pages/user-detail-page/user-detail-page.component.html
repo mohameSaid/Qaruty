@@ -309,7 +309,10 @@
               [registering]="registering()"
               [resetTrigger]="competitionFormResetCounter()"
               (register)="onRegisterCompetition($event)"
+              (edit)="onEditParticipant($event)"
               (evaluate)="onEvaluate($event)"
+              (deactivate)="onDeactivateParticipant($event)"
+              (delete)="onDeleteParticipant($event)"
             />
           </div>
         </mat-tab>
