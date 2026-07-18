@@ -4,10 +4,10 @@ export const environment = {
   // because that API sends no Access-Control-Allow-Origin header and rejects direct
   // browser calls from any localhost origin with a CORS error. Same-origin `/api` avoids it.
   // baseUrl: 'http://localhost:8081',
-  // baseUrl: "https://qaryati.onrender.com",
+  baseUrl: "https://qaryati.onrender.com",
 
   // baseUrl: "https://qaryati-java-production.up.railway.app",
-  baseUrl: "https://qaryati-uat.onrender.com",
+  // baseUrl: "https://qaryati-uat.onrender.com",
 
   auth: {
     username: "admin",
