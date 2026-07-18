@@ -41,35 +41,38 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>إجراءات</th>
             <td mat-cell *matCellDef="let row">
-              <!--  <button
+              @if (row.competition.active) {
+                <!--  <button
                 mat-icon-button
                 matTooltip="تقييم المتسابق"
                 (click)="onEvaluate(row)"
               >
                 <mat-icon>fact_check</mat-icon>
               </button> -->
-              <button
-                mat-icon-button
-                matTooltip="تعديل التسجيل"
-                (click)="onEditItem(row)"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button
-                mat-icon-button
-                matTooltip="إلغاء تفعيل التسجيل"
-                (click)="onDeactivate(row)"
-              >
-                <mat-icon>block</mat-icon>
-              </button>
-              <button
+                <button
+                  mat-icon-button
+                  matTooltip="تعديل التسجيل"
+                  (click)="onEditItem(row)"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  matTooltip="إلغاء تفعيل التسجيل"
+                  (click)="onDeactivate(row)"
+                >
+                  <mat-icon>block</mat-icon>
+                </button>
+
+                <!-- <button
                 mat-icon-button
                 color="warn"
                 matTooltip="حذف التسجيل نهائيًا"
                 (click)="onDelete(row)"
               >
                 <mat-icon>delete_forever</mat-icon>
-              </button>
+              </button> -->
+              }
             </td>
           </ng-container>
 

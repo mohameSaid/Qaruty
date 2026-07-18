@@ -43,6 +43,7 @@ export interface CompetitionRef {
   registrationStartDate: string | null;
   registrationEndDate: string | null;
   competitionDate: string | null;
+  exceptions: LookupRef[];
   active: boolean;
 }
 
