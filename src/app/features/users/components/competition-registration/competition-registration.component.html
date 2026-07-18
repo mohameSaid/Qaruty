@@ -48,6 +48,28 @@
               >
                 <mat-icon>fact_check</mat-icon>
               </button> -->
+              <button
+                mat-icon-button
+                matTooltip="تعديل التسجيل"
+                (click)="onEditItem(row)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                matTooltip="إلغاء تفعيل التسجيل"
+                (click)="onDeactivate(row)"
+              >
+                <mat-icon>block</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                matTooltip="حذف التسجيل نهائيًا"
+                (click)="onDelete(row)"
+              >
+                <mat-icon>delete_forever</mat-icon>
+              </button>
             </td>
           </ng-container>
 
@@ -60,7 +82,9 @@
 
   <mat-card class="section-card">
     <mat-card-header>
-      <mat-card-title>التسجيل في مسابقة جديدة</mat-card-title>
+      <mat-card-title>{{
+        editingId() !== null ? "تعديل التسجيل" : "التسجيل في مسابقة جديدة"
+      }}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
@@ -206,8 +230,10 @@
               @if (registering()) {
                 <span class="spinner-inline">
                   <mat-progress-spinner diameter="18" mode="indeterminate" />
-                  جارٍ التسجيل&hellip;
+                  {{ editingId() !== null ? "جارٍ الحفظ…" : "جارٍ التسجيل…" }}
                 </span>
+              } @else if (editingId() !== null) {
+                <span><mat-icon>save</mat-icon> حفظ التعديلات</span>
               } @else {
                 <span><mat-icon>emoji_events</mat-icon> تسجيل في المسابقة</span>
               }

@@ -3,7 +3,11 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiEnvelope, PagedData } from '../models/api-response.model';
-import { CompetitionHistoryItem, RegisterCompetitionRequest } from '../models/competition.model';
+import {
+  CompetitionHistoryItem,
+  RegisterCompetitionRequest,
+  UpdateCompetitionRequest,
+} from '../models/competition.model';
 
 export interface GetCompetitionHistoryOptions {
   pageNo: number;
@@ -37,5 +41,31 @@ export class CompetitionService {
     return this.http
       .post<ApiEnvelope<CompetitionHistoryItem>>(this.baseUrl, payload)
       .pipe(map((res) => res.data));
+  }
+
+  /** Edits an existing competition registration — `PUT /participant/{id}`. */
+  updateParticipant(
+    id: number,
+    payload: UpdateCompetitionRequest
+  ): Observable<CompetitionHistoryItem> {
+    return this.http
+      .put<ApiEnvelope<CompetitionHistoryItem>>(`${this.baseUrl}/${id}`, payload)
+      .pipe(map((res) => res.data));
+  }
+
+  /** Soft-deletes (deactivates) a competition registration — `DELETE /participant/{id}?type=SOFT`. */
+  deactivateParticipant(id: number): Observable<void> {
+    const params = new HttpParams().set('type', 'SOFT');
+    return this.http
+      .delete<ApiEnvelope<void>>(`${this.baseUrl}/${id}`, { params })
+      .pipe(map(() => undefined));
+  }
+
+  /** Hard-deletes a competition registration — `DELETE /participant/{id}?type=HARD`. */
+  deleteParticipant(id: number): Observable<void> {
+    const params = new HttpParams().set('type', 'HARD');
+    return this.http
+      .delete<ApiEnvelope<void>>(`${this.baseUrl}/${id}`, { params })
+      .pipe(map(() => undefined));
   }
 }

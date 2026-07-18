@@ -43,6 +43,7 @@
     [isEmpty]="store.isEmpty()"
     (view)="onViewDetails($event)"
     (edit)="onEditRequested($event)"
+    (deactivate)="onDeactivate($event)"
     (delete)="onDelete($event)"
     (page)="onPage($event)"
     (sortChange)="onSortChange($event)"

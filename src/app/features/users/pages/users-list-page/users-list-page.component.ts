@@ -73,6 +73,10 @@ export class UsersListPageComponent implements OnInit {
     this.router.navigate(['/users', user.id, 'edit']);
   }
 
+  onDeactivate(user: UserListItem): void {
+    this.store.deactivateUser(user.id, () => {});
+  }
+
   onDelete(user: UserListItem): void {
     this.store.deleteUser(user.id, () => {});
   }

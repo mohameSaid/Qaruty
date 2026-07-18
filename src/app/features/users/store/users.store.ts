@@ -161,10 +161,26 @@ export class UsersStore {
       .subscribe();
   }
 
+  deactivateUser(id: number, onSuccess: () => void): void {
+    this._deleting.set(true);
+    this.userService
+      .deleteUser(id, 'SOFT')
+      .pipe(
+        tap(() => {
+          this.snackbar.success('تم إلغاء تفعيل المستخدم بنجاح.');
+          this.loadUsers();
+          onSuccess();
+        }),
+        catchError(() => of(null)),
+        finalize(() => this._deleting.set(false))
+      )
+      .subscribe();
+  }
+
   deleteUser(id: number, onSuccess: () => void): void {
     this._deleting.set(true);
     this.userService
-      .deleteUser(id)
+      .deleteUser(id, 'HARD')
       .pipe(
         tap(() => {
           this.snackbar.success('تم حذف المستخدم بنجاح.');

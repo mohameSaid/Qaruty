@@ -80,15 +80,23 @@
               >
                 <mat-icon>edit</mat-icon>
               </button>
-              <!-- <button
+              <button
+                mat-icon-button
+                matTooltip="إلغاء تفعيل"
+                [disabled]="deleting()"
+                (click)="onDeactivate(user)"
+              >
+                <mat-icon>block</mat-icon>
+              </button>
+              <button
                 mat-icon-button
                 color="warn"
-                matTooltip="حذف"
+                matTooltip="حذف نهائي"
                 [disabled]="deleting()"
                 (click)="onDelete(user)"
               >
-                <mat-icon>delete</mat-icon>
-              </button> -->
+                <mat-icon>delete_forever</mat-icon>
+              </button>
             </td>
           </ng-container>
 
