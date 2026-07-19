@@ -1,0 +1,118 @@
+<mat-expansion-panel class="section-card filters-panel" [expanded]="activeCount() > 0">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <mat-icon class="title-icon">filter_alt</mat-icon>
+      فلاتر البحث
+    </mat-panel-title>
+    <mat-panel-description>
+      @if (activeCount() > 0) {
+        <span class="filter-badge">{{ activeCount() }} فلتر مفعل</span>
+      } @else {
+        ابحث وصفِّ المشاركين حسب الاسم أو البيانات الأخرى
+      }
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+  <form [formGroup]="form" (ngSubmit)="onSearch()">
+    <div class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>الاسم (عربي / إنجليزي)</mat-label>
+        <mat-icon matPrefix>person</mat-icon>
+        <input matInput formControlName="search" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>الرقم القومي</mat-label>
+        <mat-icon matPrefix>badge</mat-icon>
+        <input matInput formControlName="nationalId" maxlength="14" inputmode="numeric" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>رقم الهاتف</mat-label>
+        <mat-icon matPrefix>phone</mat-icon>
+        <input matInput formControlName="mobileNumber" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>النوع</mat-label>
+        <mat-icon matPrefix>wc</mat-icon>
+        <mat-select formControlName="gender">
+          <mat-option [value]="null">الكل</mat-option>
+          <mat-option [value]="Gender.Male">ذكر</mat-option>
+          <mat-option [value]="Gender.Female">أنثى</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>تاريخ الإنشاء</mat-label>
+        <mat-icon matPrefix>event</mat-icon>
+        <input matInput [matDatepicker]="createdDatePicker" formControlName="createdDate" />
+        <mat-datepicker-toggle matSuffix [for]="createdDatePicker" />
+        <mat-datepicker #createdDatePicker />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>المكان</mat-label>
+        <mat-icon matPrefix>place</mat-icon>
+        <mat-select formControlName="placeId">
+          <mat-option [value]="null">الكل</mat-option>
+          @for (place of places(); track place.id) {
+            <mat-option [value]="place.id">{{ place.name.arabic }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>المستوى</mat-label>
+        <mat-icon matPrefix>military_tech</mat-icon>
+        <mat-select formControlName="levelId">
+          <mat-option [value]="null">الكل</mat-option>
+          @for (level of levels(); track level.id) {
+            <mat-option [value]="level.id">{{ level.name.arabic }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>المعلم</mat-label>
+        <mat-icon matPrefix>school</mat-icon>
+        <mat-select formControlName="instructorId">
+          <mat-option [value]="null">الكل</mat-option>
+          @for (instructor of instructors(); track instructor.id) {
+            <mat-option [value]="instructor.id">{{ instructor.name.arabic }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>عدد الأجزاء</mat-label>
+        <mat-icon matPrefix>menu_book</mat-icon>
+        <input matInput type="number" formControlName="partsCount" min="0" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>الاستثناء</mat-label>
+        <mat-icon matPrefix>rule</mat-icon>
+        <mat-select formControlName="exceptionId">
+          <mat-option [value]="null">الكل</mat-option>
+          @for (exception of exceptions(); track exception.id) {
+            <mat-option [value]="exception.id">{{ exception.name.arabic }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-checkbox formControlName="privateInstructorNotNull" class="private-instructor-checkbox">
+      له معلم خاص فقط
+    </mat-checkbox>
+
+    <div class="form-actions">
+      <button mat-flat-button color="primary" type="submit" [disabled]="searching()">
+        <mat-icon>search</mat-icon> بحث
+      </button>
+      <button mat-stroked-button type="button" [disabled]="searching()" (click)="onClear()">
+        <mat-icon>close</mat-icon> مسح الفلاتر
+      </button>
+    </div>
+  </form>
+</mat-expansion-panel>

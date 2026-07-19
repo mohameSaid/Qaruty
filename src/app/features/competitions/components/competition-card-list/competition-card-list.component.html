@@ -1,0 +1,66 @@
+@if (loading()) {
+  <div class="competitions-grid">
+    @for (i of skeletonIndices; track i) {
+      <mat-card class="competition-card skeleton-card">
+        <mat-card-content>
+          <span class="skeleton-line skeleton-title"></span>
+          <span class="skeleton-line"></span>
+          <span class="skeleton-line short"></span>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+} @else if (isEmpty()) {
+  <div class="empty-state">
+    <mat-icon>emoji_events</mat-icon>
+    <h3>لا توجد مسابقات</h3>
+    <p>لم يتم إضافة أي مسابقات بعد.</p>
+  </div>
+} @else {
+  <div class="competitions-grid">
+    @for (competition of competitions(); track competition.id) {
+      <mat-card class="competition-card">
+        <mat-card-content>
+          <div class="card-header">
+            <span class="status-badge" [class.active]="competition.active" [class.inactive]="!competition.active">
+              {{ competition.active ? 'مفعّلة' : 'غير مفعّلة' }}
+            </span>
+          </div>
+
+          <h3 class="competition-name" dir="rtl">{{ competition.name.arabic }}</h3>
+
+          <dl class="competition-details">
+            <div class="detail-row">
+              <mat-icon>event</mat-icon>
+              <dt>تاريخ الإنشاء</dt>
+              <dd>{{ competition.createdDate ?? '—' }}</dd>
+            </div>
+          </dl>
+
+          <div class="card-actions">
+            <!-- <button
+              mat-stroked-button
+              [color]="competition.active ? 'warn' : 'primary'"
+              [disabled]="togglingId() === competition.id"
+              (click)="onToggleStatus(competition)"
+            >
+              @if (togglingId() === competition.id) {
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+              } @else {
+                <span>
+                  <mat-icon>{{ competition.active ? 'block' : 'check_circle' }}</mat-icon>
+                  {{ competition.active ? 'إلغاء التفعيل' : 'تفعيل' }}
+                </span>
+              }
+            </button> -->
+
+            <button mat-flat-button color="primary" (click)="onViewParticipants(competition)">
+              <mat-icon>groups</mat-icon>
+              عرض المشاركين
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

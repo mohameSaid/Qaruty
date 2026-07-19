@@ -1,0 +1,97 @@
+.title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+table {
+  width: 100%;
+}
+
+.table-wrapper {
+  min-height: 120px;
+  overflow-x: auto;
+}
+
+.name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.secondary-text {
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.data-row {
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+
+  &:hover {
+    background-color: var(--mat-sys-surface-container-high, rgba(0, 0, 0, 0.035));
+    box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.02);
+  }
+}
+
+.mat-mdc-header-row {
+  background: var(--mat-sys-surface-container, #f4f6f8);
+}
+
+.skeleton-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  td {
+    padding: 14px 12px;
+  }
+}
+
+.skeleton-cell {
+  display: block;
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 25%,
+    rgba(0, 0, 0, 0.12) 37%,
+    rgba(0, 0, 0, 0.06) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.4;
+  }
+
+  h3 {
+    margin: 4px 0 0;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
