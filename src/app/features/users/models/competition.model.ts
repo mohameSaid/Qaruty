@@ -72,6 +72,7 @@ export interface CompetitionHistoryItem {
   partsCount: number;
   studyClass: StudyClassRef | null;
   score: number | null;
+  deleted: boolean;
 }
 
 /** Body of `POST /competition-participant` to enroll a student in a new competition. */

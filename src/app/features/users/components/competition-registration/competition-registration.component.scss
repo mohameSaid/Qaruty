@@ -38,3 +38,17 @@
   align-items: center;
   gap: 8px;
 }
+
+.status-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--mat-sys-tertiary-container, #e0f2e9);
+  color: var(--mat-sys-on-tertiary-container, #0b6e4f);
+
+  &.status-chip--deleted {
+    background: var(--mat-sys-error-container, #fbe1e0);
+    color: var(--mat-sys-on-error-container, #a3251b);
+  }
+}
