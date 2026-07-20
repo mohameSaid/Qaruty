@@ -77,16 +77,10 @@ export class CompetitionRegistrationComponent {
   readonly edit = output<UpdateCompetitionRequest>();
   readonly evaluate = output<CompetitionHistoryItem>();
   readonly deactivate = output<CompetitionHistoryItem>();
+  readonly activate = output<CompetitionHistoryItem>();
   readonly delete = output<CompetitionHistoryItem>();
 
-  readonly historyColumns = [
-    "name",
-    "level",
-    "partsCount",
-    "score",
-    "status",
-    "actions",
-  ];
+  readonly historyColumns = ["name", "level", "partsCount", "score", "actions"];
 
   /** Form starts hidden behind the "Add" button; only one registration is edited at a time. */
   readonly showForm = signal(false);
@@ -278,6 +272,22 @@ export class CompetitionRegistrationComponent {
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.deactivate.emit(item);
+      }
+    });
+  }
+
+  onActivate(item: CompetitionHistoryItem): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: "تفعيل التسجيل",
+        message: `هل أنت متأكد من إعادة تفعيل التسجيل في "${item.competition.name.arabic}"؟`,
+        confirmLabel: "تفعيل",
+      },
+    });
+
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.activate.emit(item);
       }
     });
   }

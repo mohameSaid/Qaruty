@@ -140,17 +140,13 @@
         <mat-form-field appearance="outline">
           <mat-label>القرية</mat-label>
           <mat-icon matPrefix>holiday_village</mat-icon>
+          <mat-option [value]="null">اختر القرية</mat-option>
+
           <mat-select formControlName="village">
             @for (item of villages(); track item.id) {
               <mat-option [value]="item.id">{{ item.name.arabic }}</mat-option>
             }
           </mat-select>
-          @if (
-            form.controls.village.hasError("required") &&
-            form.controls.village.touched
-          ) {
-            <mat-error>القرية مطلوبة.</mat-error>
-          }
         </mat-form-field>
 
         <mat-form-field

@@ -53,9 +53,17 @@ export class CompetitionService {
       .pipe(map((res) => res.data));
   }
 
-  /** Soft-deletes (deactivates) a competition registration — `DELETE /participant/{id}?type=SOFT`. */
+  /** Deactivates a competition registration — `DELETE /participant/{id}?type=DEACTIVATE`. */
   deactivateParticipant(id: number): Observable<void> {
-    const params = new HttpParams().set('type', 'SOFT');
+    const params = new HttpParams().set('type', 'DEACTIVATE');
+    return this.http
+      .delete<ApiEnvelope<void>>(`${this.baseUrl}/${id}`, { params })
+      .pipe(map(() => undefined));
+  }
+
+  /** Reactivates a previously deactivated registration — `DELETE /participant/{id}?type=ACTIVATE`. */
+  activateParticipant(id: number): Observable<void> {
+    const params = new HttpParams().set('type', 'ACTIVATE');
     return this.http
       .delete<ApiEnvelope<void>>(`${this.baseUrl}/${id}`, { params })
       .pipe(map(() => undefined));

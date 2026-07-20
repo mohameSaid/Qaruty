@@ -169,6 +169,22 @@ export class UserDetailPageComponent implements OnInit {
       .subscribe();
   }
 
+  onActivateParticipant(item: CompetitionHistoryItem): void {
+    this.competitionService
+      .activateParticipant(item.id)
+      .pipe(
+        tap(() => {
+          this.snackbar.success("تم إعادة تفعيل التسجيل بنجاح.");
+          const userId = this.user()?.id;
+          if (userId) {
+            this.loadCompetitionHistory(userId);
+          }
+        }),
+        catchError(() => of(null)),
+      )
+      .subscribe();
+  }
+
   onDeleteParticipant(item: CompetitionHistoryItem): void {
     this.competitionService
       .deleteParticipant(item.id)
