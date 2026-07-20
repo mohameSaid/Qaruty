@@ -120,7 +120,7 @@
                     ><mat-icon>apartment</mat-icon> المدينة</span
                   >
                   <span class="detail-value" dir="rtl">{{
-                    user()!.address.city.name.arabic
+                    user()!.address.city?.name?.arabic
                   }}</span>
                 </div>
                 <div class="detail-item">
@@ -128,7 +128,7 @@
                     ><mat-icon>holiday_village</mat-icon> القرية</span
                   >
                   <span class="detail-value" dir="rtl">{{
-                    user()!.address.village.name.arabic
+                    user()!.address.village?.name?.arabic || "—"
                   }}</span>
                 </div>
                 <div class="detail-item full-width">
@@ -202,7 +202,8 @@
                   </div>
                   <div class="detail-item">
                     <span class="detail-label"
-                      ><mat-icon>person_outline</mat-icon> الاسم بالإنجليزية</span
+                      ><mat-icon>person_outline</mat-icon> الاسم
+                      بالإنجليزية</span
                     >
                     <span class="detail-value">{{
                       father.name.english || "—"
@@ -262,7 +263,8 @@
                   </div>
                   <div class="detail-item">
                     <span class="detail-label"
-                      ><mat-icon>person_outline</mat-icon> الاسم بالإنجليزية</span
+                      ><mat-icon>person_outline</mat-icon> الاسم
+                      بالإنجليزية</span
                     >
                     <span class="detail-value">{{
                       mother.name.english || "—"
