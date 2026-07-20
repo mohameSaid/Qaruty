@@ -1,18 +1,30 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from "@angular/core";
+import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
+import { MatIconModule } from "@angular/material/icon";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
-import { Competition } from '../../models/competition.model';
+import { Competition } from "../../models/competition.model";
+import { DatePipe } from "@angular/common";
 
 @Component({
-  selector: 'app-competition-card-list',
+  selector: "app-competition-card-list",
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    DatePipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './competition-card-list.component.html',
-  styleUrl: './competition-card-list.component.scss',
+  templateUrl: "./competition-card-list.component.html",
+  styleUrl: "./competition-card-list.component.scss",
 })
 export class CompetitionCardListComponent {
   readonly competitions = input.required<Competition[]>();

@@ -22,18 +22,24 @@
       <mat-card class="competition-card">
         <mat-card-content>
           <div class="card-header">
-            <span class="status-badge" [class.active]="competition.active" [class.inactive]="!competition.active">
-              {{ competition.active ? 'مفعّلة' : 'غير مفعّلة' }}
+            <span
+              class="status-badge"
+              [class.active]="competition.active"
+              [class.inactive]="!competition.active"
+            >
+              {{ competition.active ? "مفعّلة" : "غير مفعّلة" }}
             </span>
           </div>
 
-          <h3 class="competition-name" dir="rtl">{{ competition.name.arabic }}</h3>
+          <h3 class="competition-name" dir="rtl">
+            {{ competition.name.arabic }}
+          </h3>
 
           <dl class="competition-details">
             <div class="detail-row">
               <mat-icon>event</mat-icon>
               <dt>تاريخ الإنشاء</dt>
-              <dd>{{ competition.createdDate ?? '—' }}</dd>
+              <dd>{{ (competition.createdDate | date: "dd/MM/yyyy") ?? "—" }}</dd>
             </div>
           </dl>
 
@@ -54,7 +60,11 @@
               }
             </button> -->
 
-            <button mat-flat-button color="primary" (click)="onViewParticipants(competition)">
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="onViewParticipants(competition)"
+            >
               <mat-icon>groups</mat-icon>
               عرض المشاركين
             </button>
