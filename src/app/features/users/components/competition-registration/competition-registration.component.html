@@ -48,7 +48,12 @@
                   >بانتظار التقييم</span
                 >
               } @else {
-                <span class="status-chip status-chip--active">نشط</span>
+                @if (row.competition.active) {
+                  <span class="status-chip status-chip--active">نشط</span>
+                }
+                @else {
+                  <span class="status-chip status-chip--inactive">منتهية</span>
+                }
               }
             </td>
           </ng-container>

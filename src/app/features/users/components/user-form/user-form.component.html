@@ -51,7 +51,9 @@
             form.controls.nationalId.hasError("invalidDate") &&
             form.controls.nationalId.touched
           ) {
-            <mat-error>تاريخ الميلاد المستخرج من الرقم القومي غير صحيح.</mat-error>
+            <mat-error
+              >تاريخ الميلاد المستخرج من الرقم القومي غير صحيح.</mat-error
+            >
           }
           @if (
             form.controls.nationalId.hasError("invalidGovernorate") &&
@@ -140,9 +142,10 @@
         <mat-form-field appearance="outline">
           <mat-label>القرية</mat-label>
           <mat-icon matPrefix>holiday_village</mat-icon>
-          <mat-option [value]="null">اختر القرية</mat-option>
 
           <mat-select formControlName="village">
+            <mat-option [value]="null">اختر القرية</mat-option>
+
             @for (item of villages(); track item.id) {
               <mat-option [value]="item.id">{{ item.name.arabic }}</mat-option>
             }
