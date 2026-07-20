@@ -131,10 +131,7 @@ export class UserFormComponent {
       DEFAULT_ADDRESS.city,
       Validators.required,
     ),
-    village: this.fb.control<number | null>(
-      DEFAULT_ADDRESS.village,
-      Validators.required,
-    ),
+    village: this.fb.control<number | null>(DEFAULT_ADDRESS.village),
     addressDetails: [DEFAULT_ADDRESS.details],
     studyYearId: this.fb.control<number | null>(null),
     mobileNumber: ["", [Validators.required, mobileNumberValidator()]],

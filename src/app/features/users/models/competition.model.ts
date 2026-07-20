@@ -43,6 +43,7 @@ export interface CompetitionRef {
   registrationStartDate: string | null;
   registrationEndDate: string | null;
   competitionDate: string | null;
+  exceptions: LookupRef[];
   active: boolean;
 }
 
@@ -85,4 +86,9 @@ export interface RegisterCompetitionRequest {
   notes: string | null;
   /** Id from the `exceptions` lookup (`GET /lookup/exceptions`). */
   exceptionIdList: null | number[];
+}
+
+/** Body of `PUT /participant/{id}` to edit an existing competition registration. */
+export interface UpdateCompetitionRequest extends RegisterCompetitionRequest {
+  id: number;
 }

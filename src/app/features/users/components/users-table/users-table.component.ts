@@ -40,6 +40,7 @@ export class UsersTableComponent {
 
   readonly view = output<UserListItem>();
   readonly edit = output<UserListItem>();
+  readonly deactivate = output<UserListItem>();
   readonly delete = output<UserListItem>();
   readonly page = output<PageEvent>();
   readonly sortChange = output<Sort>();
@@ -72,11 +73,27 @@ export class UsersTableComponent {
     this.edit.emit(user);
   }
 
+  onDeactivate(user: UserListItem): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'إلغاء تفعيل المستخدم',
+        message: `هل أنت متأكد من إلغاء تفعيل "${user.name.arabic}"؟`,
+        confirmLabel: 'إلغاء التفعيل',
+      },
+    });
+
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.deactivate.emit(user);
+      }
+    });
+  }
+
   onDelete(user: UserListItem): void {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'حذف المستخدم',
-        message: `هل أنت متأكد من حذف "${user.name.arabic}"؟ لا يمكن التراجع عن هذا الإجراء.`,
+        message: `هل أنت متأكد من حذف "${user.name.arabic}" نهائيًا؟ لا يمكن التراجع عن هذا الإجراء.`,
       },
     });
 

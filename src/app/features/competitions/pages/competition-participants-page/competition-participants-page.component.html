@@ -1,0 +1,47 @@
+<div class="page-container">
+  <button mat-button class="back-link" (click)="onBack()">
+    <mat-icon>arrow_forward</mat-icon>
+    العودة إلى المسابقات
+  </button>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">مشاركو مسابقة {{ store.competition()?.name?.arabic ?? '' }}</h1>
+      <p class="page-subtitle">تصفح وابحث وصفِّ قائمة المشاركين في هذه المسابقة.</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button [disabled]="exporting()" (click)="onExportExcel()">
+        @if (exporting()) {
+          <mat-progress-spinner diameter="18" mode="indeterminate" />
+        } @else {
+          <mat-icon>file_download</mat-icon>
+        }
+        تصدير إلى Excel
+      </button>
+    </div>
+  </div>
+
+  <app-participant-filters
+    [searching]="store.loading()"
+    [initialFilters]="store.filters()"
+    [levels]="store.competition()?.levels ?? []"
+    [exceptions]="store.competition()?.exceptions ?? []"
+    [places]="places()"
+    [instructors]="instructors()"
+    (search)="onFilter($event)"
+    (clear)="onClearFilters()"
+  />
+
+  <app-participants-table
+    [participants]="store.participants()"
+    [totalElements]="store.totalElements()"
+    [pageNo]="store.pageNo()"
+    [pageSize]="store.pageSize()"
+    [loading]="store.loading()"
+    [isEmpty]="store.isEmpty()"
+    (page)="onPage($event)"
+    (sortChange)="onSortChange($event)"
+    (view)="onView($event)"
+    (evaluate)="onEvaluate($event)"
+  />
+</div>

@@ -141,9 +141,10 @@ export class UserService {
       .pipe(map((res) => res.data));
   }
 
-  deleteUser(id: number): Observable<void> {
+  deleteUser(id: number, type: "SOFT" | "HARD"): Observable<void> {
+    const params = new HttpParams().set("type", type);
     return this.http
-      .delete<ApiEnvelope<void>>(`${this.baseUrl}/${id}`)
+      .delete<ApiEnvelope<void>>(`${this.baseUrl}/${id}`, { params })
       .pipe(map(() => undefined));
   }
 }

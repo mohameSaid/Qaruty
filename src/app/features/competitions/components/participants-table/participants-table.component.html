@@ -1,0 +1,119 @@
+<mat-card class="section-card participants-card">
+  <mat-card-header>
+    <div class="title-group">
+      <mat-card-title>المشاركون</mat-card-title>
+      <mat-card-subtitle>{{ totalElements() }} سجل</mat-card-subtitle>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="table-wrapper">
+      @if (loading()) {
+        <table class="skeleton-table">
+          <tbody>
+            @for (row of skeletonRowIndices; track row) {
+              <tr>
+                @for (col of displayedColumns; track col) {
+                  <td><span class="skeleton-cell"></span></td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else if (isEmpty()) {
+        <div class="empty-state">
+          <mat-icon>group_off</mat-icon>
+          <h3>لا يوجد مشاركون</h3>
+          <p>حاول تعديل الفلاتر أو البحث للعثور على المشاركين.</p>
+        </div>
+      } @else {
+        <table mat-table [dataSource]="participants()" matSort (matSortChange)="onSort($event)">
+          <!-- <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="id">رقم المشارك</th>
+            <td mat-cell *matCellDef="let p">{{ p.id }}</td>
+          </ng-container> -->
+
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="user.name.arName">الاسم</th>
+            <td mat-cell *matCellDef="let p">
+              <div class="name-cell">
+                <span dir="rtl">{{ p.user?.name?.arabic ?? '—' }}</span>
+                <!-- <span class="secondary-text">{{ p.user?.name?.english ?? '—' }}</span> -->
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- <ng-container matColumnDef="gender">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="user.gender.id">النوع</th>
+            <td mat-cell *matCellDef="let p">{{ p.user?.gender?.name?.arabic ?? '—' }}</td>
+          </ng-container> -->
+
+          <ng-container matColumnDef="nationalId">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="user.nationalId">الرقم القومي</th>
+            <td mat-cell *matCellDef="let p">{{ p.user?.nationalId ?? '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="mobileNumber">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="user.contact.mobileNumber">رقم الهاتف</th>
+            <td mat-cell *matCellDef="let p">{{ p.user?.mobileNumber ?? '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="level">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="level.id">المستوى</th>
+            <td mat-cell *matCellDef="let p">{{ p.level?.name?.arabic ?? '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="instructor">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="instructor.id">المعلم</th>
+            <td mat-cell *matCellDef="let p">{{ p.instructor?.name?.arabic ?? '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="place">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="place.id">المكان</th>
+            <td mat-cell *matCellDef="let p">{{ p.place?.name?.arabic ?? '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="partsCount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="partsCount">عدد الأجزاء</th>
+            <td mat-cell *matCellDef="let p">{{ p.partsCount ?? '—' }}</td>
+          </ng-container>
+
+    <ng-container matColumnDef="score">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="score">  التقييم </th>
+            <td mat-cell *matCellDef="let p">{{ p.score ?? '—' }}</td>
+          </ng-container>
+      <!--
+          <ng-container matColumnDef="exceptions">
+            <th mat-header-cell *matHeaderCellDef>الاستثناءات</th>
+            <td mat-cell *matCellDef="let p" [matTooltip]="exceptionNames(p)">{{ exceptionNames(p) }}</td>
+          </ng-container> -->
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>إجراءات</th>
+            <td mat-cell *matCellDef="let p">
+              <button mat-icon-button matTooltip="عرض بيانات المستخدم" (click)="onView(p)">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="تقييم" (click)="onEvaluate(p)">
+                <mat-icon>grading</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="data-row"></tr>
+        </table>
+      }
+    </div>
+
+    @if (!loading() && !isEmpty()) {
+      <mat-paginator
+        [length]="totalElements()"
+        [pageIndex]="pageNo()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        (page)="onPage($event)"
+      />
+    }
+  </mat-card-content>
+</mat-card>

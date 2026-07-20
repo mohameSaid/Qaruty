@@ -4,7 +4,10 @@ import { Gender } from "../../features/users/models/user.model";
  * Egyptian National IDs encode the holder's birth date in the first 7 digits:
  * digit 1 = century (2 -> 1900s, 3 -> 2000s), digits 2-3 = year, 4-5 = month, 6-7 = day.
  */
-export function extractBirthDateFromNationalId(nationalId: string | number): Date | null {
+export function extractBirthDateFromNationalId(
+  nationalId: string | number,
+): Date | null {
+  if (!nationalId) return null;
   const id = nationalId.toString().trim();
 
   if (!/^\d{14}$/.test(id)) {
@@ -45,8 +48,11 @@ export function extractBirthDateFromNationalId(nationalId: string | number): Dat
   return birthDate;
 }
 
+export function extractGenderFromNationalId(
+  nationalId: string | number,
+): Gender | null {
+  if (!nationalId) return null;
 
-export function extractGenderFromNationalId(nationalId: string | number): Gender | null {
   const id = nationalId.toString().trim();
 
   if (!/^\d{14}$/.test(id)) {

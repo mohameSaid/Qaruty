@@ -8,6 +8,26 @@ export const routes: Routes = [
       import('./features/auth/pages/login-page/login-page.component').then((m) => m.LoginPageComponent),
   },
   {
+    path: 'competitions',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/competitions/pages/competitions-list-page/competitions-list-page.component').then(
+            (m) => m.CompetitionsListPageComponent
+          ),
+      },
+      {
+        path: ':id/participants',
+        loadComponent: () =>
+          import(
+            './features/competitions/pages/competition-participants-page/competition-participants-page.component'
+          ).then((m) => m.CompetitionParticipantsPageComponent),
+      },
+    ],
+  },
+  {
     path: 'users',
     canActivate: [authGuard],
     children: [

@@ -1,0 +1,17 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">المسابقات</h1>
+      <p class="page-subtitle">تصفح المسابقات، فعّل أو ألغِ تفعيلها، وأدر قوائم المشاركين فيها.</p>
+    </div>
+  </div>
+
+  <app-competition-card-list
+    [competitions]="store.competitions()"
+    [loading]="store.loading()"
+    [isEmpty]="store.isEmpty()"
+    [togglingId]="store.togglingId()"
+    (toggleStatus)="onToggleStatus($event)"
+    (viewParticipants)="onViewParticipants($event)"
+  />
+</div>
