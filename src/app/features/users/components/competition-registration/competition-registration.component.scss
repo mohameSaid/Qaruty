@@ -38,3 +38,25 @@
   align-items: center;
   gap: 8px;
 }
+
+.status-chip {
+  font-weight: 600;
+  border-radius: 999px;
+  background: var(--mat-sys-surface-container-high);
+  font-size: 0.9rem;
+  padding: 10px 20px;
+  &.status-chip--active {
+    background: var(--mat-sys-tertiary-container, #e0f2e9);
+    color: var(--mat-sys-on-tertiary-container, #0b6e4f);
+  }
+
+  &.status-chip--pending {
+    background: var(--mat-sys-secondary-container, #fdf0d5);
+    color: var(--mat-sys-on-secondary-container, #8a6116);
+  }
+
+  &.status-chip--deleted {
+    background: var(--mat-sys-error-container, #fbe1e0);
+    color: var(--mat-sys-on-error-container, #a3251b);
+  }
+}

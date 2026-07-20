@@ -80,7 +80,14 @@ export class CompetitionRegistrationComponent {
   readonly activate = output<CompetitionHistoryItem>();
   readonly delete = output<CompetitionHistoryItem>();
 
-  readonly historyColumns = ["name", "level", "partsCount", "score", "actions"];
+  readonly historyColumns = [
+    "name",
+    "level",
+    "partsCount",
+    "score",
+    "status",
+    "actions",
+  ];
 
   /** Form starts hidden behind the "Add" button; only one registration is edited at a time. */
   readonly showForm = signal(false);
