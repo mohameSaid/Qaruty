@@ -67,11 +67,13 @@ export interface CompetitionHistoryItem {
   id: number;
   competition: CompetitionRef;
   instructor: LookupRef | null;
-  placeDto: LookupRef | null;
+  place: LookupRef | null;
   level: CompetitionLevel;
   partsCount: number;
   studyClass: StudyClassRef | null;
   score: number | null;
+  /** Only the exceptions granted for this specific registration — not the competition's full exception list. */
+  exceptions: LookupRef[];
 }
 
 /** Body of `POST /competition-participant` to enroll a student in a new competition. */

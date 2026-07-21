@@ -27,7 +27,14 @@
           <p>حاول تعديل بحثك، أو أضف مستخدمًا جديدًا للبدء.</p>
         </div>
       } @else {
-        <table mat-table [dataSource]="users()" matSort (matSortChange)="onSort($event)">
+        <table
+          mat-table
+          [dataSource]="users()"
+          matSort
+          [matSortActive]="sortColumn()"
+          [matSortDirection]="matSortDirection()"
+          (matSortChange)="onSort($event)"
+        >
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>المعرف</th>
             <td mat-cell *matCellDef="let user">{{ user.id }}</td>

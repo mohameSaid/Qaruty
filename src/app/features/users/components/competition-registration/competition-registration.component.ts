@@ -201,8 +201,7 @@ export class CompetitionRegistrationComponent {
 
   /** Opens the form pre-filled with a history row's data; submit() then emits `edit` instead of `register`. */
   onEditItem(item: CompetitionHistoryItem): void {
-    const exceptionIdList =
-      item.competition?.exceptions?.map((e) => e.id) ?? [];
+    const exceptionIdList = item.exceptions?.map((e) => e.id) ?? [];
     this.editingId.set(item.id);
     this.form.reset({
       competitionId: item.competition.id,
@@ -210,7 +209,7 @@ export class CompetitionRegistrationComponent {
       partsCount: item.partsCount,
       studyYearId: item.studyClass?.year?.id ?? null,
       instructorId: item.instructor?.id ?? null,
-      placeId: item.placeDto?.id ?? null,
+      placeId: item.place?.id ?? null,
       exceptionIdList: exceptionIdList,
       notes: null,
     });

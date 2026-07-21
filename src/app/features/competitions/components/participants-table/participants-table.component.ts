@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,6 +30,8 @@ export class ParticipantsTableComponent {
   readonly totalElements = input<number>(0);
   readonly pageNo = input<number>(0);
   readonly pageSize = input<number>(10);
+  readonly sortColumn = input<string>('id');
+  readonly sortDirection = input<'ASC' | 'DESC'>('DESC');
   readonly loading = input<boolean>(false);
   readonly isEmpty = input<boolean>(false);
 
@@ -55,6 +57,8 @@ export class ParticipantsTableComponent {
 
   /** Placeholder rows rendered while a page of data is loading. */
   readonly skeletonRowIndices = [0, 1, 2, 3, 4, 5];
+
+  readonly matSortDirection = computed(() => this.sortDirection().toLowerCase() as 'asc' | 'desc');
 
   exceptionNames(participant: ParticipantListItem): string {
     if (!participant.exceptions?.length) {
