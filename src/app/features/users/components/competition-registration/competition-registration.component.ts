@@ -209,7 +209,7 @@ export class CompetitionRegistrationComponent {
       partsCount: item.partsCount,
       studyYearId: item.studyClass?.year?.id ?? null,
       instructorId: item.instructor?.id ?? null,
-      placeId: item.placeDto?.id ?? null,
+      placeId: item.place?.id ?? null,
       exceptionIdList: exceptionIdList,
       notes: null,
     });

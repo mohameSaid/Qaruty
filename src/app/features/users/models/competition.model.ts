@@ -67,7 +67,7 @@ export interface CompetitionHistoryItem {
   id: number;
   competition: CompetitionRef;
   instructor: LookupRef | null;
-  placeDto: LookupRef | null;
+  place: LookupRef | null;
   level: CompetitionLevel;
   partsCount: number;
   studyClass: StudyClassRef | null;
