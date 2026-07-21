@@ -33,6 +33,11 @@
   margin-top: 20px;
 }
 
+.status-column {
+  min-width: 140px;
+  text-align: center !important;
+}
+
 .spinner-inline {
   display: inline-flex;
   align-items: center;
@@ -59,4 +64,9 @@
     background: var(--mat-sys-error-container, #fbe1e0);
     color: var(--mat-sys-on-error-container, #a3251b);
   }
+}
+
+
+.text-center {
+  text-align: center !important;
 }

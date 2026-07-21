@@ -37,6 +37,8 @@ export class ParticipantsStore {
   readonly totalElements = this._totalElements.asReadonly();
   readonly pageNo = this._pageNo.asReadonly();
   readonly pageSize = this._pageSize.asReadonly();
+  readonly sortColumn = this._sortColumn.asReadonly();
+  readonly sortDirection = this._sortDirection.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly filters = this._filters.asReadonly();
 

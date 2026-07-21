@@ -73,6 +73,8 @@ export class ParticipantService {
       params = params.set('search.columnValues', filters.search);
       params = params.set('search.columnNames', 'user.name.arName,user.name.enName');
     }
+
+      params = params.set('filters.deleted', false); // to be added later,  
     return params;
   }
 }

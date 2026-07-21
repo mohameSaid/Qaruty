@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -34,6 +34,8 @@ export class UsersTableComponent {
   readonly totalElements = input<number>(0);
   readonly pageNo = input<number>(0);
   readonly pageSize = input<number>(10);
+  readonly sortColumn = input<string>('id');
+  readonly sortDirection = input<'ASC' | 'DESC'>('DESC');
   readonly loading = input<boolean>(false);
   readonly deleting = input<boolean>(false);
   readonly isEmpty = input<boolean>(false);
@@ -58,6 +60,8 @@ export class UsersTableComponent {
 
   /** Placeholder rows rendered while a page of data is loading. */
   readonly skeletonRowIndices = [0, 1, 2, 3, 4, 5];
+
+  readonly matSortDirection = computed(() => this.sortDirection().toLowerCase() as 'asc' | 'desc');
 
   onView(user: UserListItem): void {
     if (!user.id) {

@@ -351,7 +351,7 @@ export class UserFormComponent {
       gender: user.gender.id as Gender,
       governorate: user.address.governorate.id,
       city: user.address.city.id,
-      village: user.address.village.id,
+      village: user.address.village?.id,
       addressDetails: user.address.details,
       studyYearId: user.study?.studyYear?.id ?? null,
       email: user.contact.email,
