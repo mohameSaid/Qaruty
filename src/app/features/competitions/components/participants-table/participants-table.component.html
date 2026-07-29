@@ -98,10 +98,20 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>إجراءات</th>
             <td mat-cell *matCellDef="let p">
-              <button mat-icon-button matTooltip="عرض بيانات المستخدم" (click)="onView(p)">
+              <button
+                *appHasPermission="Permission.UserDetailsRead"
+                mat-icon-button
+                matTooltip="عرض بيانات المستخدم"
+                (click)="onView(p)"
+              >
                 <mat-icon>visibility</mat-icon>
               </button>
-              <button mat-icon-button matTooltip="تقييم" (click)="onEvaluate(p)">
+              <button
+                *appHasPermission="Permission.ParticipantUpdate"
+                mat-icon-button
+                matTooltip="تقييم"
+                (click)="onEvaluate(p)"
+              >
                 <mat-icon>grading</mat-icon>
               </button>
             </td>

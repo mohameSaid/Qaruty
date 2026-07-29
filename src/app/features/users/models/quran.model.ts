@@ -8,24 +8,51 @@ export interface QuranAyahData {
   globalIndex: number;
 }
 
+/** The six memorization drills a generated question can ask for. */
+export type QuranQuestionType =
+  | 'CONTINUE_NEXT'
+  | 'CONTINUE_AFTER_GAP'
+  | 'IDENTIFY_SURAH'
+  | 'IDENTIFY_AYAH_NUMBER'
+  | 'START_FROM_AYAH'
+  | 'MENTION_ADJACENT_AYAH';
+
+/** Arabic label shown on each question's panel/badge. */
+export const QURAN_QUESTION_TYPE_LABELS: Record<QuranQuestionType, string> = {
+  CONTINUE_NEXT: 'إكمال الآيات التالية',
+  CONTINUE_AFTER_GAP: 'إكمال بعد عدة آيات',
+  IDENTIFY_SURAH: 'تحديد اسم السورة',
+  IDENTIFY_AYAH_NUMBER: 'تحديد رقم الآية',
+  START_FROM_AYAH: 'البدء من آية محددة',
+  MENTION_ADJACENT_AYAH: 'ذكر الآية المجاورة',
+};
+
 /**
- * One generated memorization question: the evaluator sees only `suraName` / `ayaIndex` /
- * `ayahText` (the starting ayah). `answerAyahs` holds the next `QURAN_ANSWER_LENGTH` ayahs —
- * kept out of view until the evaluator explicitly reveals it, so it can be checked against
- * the participant's live recitation without being displayed by default.
+ * One generated memorization question. `ayahText` is the prompt shown to the evaluator up
+ * front — empty for `START_FROM_AYAH`, where only the sura/ayah reference is shown and the
+ * text itself is part of the hidden answer. `answerAyahs` holds whatever the evaluator should
+ * reveal to check the participant's recitation; its meaning depends on `type`:
+ * - CONTINUE_NEXT / CONTINUE_AFTER_GAP / START_FROM_AYAH: the ayahs to recite.
+ * - MENTION_ADJACENT_AYAH: the single neighboring ayah (see `direction`).
+ * - IDENTIFY_SURAH / IDENTIFY_AYAH_NUMBER: empty — the answer is `suraName` / `ayaIndex` above.
  */
 export interface QuranQuestion {
   id: string;
+  type: QuranQuestionType;
   suraIndex: number;
   suraName: string;
   ayaIndex: number;
   ayahText: string;
   answerAyahs: QuranAyahData[];
+  /** CONTINUE_AFTER_GAP only: how many ayahs are skipped before the answer starts. */
+  gapCount?: number;
+  /** MENTION_ADJACENT_AYAH only: which neighbour is being asked for. */
+  direction?: 'before' | 'after';
 }
 
 /** Fixed number of memorization questions generated per evaluation. */
 export const QURAN_QUESTION_COUNT = 10;
-/** Fixed number of ayahs that make up the expected answer for each question. */
-export const QURAN_ANSWER_LENGTH = 10;
+/** Number of ayahs revealed as the answer for a CONTINUE_NEXT / START_FROM_AYAH question. */
+export const QURAN_CONTINUE_LENGTH = 10;
 /** Score range per Quran question, same 0-10 scale as the other evaluation criteria. */
 export const QURAN_MAX_QUESTION_SCORE = 10;

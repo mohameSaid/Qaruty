@@ -31,7 +31,11 @@ import {
   QuranEvaluationEntry,
   SubmitEvaluationRequest,
 } from '../../models/evaluation.model';
-import { QURAN_MAX_QUESTION_SCORE, QuranQuestion } from '../../models/quran.model';
+import {
+  QURAN_MAX_QUESTION_SCORE,
+  QURAN_QUESTION_TYPE_LABELS,
+  QuranQuestion,
+} from '../../models/quran.model';
 
 /**
  * Score cards for the "previous history" panel: derived client-side, since
@@ -76,7 +80,7 @@ export class EvaluationPageComponent implements OnInit {
 
   readonly questions = EVALUATION_QUESTIONS;
   readonly maxQuestionScore = MAX_QUESTION_SCORE;
-  readonly maxTotalScore = MAX_TOTAL_SCORE;
+  private readonly baseMaxTotalScore = MAX_TOTAL_SCORE;
 
   readonly loading = signal(false);
   readonly loadError = signal(false);
@@ -95,9 +99,9 @@ export class EvaluationPageComponent implements OnInit {
     Object.fromEntries(EVALUATION_QUESTIONS.map((q) => [q.id, 0]))
   );
 
-  readonly totalScore = computed(() => Object.values(this.scores()).reduce((sum, v) => sum + v, 0));
-  readonly progressPercent = computed(() => Math.min(100, (this.totalScore() / this.maxTotalScore) * 100));
-  readonly overLimit = computed(() => this.totalScore() > this.maxTotalScore);
+  private readonly baseTotalScore = computed(() =>
+    Object.values(this.scores()).reduce((sum, v) => sum + v, 0)
+  );
 
   readonly age = computed(() => this.calculateAge(this.user()?.birthDate));
 
@@ -115,8 +119,14 @@ export class EvaluationPageComponent implements OnInit {
   readonly quranScores = signal<Record<string, number>>({});
   /** questionId -> evaluator notes. */
   readonly quranNotes = signal<Record<string, string>>({});
-  /** questionIds whose "next 10 ayahs" answer is currently revealed. */
+  /** questionIds whose answer (per its type) is currently revealed. */
   readonly revealedAnswers = signal<Set<string>>(new Set());
+  /**
+   * questionIds whose prompt (the ayah text / instruction) has been shown to the evaluator.
+   * Starts empty: the evaluator asks the participant the question from memory first, and
+   * only reveals the printed prompt if they need to read it out or double-check it.
+   */
+  readonly revealedQuestions = signal<Set<string>>(new Set());
 
   readonly quranTotalScore = computed(() =>
     Object.values(this.quranScores()).reduce((sum, v) => sum + v, 0)
@@ -127,6 +137,18 @@ export class EvaluationPageComponent implements OnInit {
       ? 0
       : Math.min(100, (this.quranTotalScore() / this.quranMaxTotalScore()) * 100)
   );
+
+  /** Overall total across the fixed criteria plus the Quran section (when applicable). */
+  readonly maxTotalScore = computed(
+    () => this.baseMaxTotalScore + (this.isQuranCompetition() ? this.quranMaxTotalScore() : 0)
+  );
+  readonly totalScore = computed(
+    () => this.baseTotalScore() + (this.isQuranCompetition() ? this.quranTotalScore() : 0)
+  );
+  readonly progressPercent = computed(() =>
+    this.maxTotalScore() === 0 ? 0 : Math.min(100, (this.totalScore() / this.maxTotalScore()) * 100)
+  );
+  readonly overLimit = computed(() => this.totalScore() > this.maxTotalScore());
 
   /**
    * The backend has no explicit `competition.type` field (see `CompetitionRef`) — every
@@ -218,6 +240,7 @@ export class EvaluationPageComponent implements OnInit {
         this.quranScores.set(Object.fromEntries(questions.map((q) => [q.id, 0])));
         this.quranNotes.set(Object.fromEntries(questions.map((q) => [q.id, ''])));
         this.revealedAnswers.set(new Set());
+        this.revealedQuestions.set(new Set());
       });
   }
 
@@ -251,16 +274,71 @@ export class EvaluationPageComponent implements OnInit {
     return this.revealedAnswers().has(questionId);
   }
 
-  /** Human-readable range for the expected answer, e.g. "من الآية ٣ إلى الآية ١٢" (may span into the next surah). */
+  toggleQuestion(questionId: string): void {
+    this.revealedQuestions.update((current) => {
+      const next = new Set(current);
+      if (next.has(questionId)) {
+        next.delete(questionId);
+      } else {
+        next.add(questionId);
+      }
+      return next;
+    });
+  }
+
+  isQuestionRevealed(questionId: string): boolean {
+    return this.revealedQuestions().has(questionId);
+  }
+
+  readonly quranQuestionTypeLabel = QURAN_QUESTION_TYPE_LABELS;
+
+  /** Arabic instruction shown above the question, describing what the participant must do. */
+  quranQuestionInstruction(question: QuranQuestion): string {
+    switch (question.type) {
+      case 'CONTINUE_NEXT':
+        return 'يُطلب من المتسابق إكمال تلاوة الآيات التالية لهذه الآية حفظًا.';
+      case 'CONTINUE_AFTER_GAP':
+        return `يُطلب من المتسابق تخطي ${question.gapCount} آيات بعد هذه الآية ثم إكمال التلاوة من الآية التالية لها.`;
+      case 'IDENTIFY_SURAH':
+        return 'يُطلب من المتسابق تحديد اسم السورة التي وردت فيها هذه الآية.';
+      case 'IDENTIFY_AYAH_NUMBER':
+        return 'يُطلب من المتسابق تحديد رقم هذه الآية داخل سورتها.';
+      case 'START_FROM_AYAH':
+        return `يُطلب من المتسابق البدء بالتلاوة حفظًا من سورة ${question.suraName} — الآية ${question.ayaIndex}.`;
+      case 'MENTION_ADJACENT_AYAH':
+        return question.direction === 'before'
+          ? 'يُطلب من المتسابق ذكر الآية التي تسبق هذه الآية.'
+          : 'يُطلب من المتسابق ذكر الآية التي تلي هذه الآية.';
+    }
+  }
+
+  /** Human-readable description of the expected answer, shown once the evaluator reveals it. */
   quranAnswerRangeLabel(question: QuranQuestion): string {
-    const last = question.answerAyahs[question.answerAyahs.length - 1];
-    if (!last) {
-      return '';
+    switch (question.type) {
+      case 'IDENTIFY_SURAH':
+        return `اسم السورة: ${question.suraName}`;
+      case 'IDENTIFY_AYAH_NUMBER':
+        return `رقم الآية: ${question.ayaIndex}`;
+      case 'MENTION_ADJACENT_AYAH': {
+        const neighbor = question.answerAyahs[0];
+        if (!neighbor) {
+          return '';
+        }
+        const label = question.direction === 'before' ? 'الآية السابقة' : 'الآية التالية';
+        return `${label} (سورة ${neighbor.suraName} — الآية ${neighbor.ayaIndex})`;
+      }
+      default: {
+        const first = question.answerAyahs[0];
+        const last = question.answerAyahs[question.answerAyahs.length - 1];
+        if (!first || !last) {
+          return '';
+        }
+        if (last.suraIndex === first.suraIndex) {
+          return `من الآية ${first.ayaIndex} إلى الآية ${last.ayaIndex} — سورة ${first.suraName}`;
+        }
+        return `من الآية ${first.ayaIndex} (سورة ${first.suraName}) حتى الآية ${last.ayaIndex} (سورة ${last.suraName})`;
+      }
     }
-    if (last.suraIndex === question.suraIndex) {
-      return `من الآية ${question.ayaIndex + 1} إلى الآية ${last.ayaIndex}`;
-    }
-    return `من الآية ${question.ayaIndex + 1} حتى الآية ${last.ayaIndex} من سورة ${last.suraName}`;
   }
 
   scoreLevel(score: number): 'low' | 'high' | 'mid' {

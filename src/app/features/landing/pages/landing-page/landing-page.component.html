@@ -1,0 +1,377 @@
+<div class="landing">
+  <!-- ===== TOP BAR ===== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-icon">☪</span>
+        <span class="brand-text">المسابقة الكبرى للقرآن الكريم</span>
+      </div>
+      <a routerLink="/login" class="btn-login">
+        <span>تسجيل الدخول</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-pattern"></div>
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+
+    <div class="hero-inner">
+      <div class="hero-ornament" aria-hidden="true">﷽</div>
+
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>النسخة الثالثة — 2026</span>
+      </div>
+
+      <h1 class="hero-title">
+        المسابقة الكبرى<br />
+        <span class="hero-title-accent">لحفظ القرآن الكريم</span>
+      </h1>
+
+      <p class="hero-location">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>بكفر أبو الحسن — مركز قويسنا، محافظة المنوفية</span>
+      </p>
+
+      <div class="hero-actions">
+        <a routerLink="/login" class="btn-primary">
+          <span>🏆</span>
+          <span>تسجيل الدخول</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-divider" aria-hidden="true">
+      <span></span><span class="hero-divider-icon">۞</span><span></span>
+    </div>
+  </section>
+
+  <!-- ===== SCHEDULE ===== -->
+  <section class="schedule" id="schedule" aria-labelledby="schedule-title">
+    <div class="section-head reveal">
+      <div class="section-badge">
+        <span>📅</span>
+        <span>موعد الاختبارات</span>
+      </div>
+      <h2 class="section-title" id="schedule-title">مواعيد اختبارات المسابقة</h2>
+      <p class="section-sub">الاختبارات حسب أسبقية الحضور لكل مستوى</p>
+    </div>
+
+    <div class="schedule-grid">
+      <div class="day-card reveal-card">
+        <div class="day-card-header">
+          <div class="day-name">الجمعة</div>
+          <div class="day-date">31 / 7 / 2026</div>
+          <div class="day-time">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>الساعة 8:30 صباحًا</span>
+          </div>
+        </div>
+        <ul class="level-list">
+          <li><span class="level-icon">📖</span><span>القرآن الكريم كاملًا</span></li>
+          <li><span class="level-icon">📖</span><span>20 جزء</span></li>
+          <li><span class="level-icon">📖</span><span>15 جزء</span></li>
+          <li><span class="level-icon">📖</span><span>10 أجزاء</span></li>
+        </ul>
+      </div>
+
+      <div class="day-card reveal-card" style="transition-delay:120ms">
+        <div class="day-card-header">
+          <div class="day-name">السبت</div>
+          <div class="day-date">1 / 8 / 2026</div>
+          <div class="day-time">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>الساعة 8:30 صباحًا</span>
+          </div>
+        </div>
+        <ul class="level-list">
+          <li><span class="level-icon">📖</span><span>7 أجزاء</span></li>
+          <li><span class="level-icon">📖</span><span>5 أجزاء</span></li>
+          <li><span class="level-icon">📖</span><span>3 أجزاء</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== VIDEOS ===== -->
+  <section class="videos" id="videos" aria-labelledby="videos-title">
+    <div class="section-head reveal">
+      <div class="section-badge">
+        <span>🎬</span>
+        <span>لحظات لا تُنسى</span>
+      </div>
+      <h2 class="section-title" id="videos-title">من فعاليات الدورات السابقة</h2>
+      <p class="section-sub">شاهد لقطات من أجواء المسابقة في دوراتها السابقة</p>
+    </div>
+
+    <div class="video-feed-wrap reveal">
+      <button type="button" class="video-nav video-nav--next" (click)="feed.scrollBy({ left: 340, behavior: 'smooth' })" aria-label="التالي">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+
+      <div class="video-feed" #feed>
+        <div class="video-feed-track">
+          @for (v of videos; track v.id; let i = $index) {
+            <div class="video-card" (click)="openViewer(i)">
+              <video class="video-card__el" [src]="v.src" muted playsinline preload="metadata"></video>
+
+              <div class="video-card__scrim"></div>
+
+              <div class="video-play-btn is-visible" aria-hidden="true">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+
+              <div class="video-card__label">
+                <span class="video-card__icon">📿</span>
+                <span>{{ v.label }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <button type="button" class="video-nav video-nav--prev" (click)="feed.scrollBy({ left: -340, behavior: 'smooth' })" aria-label="السابق">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== VIDEO FULLSCREEN VIEWER ===== -->
+  @if (activeIndex() !== null) {
+    <div
+      class="video-viewer"
+      (wheel)="onWheel($event)"
+      (touchstart)="onTouchStart($event)"
+      (touchend)="onTouchEnd($event)"
+    >
+      <button type="button" class="viewer-close" (click)="closeViewer()" aria-label="إغلاق">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+
+      <div class="viewer-stage">
+        @for (v of videos; track v.id; let i = $index) {
+          @if (i === activeIndex()) {
+            <video
+              #viewerVideo
+              class="viewer-video"
+              [src]="v.src"
+              autoplay
+              loop
+              playsinline
+              (click)="toggleViewerPlay(viewerVideo)"
+            ></video>
+            <div class="viewer-label">
+              <span class="video-card__icon">📿</span>
+              <span>{{ v.label }}</span>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="viewer-nav">
+        <button type="button" (click)="prevVideo()" [disabled]="activeIndex() === 0" aria-label="الفيديو السابق">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+        </button>
+        <button
+          type="button"
+          (click)="nextVideo()"
+          [disabled]="activeIndex() === videos.length - 1"
+          aria-label="الفيديو التالي"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="viewer-hint">اسحب لأعلى أو لأسفل للتنقل بين الفيديوهات</div>
+    </div>
+  }
+
+  <!-- ===== WINNERS ===== -->
+  <section class="winners" id="winners" aria-labelledby="winners-title">
+    <div class="section-head reveal">
+      <div class="section-badge">
+        <span>🏆</span>
+        <span>الفائزون</span>
+      </div>
+      <h2 class="section-title" id="winners-title">فائزو الدورة السابقة</h2>
+      <p class="section-sub">مبروك لأبطال المسابقة على هذا الإنجاز المبارك</p>
+    </div>
+
+    <div class="winners-feed-wrap reveal">
+      <button
+        type="button"
+        class="video-nav video-nav--next"
+        (click)="winnersFeed.scrollBy({ left: 340, behavior: 'smooth' })"
+        aria-label="المستوى التالي"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+
+      <div class="winners-feed" #winnersFeed>
+        <div class="winners-feed-track">
+          @for (lvl of winnersLevels; track lvl.level) {
+            <div class="winner-card">
+              <div class="winner-card__head">
+                <span class="winner-card__icon">{{ lvl.icon }}</span>
+                <span class="winner-card__level">{{ lvl.level }}</span>
+              </div>
+              <ul class="winner-list">
+                @for (w of lvl.winners; track w.rank) {
+                  <li class="winner-row" [class]="'rank-' + w.rank">
+                    <span class="winner-medal">
+                      @if (w.rank <= 3) {
+                        {{ rankMedal[w.rank] }}
+                      } @else {
+                        <span class="winner-rank-num">{{ w.rank }}</span>
+                      }
+                    </span>
+                    <span class="winner-name">{{ w.name }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="video-nav video-nav--prev"
+        (click)="winnersFeed.scrollBy({ left: -340, behavior: 'smooth' })"
+        aria-label="المستوى السابق"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== HISN AL-MUSLIM ===== -->
+  <section class="hisn reveal">
+    <div class="hisn-inner">
+      <div class="hisn-icon">🤲</div>
+      <div class="hisn-body">
+        <h3 class="hisn-title">مسابقة حصن المسلم</h3>
+        <p class="hisn-text">
+          المتسابقون المسجلون في مسابقة حصن المسلم سيتم اختبارهم شفويًا في الأذكار بعد الانتهاء من اختبار القرآن الكريم.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== LOCATION ===== -->
+  <section class="location reveal">
+    <div class="location-inner">
+      <div class="location-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div>
+        <div class="location-label">مكان إجراء الاختبارات</div>
+        <div class="location-value">دوار عائلة عفيفي — كفر أبو الحسن</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PLATFORM ANNOUNCEMENT ===== -->
+  <section class="platform" id="platform" aria-labelledby="platform-title">
+    <div class="platform-pattern"></div>
+    <div class="platform-glow"></div>
+
+    <div class="platform-inner container-x">
+      <div class="platform-badge reveal">
+        <span class="badge-dot"></span>
+        <span>قريبًا</span>
+      </div>
+
+      <h2 class="platform-title reveal" id="platform-title">
+        منصة قريتي لحفظ القرآن الكريم أونلاين
+        <span class="platform-title-emoji">🌿📖</span>
+      </h2>
+
+      <p class="platform-desc reveal">
+        نفتح لك بابًا جديدًا لحفظ كتاب الله <strong>بسهولة ويسر، وبخطوات تناسب وقتك وقدرتك</strong>، مع متابعة مستمرة
+        تساعدك على الاستمرار حتى إتمام الحفظ بإذن الله.
+      </p>
+
+      <div class="platform-subhead reveal">
+        <span>✨</span>
+        <span>ماذا نقدم؟</span>
+      </div>
+
+      <div class="platform-features">
+        @for (f of platformFeatures; track f.title; let i = $index) {
+          <div class="platform-feature reveal-card" [style.transition-delay.ms]="i * 70">
+            <div class="platform-feature__icon">{{ f.icon }}</div>
+            <div class="platform-feature__title">{{ f.title }}</div>
+            <p class="platform-feature__desc">{{ f.desc }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="platform-outro reveal">
+        <p class="platform-outro__line">سجّل اهتمامك وانتظر إطلاق المنصة قريبًا...</p>
+        <p class="platform-outro__line platform-outro__line--accent">رحلة جديدة مع القرآن تبدأ بخطوة 🤍</p>
+        <a href="#contact" (click)="scrollTo('contact', $event)" class="btn-cta">
+          <span>📞</span>
+          <span>تواصل معنا لتسجيل اهتمامك</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FINAL CTA ===== -->
+  <section class="final-cta">
+    <div class="cta-pattern"></div>
+    <div class="cta-inner reveal">
+      <div class="cta-ornament" aria-hidden="true">۞</div>
+      <h2 class="cta-title">باب التسجيل مغلق الآن</h2>
+      <p class="cta-sub">نتمنى للمتسابقين المسجَّلين التوفيق والسداد</p>
+      <div class="cta-result-hint">
+        <span class="cta-result-hint__icon">📋</span>
+        <span>سجّل الدخول الآن لمتابعة نتيجتك في المسابقة</span>
+      </div>
+      <a routerLink="/register" class="btn-cta btn-cta--pulse">
+        <span>🔑</span>
+        <span>تسجيل الدخول لمعرفة النتيجة</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-brand-title">
+          <span class="footer-brand-icon">☪</span>
+          <span>المسابقة الكبرى للقرآن الكريم</span>
+        </div>
+        <p class="footer-brand-desc">بكفر أبو الحسن — مركز قويسنا، محافظة المنوفية</p>
+      </div>
+
+      <div class="footer-contact" id="contact">
+        <div class="footer-contact-title">
+          <span>📞</span>
+          <span>تواصل معنا</span>
+        </div>
+        <ul class="contact-list">
+          @for (c of contacts; track c.phone) {
+            <li class="contact-item">
+              <a [href]="'tel:' + c.phone" class="contact-link">
+                <span class="contact-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </span>
+                <span class="contact-name">{{ c.name }}</span>
+                <span class="contact-phone" dir="ltr">{{ c.phone }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-divider"></div>
+    <p class="footer-year">النسخة الثالثة © 2026 — جميع الحقوق محفوظة</p>
+  </footer>
+</div>

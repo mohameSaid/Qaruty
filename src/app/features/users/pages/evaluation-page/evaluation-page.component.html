@@ -23,11 +23,12 @@
           <mat-card-header>
             <mat-card-title>تقييم المتسابق</mat-card-title>
             <mat-card-subtitle dir="rtl">
-              {{ currentEntry()!.competition.name.arabic }} — {{ currentEntry()!.level.name.arabic }}
+              {{ currentEntry()!.competition.name.arabic }} —
+              {{ currentEntry()!.level.name.arabic }}
             </mat-card-subtitle>
           </mat-card-header>
         </mat-card>
- 
+
         @if (isQuranCompetition()) {
           <mat-card class="section-card quran-card">
             <mat-card-header>
@@ -36,8 +37,9 @@
                 <div>
                   <mat-card-title>أسئلة الحفظ القرآني</mat-card-title>
                   <mat-card-subtitle>
-                    10 أسئلة عشوائية حسب مستوى المتسابق ({{ currentEntry()!.level.name.arabic }}) — كل سؤال من
-                    {{ maxQuranQuestionScore }} درجات
+                    10 أسئلة عشوائية حسب مستوى المتسابق ({{
+                      currentEntry()!.level.name.arabic
+                    }}) — كل سؤال من {{ maxQuranQuestionScore }} درجات
                   </mat-card-subtitle>
                 </div>
               </div>
@@ -59,58 +61,119 @@
               } @else {
                 <mat-accordion class="quran-accordion" [multi]="true">
                   @for (q of quranQuestions(); track q.id; let i = $index) {
-                    <mat-expansion-panel class="quran-panel" [class]="'level-' + scoreLevel(quranScores()[q.id])">
+                    <mat-expansion-panel
+                      class="quran-panel"
+                      [class]="'level-' + scoreLevel(quranScores()[q.id])"
+                    >
                       <mat-expansion-panel-header>
                         <mat-panel-title>
                           <span class="quran-question-index">{{ i + 1 }}</span>
-                          <span class="quran-question-sura" dir="rtl">
+                          <!-- <span class="quran-question-sura" dir="rtl">
                             سورة {{ q.suraName }} — الآية {{ q.ayaIndex }}
-                          </span>
+                          </span> -->
                         </mat-panel-title>
                         <mat-panel-description>
+                          <!-- <span class="type-badge" dir="rtl">{{
+                            quranQuestionTypeLabel[q.type]
+                          }}</span> -->
                           <span class="score-badge" dir="rtl">
-                            {{ quranScores()[q.id] }} / {{ maxQuranQuestionScore }}
+                            {{ quranScores()[q.id] }} /
+                            {{ maxQuranQuestionScore }}
                           </span>
                         </mat-panel-description>
                       </mat-expansion-panel-header>
 
-                      <div class="mushaf-frame">
-                        <div class="mushaf-heading" dir="rtl">
-                          <span class="sura-name">سورة {{ q.suraName }}</span>
-                          <span class="aya-ref">الآية {{ q.ayaIndex }}</span>
-                        </div>
-                        <p class="ayah-text" dir="rtl" lang="ar">
-                          {{ q.ayahText }}
-                          <span class="ayah-number" [attr.data-num]="q.ayaIndex"></span>
-                        </p>
-                        <p class="mushaf-instruction" dir="rtl">
-                          يُطلب من المتسابق إكمال تلاوة العشر آيات التالية لهذه الآية حفظًا.
-                        </p>
-                      </div>
-
-                      <div class="answer-reveal">
+                      <div class="question-reveal">
                         <button
                           mat-stroked-button
                           type="button"
-                          class="reveal-toggle"
-                          (click)="toggleAnswer(q.id)"
+                          class="reveal-toggle question-reveal-toggle"
+                          (click)="toggleQuestion(q.id)"
                         >
-                          <mat-icon>{{ isAnswerRevealed(q.id) ? 'visibility_off' : 'visibility' }}</mat-icon>
-                          {{ isAnswerRevealed(q.id) ? 'إخفاء الإجابة' : 'إظهار الإجابة (للمقيّم فقط)' }}
+                          <mat-icon>{{
+                            isQuestionRevealed(q.id) ? "visibility_off" : "quiz"
+                          }}</mat-icon>
+                          {{
+                            isQuestionRevealed(q.id)
+                              ? "إخفاء السؤال"
+                              : "إظهار السؤال"
+                          }}
                         </button>
-
-                        @if (isAnswerRevealed(q.id)) {
-                          <div class="mushaf-frame answer-frame" dir="rtl">
-                            <span class="answer-range">{{ quranAnswerRangeLabel(q) }}</span>
-                            <p class="ayah-text answer-text" dir="rtl" lang="ar">
-                              @for (a of q.answerAyahs; track a.globalIndex) {
-                                {{ a.text }}
-                                <span class="ayah-number" [attr.data-num]="a.ayaIndex"></span>
-                              }
-                            </p>
-                          </div>
-                        }
+                        <!-- <p class="question-reveal-hint" dir="rtl">
+                          يُفضّل توجيه السؤال للمتسابق شفهيًا من الذاكرة أولًا، وإظهار نصه فقط عند الحاجة.
+                        </p> -->
                       </div>
+
+                      @if (isQuestionRevealed(q.id)) {
+                        <div class="mushaf-frame">
+                          <div class="mushaf-heading" dir="rtl">
+                            <span class="sura-name">سورة {{ q.suraName }}</span>
+                            <span class="aya-ref">الآية {{ q.ayaIndex }}</span>
+                          </div>
+                          @if (q.ayahText) {
+                            <p class="ayah-text" dir="rtl" lang="ar">
+                              {{ q.ayahText }}
+                              <span
+                                class="ayah-number"
+                                [attr.data-num]="q.ayaIndex"
+                              ></span>
+                            </p>
+                          } @else {
+                            <p class="ayah-text ayah-text-hidden" dir="rtl">
+                              — نص الآية مخفي، يبدأ المتسابق من المرجع أعلاه —
+                            </p>
+                          }
+                          <p class="mushaf-instruction" dir="rtl">
+                            {{ quranQuestionInstruction(q) }}
+                          </p>
+                        </div>
+
+                        <div class="answer-reveal">
+                          <button
+                            mat-stroked-button
+                            type="button"
+                            class="reveal-toggle"
+                            (click)="toggleAnswer(q.id)"
+                          >
+                            <mat-icon>{{
+                              isAnswerRevealed(q.id)
+                                ? "visibility_off"
+                                : "visibility"
+                            }}</mat-icon>
+                            {{
+                              isAnswerRevealed(q.id)
+                                ? "إخفاء الإجابة"
+                                : "إظهار الإجابة (للمقيّم فقط)"
+                            }}
+                          </button>
+
+                          @if (isAnswerRevealed(q.id)) {
+                            <div class="mushaf-frame answer-frame" dir="rtl">
+                              <span class="answer-range">{{
+                                quranAnswerRangeLabel(q)
+                              }}</span>
+                              @if (q.answerAyahs.length > 0) {
+                                <p
+                                  class="ayah-text answer-text"
+                                  dir="rtl"
+                                  lang="ar"
+                                >
+                                  @for (
+                                    a of q.answerAyahs;
+                                    track a.globalIndex
+                                  ) {
+                                    {{ a.text }}
+                                    <span
+                                      class="ayah-number"
+                                      [attr.data-num]="a.ayaIndex"
+                                    ></span>
+                                  }
+                                </p>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
 
                       <div class="question-control quran-question-control">
                         <mat-slider
@@ -119,7 +182,6 @@
                           [max]="maxQuranQuestionScore"
                           [step]="1"
                           discrete
-                          showTickMarks
                         >
                           <input
                             matSliderThumb
@@ -127,10 +189,16 @@
                             (valueChange)="setQuranScore(q.id, $event)"
                           />
                         </mat-slider>
-                        <span class="score-badge">{{ quranScores()[q.id] }} / {{ maxQuranQuestionScore }}</span>
+                        <span class="score-badge">
+                          {{ quranScores()[q.id] }} /
+                          {{ maxQuranQuestionScore }}
+                        </span>
                       </div>
 
-                      <mat-form-field appearance="outline" class="full-width quran-notes-field">
+                      <mat-form-field
+                        appearance="outline"
+                        class="full-width quran-notes-field"
+                      >
                         <mat-label>ملاحظات المقيّم على هذا السؤال</mat-label>
                         <textarea
                           matInput
@@ -147,21 +215,33 @@
                 <div class="summary-row quran-summary-row">
                   <div class="summary-total">
                     <span class="summary-label">مجموع درجات الحفظ</span>
-                    <span class="summary-value">{{ quranTotalScore() }} / {{ quranMaxTotalScore() }}</span>
+                    <span class="summary-value"
+                      >{{ quranTotalScore() }} /
+                      {{ quranMaxTotalScore() }}</span
+                    >
                   </div>
                 </div>
-                <mat-progress-bar mode="determinate" [value]="quranProgressPercent()" color="primary" />
+                <mat-progress-bar
+                  mode="determinate"
+                  [value]="quranProgressPercent()"
+                  color="primary"
+                />
               }
             </mat-card-content>
           </mat-card>
         }
 
-        <mat-card class="section-card summary-card" [class.over-limit]="overLimit()">
+        <mat-card
+          class="section-card summary-card"
+          [class.over-limit]="overLimit()"
+        >
           <mat-card-content>
             <div class="summary-row">
               <div class="summary-total">
                 <span class="summary-label">المجموع الكلي</span>
-                <span class="summary-value">{{ totalScore() }} / {{ maxTotalScore }}</span>
+                <span class="summary-value"
+                  >{{ totalScore() }} / {{ maxTotalScore() }}</span
+                >
               </div>
               @if (overLimit()) {
                 <span class="over-limit-hint">
@@ -173,7 +253,13 @@
             <mat-progress-bar
               mode="determinate"
               [value]="progressPercent()"
-              [color]="overLimit() ? 'warn' : progressPercent() >= 90 ? 'accent' : 'primary'"
+              [color]="
+                overLimit()
+                  ? 'warn'
+                  : progressPercent() >= 90
+                    ? 'accent'
+                    : 'primary'
+              "
             />
           </mat-card-content>
         </mat-card>
@@ -197,12 +283,23 @@
         </mat-card>
 
         <div class="eval-actions">
-          <button mat-stroked-button type="button" [disabled]="busy()" (click)="onCancel()">
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="busy()"
+            (click)="onCancel()"
+          >
             <mat-icon>close</mat-icon>
             إلغاء
           </button>
           <span class="actions-spacer"></span>
-          <button mat-stroked-button color="primary" type="button" [disabled]="busy()" (click)="saveDraft()">
+          <button
+            mat-stroked-button
+            color="primary"
+            type="button"
+            [disabled]="busy()"
+            (click)="saveDraft()"
+          >
             @if (savingDraft()) {
               <span class="spinner-inline">
                 <mat-progress-spinner diameter="18" mode="indeterminate" />
@@ -241,42 +338,72 @@
             <mat-card-content>
               <div class="info-list">
                 <div class="info-item">
-                  <span class="info-label"><mat-icon>person</mat-icon> الاسم الكامل</span>
-                  <span class="info-value" dir="rtl">{{ user()!.name.arabic }}</span>
+                  <span class="info-label"
+                    ><mat-icon>person</mat-icon> الاسم الكامل</span
+                  >
+                  <span class="info-value" dir="rtl">{{
+                    user()!.name.arabic
+                  }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label"><mat-icon>badge</mat-icon> الرقم القومي</span>
+                  <span class="info-label"
+                    ><mat-icon>badge</mat-icon> الرقم القومي</span
+                  >
                   <span class="info-value">{{ user()!.nationalId }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label"><mat-icon>cake</mat-icon> العمر</span>
-                  <span class="info-value">{{ age() ?? '—' }}</span>
+                  <span class="info-label"
+                    ><mat-icon>cake</mat-icon> العمر</span
+                  >
+                  <span class="info-value">{{ age() ?? "—" }}</span>
                 </div>
                 <div class="info-item">
                   <span class="info-label"><mat-icon>wc</mat-icon> النوع</span>
-                  <span class="info-value" dir="rtl">{{ user()!.gender.name.arabic }}</span>
+                  <span class="info-value" dir="rtl">{{
+                    user()!.gender.name.arabic
+                  }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label"><mat-icon>location_city</mat-icon> المحافظة / المدينة</span>
+                  <span class="info-label"
+                    ><mat-icon>location_city</mat-icon> المحافظة / المدينة</span
+                  >
                   <span class="info-value" dir="rtl">
-                    {{ user()!.address.governorate.name.arabic }} / {{ user()!.address.city.name.arabic }}
+                    {{ user()!.address.governorate.name.arabic }} /
+                    {{ user()!.address.city.name.arabic }}
                   </span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label"><mat-icon>menu_book</mat-icon> مستوى الحفظ</span>
-                  <span class="info-value" dir="rtl">{{ currentEntry()!.level.name.arabic }}</span>
+                  <span class="info-label"
+                    ><mat-icon>menu_book</mat-icon> مستوى الحفظ</span
+                  >
+                  <span class="info-value" dir="rtl">{{
+                    currentEntry()!.level.name.arabic
+                  }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label"><mat-icon>emoji_events</mat-icon> فئة المسابقة الحالية</span>
-                  <span class="info-value" dir="rtl">{{ currentEntry()!.competition.name.arabic }}</span>
+                  <span class="info-label"
+                    ><mat-icon>emoji_events</mat-icon> فئة المسابقة
+                    الحالية</span
+                  >
+                  <span class="info-value" dir="rtl">{{
+                    currentEntry()!.competition.name.arabic
+                  }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label"><mat-icon>school</mat-icon> الشيخ المشرف</span>
-                  <span class="info-value" dir="rtl">{{ currentEntry()!.instructor?.name?.arabic || '—' }}</span>
+                  <span class="info-label"
+                    ><mat-icon>school</mat-icon> الشيخ المشرف</span
+                  >
+                  <span class="info-value" dir="rtl">{{
+                    currentEntry()!.instructor?.name?.arabic || "—"
+                  }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="info-label"><mat-icon>phone</mat-icon> رقم الهاتف</span>
-                  <span class="info-value">{{ user()!.contact.mobileNumber || '—' }}</span>
+                  <span class="info-label"
+                    ><mat-icon>phone</mat-icon> رقم الهاتف</span
+                  >
+                  <span class="info-value">{{
+                    user()!.contact.mobileNumber || "—"
+                  }}</span>
                 </div>
               </div>
             </mat-card-content>
@@ -292,9 +419,14 @@
               } @else {
                 <div class="history-timeline">
                   @for (item of history(); track item.id) {
-                    <div class="history-card" [class]="'status-' + historyStatus(item)">
+                    <div
+                      class="history-card"
+                      [class]="'status-' + historyStatus(item)"
+                    >
                       <div class="history-card-header">
-                        <span class="history-name" dir="rtl">{{ item.competition.name.arabic }}</span>
+                        <span class="history-name" dir="rtl">{{
+                          item.competition.name.arabic
+                        }}</span>
                         @if (item.id === currentEntry()!.id) {
                           <span class="current-chip">الحالية</span>
                         }
@@ -305,8 +437,12 @@
                         <span>{{ item.level.name.arabic }}</span>
                       </div>
                       <div class="history-footer">
-                        <span class="history-score">{{ item.score ?? '—' }} / 100</span>
-                        <span class="status-chip">{{ historyStatusLabel(historyStatus(item)) }}</span>
+                        <span class="history-score"
+                          >{{ item.score ?? "—" }} / 100</span
+                        >
+                        <span class="status-chip">{{
+                          historyStatusLabel(historyStatus(item))
+                        }}</span>
                       </div>
                     </div>
                   }

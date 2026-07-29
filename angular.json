@@ -24,6 +24,11 @@
                 "glob": "quran-simple-plain.xml",
                 "input": "src/app/shared/assets",
                 "output": "assets/quran"
+              },
+              {
+                "glob": "*.mp4",
+                "input": "src/app/shared/assets/quran-vedio",
+                "output": "assets/quran-videos"
               }
             ],
             "styles": ["src/styles.scss"],

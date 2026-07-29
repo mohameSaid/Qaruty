@@ -75,6 +75,7 @@
 
                 @if (row.deleted) {
                   <button
+                    *appHasPermission="Permission.ParticipantDeactivate"
                     mat-icon-button
                     matTooltip="إعادة تفعيل التسجيل"
                     (click)="onActivate(row)"
@@ -83,6 +84,7 @@
                   </button>
                 } @else {
                   <button
+                    *appHasPermission="Permission.ParticipantDeactivate"
                     mat-icon-button
                     matTooltip="إلغاء تفعيل التسجيل"
                     (click)="onDeactivate(row)"
@@ -90,6 +92,7 @@
                     <mat-icon>block</mat-icon>
                   </button>
                   <button
+                    *appHasPermission="Permission.ParticipantUpdate"
                     mat-icon-button
                     matTooltip="تعديل التسجيل"
                     (click)="onEditItem(row)"
@@ -98,6 +101,7 @@
                   </button>
                 }
                 <button
+                  *appHasPermission="Permission.ParticipantDelete"
                   mat-icon-button
                   color="warn"
                   matTooltip="حذف التسجيل نهائيًا"
@@ -125,7 +129,12 @@
 
     <mat-card-content>
       @if (!showForm()) {
-        <button mat-flat-button color="primary" (click)="openForm()">
+        <button
+          *appHasPermission="Permission.ParticipantCreate"
+          mat-flat-button
+          color="primary"
+          (click)="openForm()"
+        >
           <mat-icon>add</mat-icon>
           تسجيل في مسابقة جديدة
         </button>
@@ -197,7 +206,7 @@
               <mat-select formControlName="instructorId">
                 <mat-option>
                   <ngx-mat-select-search
-                    [formControl]="searchCtrl"
+                    [formControl]="instructorSearchCtrl"
                     placeholderLabel="ابحث..."
                     noEntriesFoundLabel="لا توجد نتائج"
                   >
@@ -217,8 +226,17 @@
             <mat-form-field appearance="outline">
               <mat-label>المكان</mat-label>
               <mat-select formControlName="placeId">
+                <mat-option>
+                  <ngx-mat-select-search
+                    [formControl]="placeSearchCtrl"
+                    placeholderLabel="ابحث..."
+                    noEntriesFoundLabel="لا توجد نتائج"
+                  >
+                  </ngx-mat-select-search>
+                </mat-option>
+
                 <mat-option [value]="null">اختر المكان</mat-option>
-                @for (item of places(); track item.id) {
+                @for (item of filteredPlaces(); track item.id) {
                   <mat-option [value]="item.id">{{
                     item.name.arabic
                   }}</mat-option>

@@ -38,6 +38,8 @@ import {
 } from "../../models/competition.model";
 import { TreeSelectComponent } from "../../../../shared/components/tree-select/tree-select.component";
 import { ConfirmDialogComponent } from "../../../../shared/components/confirm-dialog/confirm-dialog.component";
+import { HasPermissionDirective } from "../../../../core/directives/has-permission.directive";
+import { Permission } from "../../../../core/models/permission.model";
 
 @Component({
   selector: "app-competition-registration",
@@ -55,12 +57,15 @@ import { ConfirmDialogComponent } from "../../../../shared/components/confirm-di
     MatTooltipModule,
     TreeSelectComponent,
     NgxMatSelectSearchModule,
+    HasPermissionDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./competition-registration.component.html",
   styleUrl: "./competition-registration.component.scss",
 })
 export class CompetitionRegistrationComponent {
+  readonly Permission = Permission;
+
   private readonly fb = inject(FormBuilder);
   private readonly lookupService = inject(LookupService);
   private readonly dialog = inject(MatDialog);
@@ -101,9 +106,14 @@ export class CompetitionRegistrationComponent {
   readonly studyLevels = signal<LookupItem[]>([]);
   readonly loadingLookups = signal(false);
 
-  readonly searchCtrl = new FormControl("");
+  readonly instructorSearchCtrl = new FormControl("");
+  readonly placeSearchCtrl = new FormControl("");
 
-  private readonly instructorSearch = toSignal(this.searchCtrl.valueChanges, {
+  private readonly instructorSearch = toSignal(
+    this.instructorSearchCtrl.valueChanges,
+    { initialValue: "" },
+  );
+  private readonly placeSearch = toSignal(this.placeSearchCtrl.valueChanges, {
     initialValue: "",
   });
 
@@ -113,6 +123,16 @@ export class CompetitionRegistrationComponent {
       return this.instructors();
     }
     return this.instructors().filter((item) =>
+      item.name.arabic.toLowerCase().includes(term),
+    );
+  });
+
+  readonly filteredPlaces = computed(() => {
+    const term = (this.placeSearch() ?? "").trim().toLowerCase();
+    if (!term) {
+      return this.places();
+    }
+    return this.places().filter((item) =>
       item.name.arabic.toLowerCase().includes(term),
     );
   });

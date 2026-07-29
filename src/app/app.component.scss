@@ -35,15 +35,23 @@
 }
 
 .nav-rail {
-  width: 88px;
+  width: 240px;
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding-block-start: 20px;
+  align-items: stretch;
+  gap: 4px;
+  padding: 20px 12px;
   background: var(--mat-sys-surface-container-low);
   border-inline-end: 1px solid var(--mat-sys-outline-variant);
+  overflow: hidden;
+  transition: width 200ms ease, padding 200ms ease, border-color 200ms ease;
+
+  &.collapsed {
+    width: 0;
+    padding-inline: 0;
+    border-inline-end-color: transparent;
+  }
 
   @media (max-width: 720px) {
     display: none;
@@ -52,15 +60,16 @@
 
 .rail-item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
-  width: 64px;
-  padding: 10px 4px;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
   border-radius: 16px;
   text-decoration: none;
   color: var(--mat-sys-on-surface-variant);
-  font-size: 0.75rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
   transition: background-color 120ms ease, color 120ms ease;
 
   &:hover {

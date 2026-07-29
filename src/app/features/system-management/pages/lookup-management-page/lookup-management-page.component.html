@@ -1,0 +1,61 @@
+<div class="page-container">
+  <div class="page-layout">
+    <aside class="type-panel">
+      <app-lookup-type-selector
+        [types]="store.types()"
+        [selectedTypeKey]="store.selectedTypeKey()"
+        (typeSelected)="onTypeSelected($event)"
+      />
+    </aside>
+
+    <section class="items-panel">
+      @if (store.needsGovernorate()) {
+        <mat-form-field appearance="outline" class="parent-select">
+          <mat-label>المحافظة</mat-label>
+          <mat-select
+            [ngModel]="store.selectedGovernorateId()"
+            (ngModelChange)="onGovernorateSelected($event)"
+          >
+            @for (governorate of store.governorateOptions(); track governorate.id) {
+              <mat-option [value]="governorate.id">{{ governorate.name.arabic }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
+      @if (store.needsCity()) {
+        <mat-form-field appearance="outline" class="parent-select">
+          <mat-label>المدينة</mat-label>
+          <mat-select
+            [ngModel]="store.selectedCityId()"
+            [disabled]="!store.selectedGovernorateId()"
+            (ngModelChange)="onCitySelected($event)"
+          >
+            @for (city of store.cityOptions(); track city.id) {
+              <mat-option [value]="city.id">{{ city.name.arabic }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
+      <div class="items-toolbar">
+        <button mat-flat-button color="primary" [disabled]="!store.parentSelected()" (click)="onAdd()">
+          <mat-icon>add</mat-icon>
+          إضافة عنصر
+        </button>
+      </div>
+
+      @if (store.parentSelected()) {
+        <app-lookup-table
+          [items]="store.items()"
+          [loading]="store.loading()"
+          [isEmpty]="store.isEmpty()"
+          (edit)="onEdit($event)"
+          (delete)="onDelete($event)"
+        />
+      } @else {
+        <p class="hint">يرجى اختيار {{ store.selectedType()?.parentLabel }} أولاً لعرض العناصر.</p>
+      }
+    </section>
+  </div>
+</div>

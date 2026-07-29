@@ -1,0 +1,88 @@
+<mat-card class="section-card requests-card">
+  <mat-card-header>
+    <div class="title-group">
+      <mat-card-title>طلبات النظام</mat-card-title>
+      <mat-card-subtitle>{{ totalElements() }} طلب</mat-card-subtitle>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="table-wrapper">
+      @if (loading()) {
+        <table class="skeleton-table">
+          <tbody>
+            @for (row of skeletonRowIndices; track row) {
+              <tr>
+                @for (col of displayedColumns; track col) {
+                  <td><span class="skeleton-cell"></span></td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else if (isEmpty()) {
+        <div class="empty-state">
+          <mat-icon>assignment_late</mat-icon>
+          <h3>لا توجد طلبات</h3>
+          <p>لا توجد طلبات حالياً لعرضها.</p>
+        </div>
+      } @else {
+        <table
+          mat-table
+          [dataSource]="requests()"
+          matSort
+          [matSortActive]="sortColumn()"
+          [matSortDirection]="matSortDirection()"
+          (matSortChange)="onSort($event)"
+        >
+          <ng-container matColumnDef="nationalId">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>الرقم القومي</th>
+            <td mat-cell *matCellDef="let request">{{ request.nationalId }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>نوع الطلب</th>
+            <td mat-cell *matCellDef="let request" dir="rtl">{{ request.type.name.arabic }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>الحالة</th>
+            <td mat-cell *matCellDef="let request">
+              <span class="status-chip" [class]="statusChipClass(request.status.id)">
+                {{ request.status.name.arabic }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>تاريخ الإنشاء</th>
+            <td mat-cell *matCellDef="let request">{{ request.createdDate | date: 'yyyy-MM-dd' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="note">
+            <th mat-header-cell *matHeaderCellDef>ملاحظات</th>
+            <td mat-cell *matCellDef="let request">{{ request.note ?? '—' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            class="data-row"
+            (click)="onView(row)"
+          ></tr>
+        </table>
+      }
+    </div>
+
+    @if (!loading() && !isEmpty()) {
+      <mat-paginator
+        [length]="totalElements()"
+        [pageIndex]="pageNo()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        (page)="onPage($event)"
+      />
+    }
+  </mat-card-content>
+</mat-card>

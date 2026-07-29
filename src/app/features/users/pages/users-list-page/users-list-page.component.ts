@@ -13,6 +13,8 @@ import { AdvancedSearchComponent } from '../../components/advanced-search/advanc
 import { UsersTableComponent } from '../../components/users-table/users-table.component';
 import { UserFilters, UserListItem } from '../../models/user.model';
 import { exportUsersToExcel } from '../../../../shared/utils/excel-export.util';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
+import { Permission } from '../../../../core/models/permission.model';
 
 @Component({
   selector: 'app-users-list-page',
@@ -23,6 +25,7 @@ import { exportUsersToExcel } from '../../../../shared/utils/excel-export.util';
     MatProgressSpinnerModule,
     AdvancedSearchComponent,
     UsersTableComponent,
+    HasPermissionDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './users-list-page.component.html',
@@ -30,6 +33,7 @@ import { exportUsersToExcel } from '../../../../shared/utils/excel-export.util';
 })
 export class UsersListPageComponent implements OnInit {
   readonly store = inject(UsersStore);
+  readonly Permission = Permission;
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
 

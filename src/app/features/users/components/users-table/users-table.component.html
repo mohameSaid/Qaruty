@@ -74,6 +74,7 @@
             <th mat-header-cell *matHeaderCellDef>إجراءات</th>
             <td mat-cell *matCellDef="let user">
               <button
+                *appHasPermission="Permission.UserDetailsRead"
                 mat-icon-button
                 [matTooltip]="user.nationalId ? 'عرض التفاصيل' : 'لا يمكن العرض - الرقم القومي غير متوفر'"
                 (click)="onView(user)"
@@ -81,6 +82,7 @@
                 <mat-icon>visibility</mat-icon>
               </button>
               <button
+                *appHasPermission="Permission.UserUpdate"
                 mat-icon-button
                 [matTooltip]="user.nationalId ? 'تعديل' : 'لا يمكن التعديل - الرقم القومي غير متوفر'"
                 (click)="onEdit(user)"
@@ -88,6 +90,7 @@
                 <mat-icon>edit</mat-icon>
               </button>
               <button
+                *appHasPermission="Permission.UserDeactivate"
                 mat-icon-button
                 matTooltip="إلغاء تفعيل"
                 [disabled]="deleting()"

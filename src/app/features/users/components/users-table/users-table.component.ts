@@ -10,6 +10,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { UserListItem } from '../../models/user.model';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
+import { Permission } from '../../../../core/models/permission.model';
 
 @Component({
   selector: 'app-users-table',
@@ -22,12 +24,14 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    HasPermissionDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './users-table.component.html',
   styleUrl: './users-table.component.scss',
 })
 export class UsersTableComponent {
+  readonly Permission = Permission;
   private readonly dialog = inject(MatDialog);
 
   readonly users = input.required<UserListItem[]>();

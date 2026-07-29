@@ -1,0 +1,481 @@
+/*
+ * Chart/accent hues below come from the validated data-viz reference palette
+ * (categorical slots 1/2/4/5 + status "good"), reused as decorative KPI/chart
+ * color rather than re-derived — see docs/api-requests/dashboard-summary.md's
+ * sibling design notes. Light/dark steps both ship; dark applies under the
+ * app's `.dark-theme` class (ThemeService), not a prefers-color-scheme query.
+ */
+:host {
+  --slot-blue: #2a78d6;
+  --slot-blue-light: #cde2fb;
+  --slot-aqua: #1baf7a;
+  --slot-violet: #4a3aa7;
+  --status-good: #0ca30c;
+}
+
+:host-context(.dark-theme) {
+  --slot-blue: #3987e5;
+  --slot-blue-light: #184f95;
+  --slot-aqua: #199e70;
+  --slot-violet: #9085e9;
+  --status-good: #0ca30c;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---- Hero header ---- */
+
+.hero-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 28px;
+  border-radius: 16px;
+  overflow: hidden;
+  color: var(--mat-sys-on-primary);
+  background: linear-gradient(135deg, var(--mat-sys-primary) 0%, var(--slot-violet) 130%);
+}
+
+.hero-ornament {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
+  opacity: 0.9;
+}
+
+.hero-header .page-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: inherit;
+}
+
+.hero-header .page-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  color: inherit;
+  opacity: 0.9;
+}
+
+/* ---- Filter bar ---- */
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.competition-filter {
+  min-width: 260px;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.scope-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.82rem;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.error-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.empty-hint {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
+}
+
+/* ---- KPI tiles ---- */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 6px;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.kpi-icon-badge {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+
+  mat-icon {
+    font-size: 26px;
+    width: 26px;
+    height: 26px;
+  }
+}
+
+.kpi-blue .kpi-icon-badge {
+  background: color-mix(in srgb, var(--slot-blue) 15%, transparent);
+  color: var(--slot-blue);
+}
+
+.kpi-good .kpi-icon-badge {
+  background: color-mix(in srgb, var(--status-good) 15%, transparent);
+  color: var(--status-good);
+}
+
+.kpi-aqua .kpi-icon-badge {
+  background: color-mix(in srgb, var(--slot-aqua) 15%, transparent);
+  color: var(--slot-aqua);
+}
+
+.kpi-violet .kpi-icon-badge {
+  background: color-mix(in srgb, var(--slot-violet) 15%, transparent);
+  color: var(--slot-violet);
+}
+
+.kpi-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.kpi-label {
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* ---- Evaluation meter ---- */
+
+.meter-content {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.meter-figures {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  min-width: 140px;
+}
+
+.meter-percent {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--slot-blue);
+}
+
+.meter-caption {
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.meter-body {
+  flex: 1 1 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.meter-track {
+  height: 14px;
+  border-radius: 7px;
+  /* Unfilled track = a lighter step of the same ramp as the fill, not gray. */
+  background: var(--slot-blue-light);
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 0 7px 7px 0;
+  background: var(--slot-blue);
+  transition: width 400ms ease;
+}
+
+.meter-legend {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.meter-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meter-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.meter-dot-done {
+  background: var(--slot-blue);
+}
+
+.meter-dot-pending {
+  background: var(--slot-blue-light);
+  border: 1px solid var(--slot-blue);
+}
+
+/* ---- Competitions section ---- */
+
+.dashboard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+}
+
+.competitions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.competition-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  border-inline-start: 4px solid var(--mat-sys-outline-variant);
+  transition: transform 150ms ease, box-shadow 150ms ease;
+
+  &.active {
+    border-inline-start-color: var(--status-good);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.card-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.status-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+
+  &.active {
+    background: color-mix(in srgb, var(--status-good) 15%, transparent);
+    color: var(--status-good);
+  }
+
+  &.inactive {
+    background: var(--mat-sys-surface-container-high);
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.competition-name {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.competition-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 20px auto 1fr;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  dt {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 500;
+    justify-self: start;
+  }
+}
+
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  a {
+    width: 100%;
+  }
+}
+
+/* ---- Breakdown charts (horizontal bars) ---- */
+
+.breakdown-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.hbar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hbar-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 140px) 1fr 34px;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 4px;
+  border-radius: 8px;
+  cursor: default;
+  transition: background-color 120ms ease;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-high);
+  }
+}
+
+.hbar-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hbar-track {
+  position: relative;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-container-high);
+  overflow: hidden;
+}
+
+.hbar-fill {
+  height: 100%;
+  min-width: 2px;
+  /* 4px rounded data-end, square at the baseline (bar grows left→right). */
+  border-radius: 0 4px 4px 0;
+  background: var(--slot-blue);
+  transition: width 400ms ease;
+}
+
+.hbar-exceptions .hbar-fill {
+  background: var(--slot-aqua);
+}
+
+.hbar-value {
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  color: var(--mat-sys-on-surface);
+}
+
+/* ---- Mobile ---- */
+
+@media (max-width: 600px) {
+  .hero-header {
+    padding: 18px 20px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .competitions-grid,
+  .breakdown-row {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-value {
+    font-size: 1.5rem;
+  }
+
+  .hbar-row {
+    grid-template-columns: minmax(70px, 100px) 1fr 28px;
+  }
+}

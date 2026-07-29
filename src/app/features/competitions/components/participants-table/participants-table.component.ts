@@ -8,6 +8,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ParticipantListItem } from '../../models/participant.model';
+import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
+import { Permission } from '../../../../core/models/permission.model';
 
 @Component({
   selector: 'app-participants-table',
@@ -20,12 +22,14 @@ import { ParticipantListItem } from '../../models/participant.model';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    HasPermissionDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './participants-table.component.html',
   styleUrl: './participants-table.component.scss',
 })
 export class ParticipantsTableComponent {
+  readonly Permission = Permission;
   readonly participants = input.required<ParticipantListItem[]>();
   readonly totalElements = input<number>(0);
   readonly pageNo = input<number>(0);
