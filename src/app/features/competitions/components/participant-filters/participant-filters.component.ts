@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 import { CompetitionException, CompetitionLevel } from '../../models/competition.model';
 import { LookupRef } from '../../models/lookup.model';
@@ -30,6 +31,7 @@ import { Gender, ParticipantFilters } from '../../models/participant.model';
     MatCheckboxModule,
     MatButtonModule,
     MatIconModule,
+    NgxMatSelectSearchModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './participant-filters.component.html',
@@ -66,6 +68,28 @@ export class ParticipantFiltersComponent {
   });
 
   private readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
+
+  readonly placeSearchCtrl = new FormControl('');
+  readonly instructorSearchCtrl = new FormControl('');
+
+  private readonly placeSearch = toSignal(this.placeSearchCtrl.valueChanges, { initialValue: '' });
+  private readonly instructorSearch = toSignal(this.instructorSearchCtrl.valueChanges, { initialValue: '' });
+
+  readonly filteredPlaces = computed(() => {
+    const term = (this.placeSearch() ?? '').trim().toLowerCase();
+    if (!term) {
+      return this.places();
+    }
+    return this.places().filter((item) => item.name.arabic.toLowerCase().includes(term));
+  });
+
+  readonly filteredInstructors = computed(() => {
+    const term = (this.instructorSearch() ?? '').trim().toLowerCase();
+    if (!term) {
+      return this.instructors();
+    }
+    return this.instructors().filter((item) => item.name.arabic.toLowerCase().includes(term));
+  });
 
   /** Count of non-empty fields, shown as a live badge on the panel header. */
   readonly activeCount = computed(

@@ -1,0 +1,122 @@
+<div class="page-container">
+  @if (loading()) {
+    <div class="state-message">
+      <mat-progress-spinner diameter="32" mode="indeterminate" />
+      <span>جارٍ التحميل...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="state-message">
+      <mat-icon>error_outline</mat-icon>
+      <span>تعذر تحميل بيانات الملف الشخصي.</span>
+    </div>
+  } @else if (user(); as u) {
+    <mat-card class="section-card profile-card">
+      <mat-card-content>
+        <div class="profile-header">
+          <app-user-avatar [genderId]="u.gender.id" [size]="96" />
+          <div class="profile-heading">
+            <h1 class="profile-name" dir="rtl">{{ u.name.arabic }}</h1>
+            <p class="profile-subtitle">{{ u.name.english || '—' }}</p>
+          </div>
+          <button mat-stroked-button (click)="onChangePassword()">
+            <mat-icon>lock_reset</mat-icon>
+            تغيير كلمة المرور
+          </button>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">الرقم القومي</span>
+            <span class="value">{{ u.nationalId ?? '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">تاريخ الميلاد</span>
+            <span class="value">{{ u.birthDate }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">النوع</span>
+            <span class="value" dir="rtl">{{ u.gender.name.arabic }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">البريد الإلكتروني</span>
+            <span class="value">{{ u.contact.email || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">رقم الهاتف</span>
+            <span class="value">{{ u.contact.mobileNumber || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">رقم هاتف آخر</span>
+            <span class="value">{{ u.contact.otherMobileNumber || '—' }}</span>
+          </div>
+          <div class="info-item info-item--wide">
+            <span class="label">العنوان</span>
+            <span class="value" dir="rtl">
+              {{ u.address.governorate.name.arabic }} — {{ u.address.city.name.arabic }} —
+              {{ u.address.village.name.arabic }}
+              @if (u.address.details) {
+                — {{ u.address.details }}
+              }
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="section-card history-card">
+      <mat-card-header>
+        <mat-card-title>سجل المسابقات السابق</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (loadingHistory()) {
+          <div class="state-message">
+            <mat-progress-spinner diameter="28" mode="indeterminate" />
+            <span>جارٍ تحميل سجل المسابقات...</span>
+          </div>
+        } @else if (competitionHistory().length === 0) {
+          <p class="empty-note">لا يوجد سجل مسابقات سابق.</p>
+        } @else {
+          <table mat-table [dataSource]="competitionHistory()" class="history-table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>المسابقة</th>
+              <td mat-cell *matCellDef="let row" dir="rtl">{{ row.competition.name.arabic }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="level">
+              <th mat-header-cell *matHeaderCellDef>المستوى</th>
+              <td mat-cell *matCellDef="let row" dir="rtl">{{ row.level.name.arabic }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="partsCount">
+              <th mat-header-cell *matHeaderCellDef>عدد الأجزاء</th>
+              <td mat-cell *matCellDef="let row">{{ row.partsCount }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="score">
+              <th mat-header-cell *matHeaderCellDef>الدرجة</th>
+              <td mat-cell *matCellDef="let row">{{ row.score ?? '—' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th class="status-column" mat-header-cell *matHeaderCellDef>الحالة</th>
+              <td class="status-column" mat-cell *matCellDef="let row">
+                @if (row.deleted) {
+                  <span class="status-chip status-chip--deleted">ملغى</span>
+                } @else if (row.score == null && row.competition?.active) {
+                  <span class="status-chip status-chip--pending">بانتظار التقييم</span>
+                } @else if (row.competition.active) {
+                  <span class="status-chip status-chip--active">نشط</span>
+                } @else {
+                  <span class="status-chip status-chip--inactive">منتهية</span>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="historyColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: historyColumns"></tr>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

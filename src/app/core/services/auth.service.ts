@@ -1,46 +1,89 @@
-import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { ApiEnvelope } from '../models/api-response.model';
+import { AuthSession, ChangePasswordRequest, LoginRequest, LoginResponse } from '../models/auth.model';
+import { Permission } from '../models/permission.model';
 
 const STORAGE_KEY = 'qaryati-auth-session';
 
-/**
- * Fake, client-side-only authentication. Credentials live in `environment.auth`
- * (see the doc comment there for why this is not real security) — this service
- * just compares against them and remembers the result in `sessionStorage` so a
- * page refresh doesn't bounce the user back to /login. There is no token, no
- * backend call, and no expiry beyond "tab/browser closed".
- */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly _isAuthenticated = signal(this.resolveInitialState());
-  readonly isAuthenticated = this._isAuthenticated.asReadonly();
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${environment.baseUrl}/auth`;
 
-  private readonly _username = signal<string | null>(this.resolveInitialState() ? this.readStoredUsername() : null);
-  readonly username = this._username.asReadonly();
+  private readonly _session = signal<AuthSession | null>(this.readStoredSession());
 
-  login(username: string, password: string): boolean {
-    const matches = username.trim() === environment.auth.username && password === environment.auth.password;
+  readonly session = this._session.asReadonly();
+  readonly isAuthenticated = computed(() => this._session() !== null);
+  readonly nationalId = computed(() => this._session()?.nationalId ?? null);
 
-    if (matches) {
-      this._isAuthenticated.set(true);
-      this._username.set(username.trim());
-      sessionStorage.setItem(STORAGE_KEY, username.trim());
-    }
+  get token(): string | null {
+    return this._session()?.accessToken ?? null;
+  }
 
-    return matches;
+  get tokenType(): string | null {
+    return this._session()?.tokenType ?? null;
+  }
+
+  hasRole(role: string): boolean {
+    return this._session()?.roles.includes(role) ?? false;
+  }
+
+  hasPermission(permission: Permission): boolean {
+    return this._session()?.permissions.includes(permission) ?? false;
+  }
+
+  login(nationalId: string, password: string): Observable<LoginResponse> {
+    const payload: LoginRequest = { nationalId, password };
+
+    return this.http.post<ApiEnvelope<LoginResponse>>(`${this.baseUrl}/login`, payload).pipe(
+      map((res) => res.data),
+      tap((data) => this.storeSession(data))
+    );
   }
 
   logout(): void {
-    this._isAuthenticated.set(false);
-    this._username.set(null);
+    this._session.set(null);
     sessionStorage.removeItem(STORAGE_KEY);
   }
 
-  private resolveInitialState(): boolean {
-    return !!sessionStorage.getItem(STORAGE_KEY);
+  changePassword(oldPassword: string, newPassword: string): Observable<ApiEnvelope<unknown>> {
+    const payload: ChangePasswordRequest = {
+      nationalId: this.nationalId()!,
+      oldPassword,
+      newPassword,
+    };
+
+    return this.http.post<ApiEnvelope<unknown>>(`${this.baseUrl}/change-password`, payload);
   }
 
-  private readStoredUsername(): string | null {
-    return sessionStorage.getItem(STORAGE_KEY);
+  private storeSession(data: LoginResponse): void {
+    const session: AuthSession = {
+      accessToken: data.accessToken,
+      tokenType: data.tokenType,
+      userId: data.userId,
+      nationalId: data.nationalId,
+      roles: data.roles,
+      permissions: data.permissions,
+    };
+
+    this._session.set(session);
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+  }
+
+  private readStoredSession(): AuthSession | null {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(raw) as AuthSession;
+    } catch {
+      return null;
+    }
   }
 }

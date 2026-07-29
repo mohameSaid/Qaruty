@@ -61,6 +61,7 @@
             </button> -->
 
             <button
+              *appHasPermission="Permission.ParticipantsRead"
               mat-flat-button
               color="primary"
               (click)="onViewParticipants(competition)"

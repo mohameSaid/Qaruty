@@ -1,17 +1,38 @@
 .login-shell {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   padding: 24px;
-  background: linear-gradient(135deg, var(--mat-sys-primary-container), var(--mat-sys-surface));
+  overflow: hidden;
+  background:
+    radial-gradient(26rem 26rem at 106% -8rem, rgba(212, 175, 55, 0.22), transparent 70%),
+    radial-gradient(22rem 22rem at -6% 110%, rgba(34, 154, 108, 0.35), transparent 70%),
+    radial-gradient(120% 140% at 50% -10%, #146245 0%, #0a3327 55%, #06231a 100%);
+}
+
+.login-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  background-image:
+    radial-gradient(circle at 20% 20%, transparent 0 18px, rgba(212, 175, 55, 0.5) 18px 19px, transparent 19px),
+    radial-gradient(circle at 80% 70%, transparent 0 22px, rgba(212, 175, 55, 0.4) 22px 23px, transparent 23px),
+    repeating-linear-gradient(45deg, rgba(212, 175, 55, 0.06) 0 2px, transparent 2px 26px),
+    repeating-linear-gradient(-45deg, rgba(212, 175, 55, 0.06) 0 2px, transparent 2px 26px);
+  pointer-events: none;
 }
 
 .login-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 400px;
   border-radius: 20px !important;
   padding: 8px 8px 16px;
+  box-shadow: 0 24px 60px -20px rgba(6, 35, 26, 0.6) !important;
 }
 
 .brand {
@@ -85,4 +106,30 @@ mat-icon[matPrefix] {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.forgot-password {
+  display: block;
+  margin: -4px 0 8px;
+  text-align: end;
+  font-size: 0.8rem;
+  color: var(--mat-sys-error, #b3261e);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.create-account {
+  display: block;
+  margin-top: 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }

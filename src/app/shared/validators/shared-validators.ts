@@ -9,3 +9,14 @@ export function minWordsValidator(minWords: number): ValidatorFn {
       : { minWords: { required: minWords, actual: words.length } };
   };
 }
+
+/** Applied to the confirm-password control; compares it against a sibling control in the same group. */
+export function passwordMatchValidator(passwordControlName: string): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const password = control.parent?.get(passwordControlName)?.value;
+    if (!control.value || password === undefined) {
+      return null;
+    }
+    return control.value === password ? null : { passwordMismatch: true };
+  };
+}

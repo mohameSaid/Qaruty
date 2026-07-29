@@ -55,8 +55,16 @@
         <mat-label>المكان</mat-label>
         <mat-icon matPrefix>place</mat-icon>
         <mat-select formControlName="placeId">
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="placeSearchCtrl"
+              placeholderLabel="ابحث..."
+              noEntriesFoundLabel="لا توجد نتائج"
+            >
+            </ngx-mat-select-search>
+          </mat-option>
           <mat-option [value]="null">الكل</mat-option>
-          @for (place of places(); track place.id) {
+          @for (place of filteredPlaces(); track place.id) {
             <mat-option [value]="place.id">{{ place.name.arabic }}</mat-option>
           }
         </mat-select>
@@ -77,8 +85,16 @@
         <mat-label>المعلم</mat-label>
         <mat-icon matPrefix>school</mat-icon>
         <mat-select formControlName="instructorId">
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="instructorSearchCtrl"
+              placeholderLabel="ابحث..."
+              noEntriesFoundLabel="لا توجد نتائج"
+            >
+            </ngx-mat-select-search>
+          </mat-option>
           <mat-option [value]="null">الكل</mat-option>
-          @for (instructor of instructors(); track instructor.id) {
+          @for (instructor of filteredInstructors(); track instructor.id) {
             <mat-option [value]="instructor.id">{{ instructor.name.arabic }}</mat-option>
           }
         </mat-select>

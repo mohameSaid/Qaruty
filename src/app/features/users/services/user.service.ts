@@ -77,21 +77,34 @@ export class UserService {
     return params;
   }
 
-  getUserByNationalId(nationalId: string): Observable<UserDetail> {
+  getUserByNationalId(
+    nationalId: string,
+    searchType?: string,
+  ): Observable<UserDetail> {
+    let params = new HttpParams();
+
+    if (searchType) {
+      params = params.set("type", searchType);
+    }
+
     return this.http
-      .get<ApiEnvelope<UserDetail>>(`${this.baseUrl}/${nationalId}`)
+      .get<ApiEnvelope<UserDetail>>(`${this.baseUrl}/${nationalId}`, { params })
       .pipe(map((res) => res.data));
   }
-
+  
   getFathers(): Observable<UserListItem[]> {
     return this.http
-      .get<ApiEnvelope<UserListItem[] | PagedData<UserListItem>>>(`${this.baseUrl}/father`)
+      .get<
+        ApiEnvelope<UserListItem[] | PagedData<UserListItem>>
+      >(`${this.baseUrl}/father`)
       .pipe(map((res) => this.toFlatList(res.data)));
   }
 
   getMothers(): Observable<UserListItem[]> {
     return this.http
-      .get<ApiEnvelope<UserListItem[] | PagedData<UserListItem>>>(`${this.baseUrl}/mother`)
+      .get<
+        ApiEnvelope<UserListItem[] | PagedData<UserListItem>>
+      >(`${this.baseUrl}/mother`)
       .pipe(map((res) => this.toFlatList(res.data)));
   }
 

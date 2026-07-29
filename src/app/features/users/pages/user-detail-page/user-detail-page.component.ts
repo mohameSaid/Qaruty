@@ -24,6 +24,8 @@ import {
   RegisterCompetitionRequest,
   UpdateCompetitionRequest,
 } from "../../models/competition.model";
+import { HasPermissionDirective } from "../../../../core/directives/has-permission.directive";
+import { Permission } from "../../../../core/models/permission.model";
 
 /**
  * Read-only profile view for a single user, reached from the users table's "view
@@ -42,6 +44,7 @@ import {
     MatProgressSpinnerModule,
     MatTabsModule,
     CompetitionRegistrationComponent,
+    HasPermissionDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./user-detail-page.component.html",
@@ -67,6 +70,7 @@ export class UserDetailPageComponent implements OnInit {
   readonly competitionFormResetCounter = signal(0);
   shownewCompitionForm: boolean = true;
   readonly Gender = Gender;
+  readonly Permission = Permission;
 
   ngOnInit(): void {
     const id = this.nationalId();

@@ -1,6 +1,13 @@
 @if (auth.isAuthenticated()) {
   <div class="app-shell">
     <mat-toolbar color="primary" class="app-toolbar">
+      <button
+        mat-icon-button
+        [matTooltip]="sidebarOpen() ? 'إخفاء القائمة' : 'إظهار القائمة'"
+        (click)="toggleSidebar()"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
       <mat-icon class="brand-icon">groups</mat-icon>
       <span class="brand-title">قريتي - كفر أبو الحسن</span>
       <span class="spacer"></span>
@@ -11,20 +18,53 @@
       >
         <mat-icon>{{ theme.mode() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
-      <button mat-icon-button matTooltip="تسجيل الخروج ({{ auth.username() }})" (click)="logout()">
+      <button mat-icon-button matTooltip="الملف الشخصي" routerLink="/profile" routerLinkActive="active">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="تغيير كلمة المرور" (click)="openChangePassword()">
+        <mat-icon>lock_reset</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="تسجيل الخروج ({{ auth.nationalId() }})" (click)="logout()">
         <mat-icon>logout</mat-icon>
       </button>
     </mat-toolbar>
 
     <div class="app-body">
-      <nav class="nav-rail">
-        <a class="rail-item" routerLink="/users" routerLinkActive="active">
+      <nav class="nav-rail" [class.collapsed]="!sidebarOpen()">
+        <a  *appHasPermission="Permission.dashboard" class="rail-item" routerLink="/dashboard" routerLinkActive="active">
+          <mat-icon>space_dashboard</mat-icon>
+          <span>الرئيسية</span>
+        </a>
+        <a
+          *appHasPermission="Permission.UsersRead"
+          class="rail-item"
+          routerLink="/users"
+          routerLinkActive="active"
+        >
           <mat-icon>groups</mat-icon>
           <span>المستخدمون</span>
         </a>
-        <a class="rail-item" routerLink="/competitions" routerLinkActive="active">
+        <a
+          *appHasPermission="Permission.CompetitionsRead"
+          class="rail-item"
+          routerLink="/competitions"
+          routerLinkActive="active"
+        >
           <mat-icon>emoji_events</mat-icon>
           <span>المسابقات</span>
+        </a>
+        <a
+          *appHasPermission="Permission.UserCreate"
+          class="rail-item"
+          routerLink="/system-management/requests"
+          routerLinkActive="active"
+        >
+          <mat-icon>assignment_turned_in</mat-icon>
+          <span>الطلبات</span>
+        </a>
+        <a *appHasPermission="Permission.systemCodesRead" class="rail-item" routerLink="/system-management/lookups" routerLinkActive="active">
+          <mat-icon>tune</mat-icon>
+          <span>إدارة القوائم</span>
         </a>
       </nav>
 

@@ -1,0 +1,29 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">طلبات النظام</h1>
+      <p class="page-subtitle">تصفح وتابع الطلبات الواردة إلى النظام حسب النوع والحالة.</p>
+    </div>
+  </div>
+
+  <app-request-filters
+    [searching]="store.loading()"
+    [initialFilters]="store.filters()"
+    (search)="onFilter($event)"
+    (clear)="onClearFilters()"
+  />
+
+  <app-requests-table
+    [requests]="store.requests()"
+    [totalElements]="store.totalElements()"
+    [pageNo]="store.pageNo()"
+    [pageSize]="store.pageSize()"
+    [sortColumn]="store.sortColumn()"
+    [sortDirection]="store.sortDirection()"
+    [loading]="store.loading()"
+    [isEmpty]="store.isEmpty()"
+    (view)="onView($event)"
+    (page)="onPage($event)"
+    (sortChange)="onSortChange($event)"
+  />
+</div>

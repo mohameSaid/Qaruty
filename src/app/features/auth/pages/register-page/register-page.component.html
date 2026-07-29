@@ -1,0 +1,213 @@
+<div class="register-shell">
+  <mat-card class="register-card">
+    <div class="brand">
+      <mat-icon class="brand-icon">groups</mat-icon>
+      <h1>قريتي</h1>
+      <p>كفر أبو الحسن</p>
+    </div>
+
+    <mat-card-content>
+      @switch (outcome()) {
+        @case ('duplicateNationalId') {
+          <div class="outcome-panel error">
+            <mat-icon>error_outline</mat-icon>
+            <p>{{ resultMessage() }}</p>
+            <p class="outcome-hint">الرقم القومي مسجل بالفعل، يمكنك إعادة تعيين كلمة المرور.</p>
+            <div class="outcome-actions">
+              <button mat-flat-button color="primary" type="button" (click)="goToResetPassword()">
+                إعادة تعيين كلمة المرور
+              </button>
+              <button mat-stroked-button type="button" (click)="goToLogin()">تسجيل الدخول</button>
+            </div>
+          </div>
+        }
+        @case ('pendingApproval') {
+          <div class="outcome-panel success">
+            <mat-icon>hourglass_top</mat-icon>
+            <p>{{ resultMessage() }}</p>
+            <p class="outcome-hint">تم إنشاء طلب تسجيل وهو بانتظار موافقة المسؤول. يرجى التواصل مع مسؤول النظام لاعتماد الطلب.</p>
+            <button mat-flat-button color="primary" type="button" (click)="goToLogin()">الذهاب لتسجيل الدخول</button>
+          </div>
+        }
+        @case ('success') {
+          <div class="outcome-panel success">
+            <mat-icon>check_circle</mat-icon>
+            <p>{{ resultMessage() }}</p>
+            <button mat-flat-button color="primary" type="button" (click)="goToLogin()">الذهاب لتسجيل الدخول</button>
+          </div>
+        }
+        @default {
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <h3 class="section-heading">البيانات الشخصية</h3>
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>الرقم القومي</mat-label>
+                <mat-icon matPrefix>badge</mat-icon>
+                <input matInput formControlName="nationalId" maxlength="14" inputmode="numeric" />
+                @if (form.controls.nationalId.hasError('required') && form.controls.nationalId.touched) {
+                  <mat-error>الرقم القومي مطلوب.</mat-error>
+                }
+                @if (form.controls.nationalId.hasError('invalidLength') && form.controls.nationalId.touched) {
+                  <mat-error>يجب أن يتكون الرقم القومي من 14 رقمًا بالضبط.</mat-error>
+                }
+                @if (form.controls.nationalId.hasError('invalidDate') && form.controls.nationalId.touched) {
+                  <mat-error>تاريخ الميلاد المستخرج من الرقم القومي غير صحيح.</mat-error>
+                }
+                @if (form.controls.nationalId.hasError('invalidGovernorate') && form.controls.nationalId.touched) {
+                  <mat-error>رمز المحافظة في الرقم القومي غير صحيح.</mat-error>
+                }
+                @if (derivedBirthDate(); as bd) {
+                  <mat-hint>تاريخ الميلاد: {{ bd | date: 'yyyy-MM-dd' }}</mat-hint>
+                }
+                @if (derivedGender(); as g) {
+                  <mat-hint align="end">النوع: {{ g === 1 ? 'ذكر' : 'أنثى' }}</mat-hint>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>الاسم بالعربية</mat-label>
+                <mat-icon matPrefix>person</mat-icon>
+                <input matInput formControlName="arabicName" dir="rtl" />
+                @if (form.controls.arabicName.hasError('required') && form.controls.arabicName.touched) {
+                  <mat-error>الاسم بالعربية مطلوب.</mat-error>
+                }
+                @if (form.controls.arabicName.hasError('minWords') && form.controls.arabicName.touched) {
+                  <mat-error>يرجى إدخال 3 أسماء على الأقل.</mat-error>
+                }
+              </mat-form-field>
+
+              <!-- <mat-form-field appearance="outline">
+                <mat-label>الاسم بالإنجليزية</mat-label>
+                <mat-icon matPrefix>person_outline</mat-icon>
+                <input matInput formControlName="englishName" />
+                @if (form.controls.englishName.hasError('required') && form.controls.englishName.touched) {
+                  <mat-error>الاسم بالإنجليزية مطلوب.</mat-error>
+                }
+              </mat-form-field> -->
+            </div>
+
+            <h3 class="section-heading">العنوان</h3>
+            <mat-slide-toggle
+              class="default-address-toggle"
+              [checked]="useDefaultAddress()"
+              (change)="onToggleDefaultAddress($event.checked)"
+            >
+              كفر أبو الحسن (العنوان الافتراضي)
+            </mat-slide-toggle>
+
+            @if (!useDefaultAddress()) {
+              <div class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>المحافظة</mat-label>
+                  <mat-icon matPrefix>location_city</mat-icon>
+                  <mat-select formControlName="governorate">
+                    @for (item of governorates(); track item.id) {
+                      <mat-option [value]="item.id">{{ item.name.arabic }}</mat-option>
+                    }
+                  </mat-select>
+                  @if (form.controls.governorate.hasError('required') && form.controls.governorate.touched) {
+                    <mat-error>المحافظة مطلوبة.</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>المدينة</mat-label>
+                  <mat-icon matPrefix>apartment</mat-icon>
+                  <mat-select formControlName="city">
+                    @for (item of cities(); track item.id) {
+                      <mat-option [value]="item.id">{{ item.name.arabic }}</mat-option>
+                    }
+                  </mat-select>
+                  @if (form.controls.city.hasError('required') && form.controls.city.touched) {
+                    <mat-error>المدينة مطلوبة.</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>القرية</mat-label>
+                  <mat-icon matPrefix>holiday_village</mat-icon>
+                  <mat-select formControlName="village">
+                    @for (item of villages(); track item.id) {
+                      <mat-option [value]="item.id">{{ item.name.arabic }}</mat-option>
+                    }
+                  </mat-select>
+                  @if (form.controls.village.hasError('required') && form.controls.village.touched) {
+                    <mat-error>القرية مطلوبة.</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+            }
+
+            <h3 class="section-heading">بيانات التواصل</h3>
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>البريد الإلكتروني</mat-label>
+                <mat-icon matPrefix>email</mat-icon>
+                <input matInput formControlName="email" type="email" />
+                @if (form.controls.email.hasError('required') && form.controls.email.touched) {
+                  <mat-error>البريد الإلكتروني مطلوب.</mat-error>
+                }
+                @if (form.controls.email.hasError('email') && form.controls.email.touched) {
+                  <mat-error>يرجى إدخال بريد إلكتروني صحيح.</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>رقم الهاتف</mat-label>
+                <mat-icon matPrefix>phone</mat-icon>
+                <input matInput formControlName="mobileNumber" />
+                @if (form.controls.mobileNumber.hasError('required') && form.controls.mobileNumber.touched) {
+                  <mat-error>رقم الهاتف مطلوب.</mat-error>
+                }
+                @if (form.controls.mobileNumber.hasError('mobileNumber') && form.controls.mobileNumber.touched) {
+                  <mat-error>يرجى إدخال رقم هاتف صحيح.</mat-error>
+                }
+              </mat-form-field>
+ 
+            </div>
+
+            <h3 class="section-heading">كلمة المرور</h3>
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>كلمة المرور</mat-label>
+                <mat-icon matPrefix>lock</mat-icon>
+                <input matInput type="password" formControlName="password" autocomplete="new-password" />
+                @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+                  <mat-error>كلمة المرور مطلوبة.</mat-error>
+                }
+                @if (form.controls.password.hasError('minlength') && form.controls.password.touched) {
+                  <mat-error>يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>تأكيد كلمة المرور</mat-label>
+                <mat-icon matPrefix>lock</mat-icon>
+                <input matInput type="password" formControlName="confirmPassword" autocomplete="new-password" />
+                @if (form.controls.confirmPassword.hasError('required') && form.controls.confirmPassword.touched) {
+                  <mat-error>تأكيد كلمة المرور مطلوب.</mat-error>
+                }
+                @if (form.controls.confirmPassword.hasError('passwordMismatch') && form.controls.confirmPassword.touched) {
+                  <mat-error>كلمة المرور غير متطابقة.</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <button mat-flat-button color="primary" type="submit" class="full-width submit-btn" [disabled]="submitting()">
+              @if (submitting()) {
+                <span class="spinner-inline">
+                  <mat-progress-spinner diameter="18" mode="indeterminate" />
+                  جارٍ إنشاء الحساب&hellip;
+                </span>
+              } @else {
+                <span><mat-icon>person_add</mat-icon> إنشاء حساب</span>
+              }
+            </button>
+
+            <a class="back-to-login" routerLink="/login">لديك حساب بالفعل؟ تسجيل الدخول</a>
+          </form>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

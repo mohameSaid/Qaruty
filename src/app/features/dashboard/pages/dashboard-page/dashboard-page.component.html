@@ -1,0 +1,265 @@
+<div class="page-container">
+  <div class="hero-header">
+    <mat-icon class="hero-ornament" aria-hidden="true">insights</mat-icon>
+    <div>
+      <h1 class="page-title">الرئيسية</h1>
+      <p class="page-subtitle">
+        نظرة عامة على المسابقات والمشاركين والمستخدمين
+      </p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <mat-form-field appearance="outline" class="competition-filter">
+      <mat-label>بيانات المشاركين لِـ</mat-label>
+      <mat-select
+        [value]="store.selectedCompetitionId()"
+        [disabled]="store.loading()"
+        (selectionChange)="onCompetitionFilterChange($event.value)"
+      >
+        <mat-option [value]="allCompetitions">جميع المسابقات</mat-option>
+        @for (c of store.competitions(); track c.id) {
+          <mat-option [value]="c.id">{{ c.name.arabic }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <span class="scope-chip" dir="rtl">
+      <mat-icon>filter_alt</mat-icon>
+      {{ scopeLabel() }}
+    </span>
+  </div>
+
+  @if (store.loading()) {
+    <div class="state-panel">
+      <mat-progress-spinner diameter="36" mode="indeterminate" />
+      <p>جارٍ تحميل بيانات لوحة التحكم…</p>
+    </div>
+  } @else if (store.loadError()) {
+    <div class="state-panel">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>تعذر تحميل بيانات لوحة التحكم.</p>
+      <button mat-stroked-button (click)="reload()">إعادة المحاولة</button>
+    </div>
+  } @else {
+    <div class="kpi-grid">
+      <mat-card class="kpi-card kpi-blue">
+        <div class="kpi-icon-badge">
+          <mat-icon>emoji_events</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ store.totalCompetitions() }}</span>
+          <span class="kpi-label">إجمالي المسابقات</span>
+        </div>
+      </mat-card>
+      <mat-card class="kpi-card kpi-good">
+        <div class="kpi-icon-badge">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ store.activeCompetitions() }}</span>
+          <span class="kpi-label">المسابقات المفعّلة</span>
+        </div>
+      </mat-card>
+      <mat-card class="kpi-card kpi-aqua">
+        <div class="kpi-icon-badge">
+          <mat-icon>groups</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ store.totalParticipants() }}</span>
+          <span class="kpi-label">المشاركون — {{ scopeLabel() }}</span>
+        </div>
+      </mat-card>
+      <mat-card class="kpi-card kpi-violet">
+        <div class="kpi-icon-badge">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ store.totalUsers() }}</span>
+          <span class="kpi-label">إجمالي المستخدمين</span>
+        </div>
+      </mat-card>
+    </div>
+
+    <mat-card class="meter-card">
+      <mat-card-content class="meter-content">
+        <div class="meter-figures">
+          <span class="meter-percent">{{ store.evaluatedPercent() }}%</span>
+          <span class="meter-caption"
+            >من المشاركين تم تقييمهم — {{ scopeLabel() }}</span
+          >
+        </div>
+        <div class="meter-body">
+          <div class="meter-track">
+            <div
+              class="meter-fill"
+              [style.width.%]="store.evaluatedPercent()"
+            ></div>
+          </div>
+          <div class="meter-legend">
+            <span class="meter-legend-item">
+              <span class="meter-dot meter-dot-done" aria-hidden="true"></span>
+              {{ store.evaluatedParticipants() }} مُقيَّم
+            </span>
+            <span class="meter-legend-item">
+              <span
+                class="meter-dot meter-dot-pending"
+                aria-hidden="true"
+              ></span>
+              {{ store.pendingParticipants() }} قيد الانتظار
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="breakdown-row">
+      <mat-card class="breakdown-card">
+        <mat-card-header>
+          <mat-card-title>أكثر المحفظين نشاطًا</mat-card-title>
+          <mat-card-subtitle
+            >عدد المشاركين تحت إشراف كل معلم —
+            {{ scopeLabel() }}</mat-card-subtitle
+          >
+        </mat-card-header>
+        <mat-card-content>
+          @if (topInstructors().length === 0) {
+            <p class="empty-hint">لا توجد بيانات معلمين لعرضها.</p>
+          } @else {
+            <div class="hbar-chart hbar-instructors">
+              @for (
+                entry of topInstructors();
+                track entry.instructor?.id ?? -1
+              ) {
+                <div
+                  class="hbar-row"
+                  [matTooltip]="instructorTooltip(entry)"
+                  matTooltipPosition="above"
+                >
+                  <span class="hbar-label" dir="rtl">{{
+                    instructorName(entry.instructor)
+                  }}</span>
+                  <div class="hbar-track">
+                    <div
+                      class="hbar-fill"
+                      [style.width.%]="
+                        barWidth(entry.studentCount, instructorMax())
+                      "
+                    ></div>
+                  </div>
+                  <span class="hbar-value">{{ entry.studentCount }}</span>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="breakdown-card">
+        <mat-card-header>
+          <mat-card-title>الاستثناءات المسجلة</mat-card-title>
+          <mat-card-subtitle
+            >عدد المشاركين لكل نوع استثناء —
+            {{ scopeLabel() }}</mat-card-subtitle
+          >
+        </mat-card-header>
+        <mat-card-content>
+          @if (store.exceptionBreakdown().length === 0) {
+            <p class="empty-hint">لا توجد استثناءات مسجلة.</p>
+          } @else {
+            <div class="hbar-chart hbar-exceptions">
+              @for (
+                entry of store.exceptionBreakdown();
+                track entry.exception.id
+              ) {
+                <div
+                  class="hbar-row"
+                  [matTooltip]="exceptionTooltip(entry)"
+                  matTooltipPosition="above"
+                >
+                  <span class="hbar-label" dir="rtl">{{
+                    entry.exception.name.arabic
+                  }}</span>
+                  <div class="hbar-track">
+                    <div
+                      class="hbar-fill"
+                      [style.width.%]="
+                        barWidth(entry.participantCount, exceptionMax())
+                      "
+                    ></div>
+                  </div>
+                  <span class="hbar-value">{{ entry.participantCount }}</span>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <section class="dashboard-section">
+      <div class="section-header">
+        <h2>أحدث المسابقات</h2>
+        <a mat-button color="primary" routerLink="/competitions">
+          عرض جميع المسابقات
+          <mat-icon>arrow_back</mat-icon>
+        </a>
+      </div>
+
+      @if (store.competitions().length === 0) {
+        <p class="empty-hint">لا توجد مسابقات لعرضها.</p>
+      } @else {
+        <div class="competitions-grid">
+          @for (item of store.competitions(); track item.id) {
+            <mat-card
+              class="competition-card"
+              [class.active]="item.active"
+              [class.inactive]="!item.active"
+            >
+              <mat-card-content>
+                <div class="card-header">
+                  <span
+                    class="status-badge"
+                    [class.active]="item.active"
+                    [class.inactive]="!item.active"
+                  >
+                    {{ item.active ? "مفعّلة" : "غير مفعّلة" }}
+                  </span>
+                </div>
+
+                <h3 class="competition-name" dir="rtl">
+                  {{ item.name.arabic }}
+                </h3>
+
+                <dl class="competition-details">
+                  <div class="detail-row">
+                    <mat-icon>event</mat-icon>
+                    <dt>تاريخ الإنشاء</dt>
+                    <dd>
+                      {{ (item.createdDate | date: "dd/MM/yyyy") ?? "—" }}
+                    </dd>
+                  </div>
+                  <div class="detail-row">
+                    <mat-icon>groups</mat-icon>
+                    <dt>المشاركون</dt>
+                    <dd>{{ item.participantCount }}</dd>
+                  </div>
+                </dl>
+
+                <div class="card-actions">
+                  <a
+                    mat-flat-button
+                    color="primary"
+                    [routerLink]="['/competitions', item.id, 'participants']"
+                  >
+                    <mat-icon>groups</mat-icon>
+                    عرض المشاركين
+                  </a>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

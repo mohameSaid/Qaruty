@@ -1,0 +1,225 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="title-group">
+      <button mat-icon-button (click)="onBack()">
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+      <div>
+        <h1 class="page-title">تفاصيل طلب التسجيل مع وجود تشابهات</h1>
+        @if (request(); as req) {
+          <p class="page-subtitle">
+            الطلب رقم {{ req.id }} — الرقم القومي {{ req.nationalId }}
+          </p>
+        }
+      </div>
+    </div>
+
+    @if (request(); as req) {
+      <div class="header-actions">
+        <span class="status-chip" [class]="statusChipClass(req.status.id)">{{ req.status.name.arabic }}</span>
+        <button
+          mat-flat-button
+          color="primary"
+          [disabled]="!isPending() || processing()"
+          (click)="onApprove()"
+        >
+          <mat-icon>check_circle</mat-icon> قبول
+        </button>
+        <button
+          mat-stroked-button
+          color="warn"
+          [disabled]="!isPending() || processing()"
+          (click)="onReject()"
+        >
+          <mat-icon>cancel</mat-icon> رفض
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="state-message">
+      <mat-progress-spinner diameter="32" mode="indeterminate" />
+      <span>جارٍ التحميل...</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="state-message">
+      <mat-icon>error_outline</mat-icon>
+      <span>تعذر تحميل بيانات الطلب.</span>
+    </div>
+  } @else if (body(); as data) {
+    <mat-card class="section-card applicant-card">
+      <mat-card-header>
+        <mat-card-title>بيانات المتقدم</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">الاسم بالعربية</span>
+            <span class="value" dir="rtl">{{ data.name.arabic }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">الاسم بالإنجليزية</span>
+            <span class="value">{{ data.name.english || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">الرقم القومي</span>
+            <span class="value">{{ data.nationalId }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">تاريخ الميلاد</span>
+            <span class="value">{{ data.birthDate }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">النوع</span>
+            <span class="value">{{ data.gender === 1 ? 'ذكر' : 'أنثى' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">كلمة المرور</span>
+            <span class="value">••••••</span>
+          </div>
+          <div class="info-item">
+            <span class="label">رقم الهاتف</span>
+            <span class="value">{{ data.contact.mobileNumber || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">رقم هاتف آخر</span>
+            <span class="value">{{ data.contact.otherMobileNumber || '—' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">البريد الإلكتروني</span>
+            <span class="value">{{ data.contact.email || '—' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    @if (isPending()) {
+    <mat-card class="section-card similarities-card">
+      <mat-card-header>
+        <mat-card-title>الأشخاص المتشابهون</mat-card-title>
+        <mat-card-subtitle>{{ similarities().length }} حالة تشابه</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (similarities().length === 0) {
+          <p class="empty-note">لا توجد حالات تشابه مسجلة لهذا الطلب.</p>
+        } @else {
+          <div class="carousel">
+            <button
+              mat-icon-button
+              class="carousel-nav carousel-nav--prev"
+              [disabled]="activeSlide() === 0"
+              (click)="onPrevSlide()"
+            >
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+
+            <div class="carousel-viewport">
+              <div class="carousel-track" [style.transform]="'translateX(' + activeSlide() * 100 + '%)'">
+                @for (candidate of similarities(); track candidate.id) {
+                  <div class="carousel-slide">
+                    <mat-card
+                      class="similarity-card"
+                      [class.similarity-card--selected]="selectedSimilarityId() === candidate.id"
+                      (click)="selectSimilarity(candidate.id)"
+                    >
+                      <mat-card-header>
+                        <mat-card-title dir="rtl">{{ candidate.name.arabic }}</mat-card-title>
+                        <mat-card-subtitle>{{ candidate.name.english || '—' }}</mat-card-subtitle>
+                      </mat-card-header>
+                      <mat-card-content>
+                        <div class="info-grid">
+                          <div class="info-item">
+                            <span class="label">نسبة التشابه</span>
+                            <span class="status-chip similarity-chip">{{ candidate.similarity }}%</span>
+                          </div>
+                          <div class="info-item">
+                            <span class="label">الرقم القومي</span>
+                            <span class="value">{{ candidate.nationalId || '—' }}</span>
+                          </div>
+                          <div class="info-item">
+                            <span class="label">النوع</span>
+                            <span class="value" dir="rtl">{{ candidate.gender.name.arabic }}</span>
+                          </div>
+                          <div class="info-item">
+                            <span class="label">تاريخ الميلاد</span>
+                            <span class="value">{{ candidate.birthDate || '—' }}</span>
+                          </div>
+                          <div class="info-item">
+                            <span class="label">رقم الهاتف</span>
+                            <span class="value">{{ candidate.contact.mobileNumber || '—' }}</span>
+                          </div>
+                          <div class="info-item">
+                            <span class="label">رقم هاتف آخر</span>
+                            <span class="value">{{ candidate.contact.otherMobileNumber || '—' }}</span>
+                          </div>
+                          <div class="info-item">
+                            <span class="label">البريد الإلكتروني</span>
+                            <span class="value">{{ candidate.contact.email || '—' }}</span>
+                          </div>
+                          <div class="info-item info-item--wide">
+                            <span class="label">العنوان</span>
+                            <span class="value" dir="rtl">
+                              {{ candidate.address.governorate.name.arabic }} — {{ candidate.address.city.name.arabic }} —
+                              {{ candidate.address.village.name.arabic }}
+                            </span>
+                          </div>
+                          @if (candidate.quran) {
+                            <div class="info-item">
+                              <span class="label">المستوى القرآني</span>
+                              <span class="value" dir="rtl">{{ candidate.quran.level.name.arabic }}</span>
+                            </div>
+                            <div class="info-item">
+                              <span class="label">المعلم</span>
+                              <span class="value" dir="rtl">{{ candidate.quran.instructor?.name?.arabic || '—' }}</span>
+                            </div>
+                            <div class="info-item">
+                              <span class="label">المكان</span>
+                              <span class="value" dir="rtl">{{ candidate.quran.place?.name?.arabic || '—' }}</span>
+                            </div>
+                          }
+                        </div>
+                      </mat-card-content>
+                      @if (selectedSimilarityId() === candidate.id) {
+                        <div class="selected-badge">
+                          <mat-icon>check_circle</mat-icon> محدد
+                        </div>
+                      }
+                    </mat-card>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <button
+              mat-icon-button
+              class="carousel-nav carousel-nav--next"
+              [disabled]="activeSlide() === similarities().length - 1"
+              (click)="onNextSlide()"
+            >
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+          </div>
+
+          <div class="carousel-dots">
+            @for (candidate of similarities(); track candidate.id; let i = $index) {
+              <span class="dot" [class.dot--active]="i === activeSlide()"></span>
+            }
+          </div>
+
+          <div class="carousel-actions">
+            <button
+              mat-flat-button
+              color="primary"
+              [disabled]="selectedSimilarityId() === null"
+              (click)="onConfirmSelection()"
+            >
+              <mat-icon>done_all</mat-icon> تأكيد الاختيار
+            </button>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+    }
+  }
+</div>

@@ -1,6 +1,7 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,12 +10,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AuthService } from '../../../../core/services/auth.service';
+import { Role } from '../../../../core/models/role.model';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
@@ -37,7 +40,7 @@ export class LoginPageComponent {
   readonly hidePassword = signal(true);
 
   readonly form = this.fb.nonNullable.group({
-    username: ['', Validators.required],
+    nationalId: ['', Validators.required],
     password: ['', Validators.required],
   });
 
@@ -50,22 +53,30 @@ export class LoginPageComponent {
     this.loginFailed.set(false);
     this.submitting.set(true);
 
-    const { username, password } = this.form.getRawValue();
+    const { nationalId, password } = this.form.getRawValue();
 
-    // Fake auth check is synchronous, but a short delay makes the spinner feel intentional
-    // rather than like a flash of nothing — and leaves room to swap in a real API call later.
-    setTimeout(() => {
-      const success = this.auth.login(username, password);
-      this.submitting.set(false);
-
-      if (!success) {
+    this.auth.login(nationalId, password).subscribe({
+      next: () => {
+        this.submitting.set(false);
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        this.router.navigateByUrl(returnUrl || this.resolvePostLoginRoute());
+      },
+      error: (_error: HttpErrorResponse) => {
+        this.submitting.set(false);
         this.loginFailed.set(true);
         this.form.controls.password.reset('');
-        return;
-      }
+      },
+    });
+  }
 
-      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/users';
-      this.router.navigateByUrl(returnUrl);
-    }, 300);
+  /** ADMIN lands on the dashboard, USER_MANAGER on the users list; everyone else sees their own profile. */
+  private resolvePostLoginRoute(): string {
+    if (this.auth.hasRole(Role.Admin)) {
+      return '/dashboard';
+    }
+    if (this.auth.hasRole(Role.UserManager)) {
+      return '/users';
+    }
+    return '/profile';
   }
 }

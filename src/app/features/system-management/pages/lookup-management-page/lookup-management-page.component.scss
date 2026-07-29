@@ -1,0 +1,35 @@
+.page-container {
+  padding: 16px;
+}
+
+.page-layout {
+  display: flex;
+  gap: 16px;
+}
+
+.type-panel {
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.items-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.parent-select {
+  width: 260px;
+  margin-inline-end: 12px;
+}
+
+.items-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.hint {
+  color: rgba(0, 0, 0, 0.6);
+  padding: 24px;
+  text-align: center;
+}

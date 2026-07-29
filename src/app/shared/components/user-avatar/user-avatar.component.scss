@@ -1,0 +1,23 @@
+.user-avatar {
+  --avatar-size: 96px;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mat-sys-primary-container, #d7e3fc);
+  color: var(--mat-sys-on-primary-container, #0b3d91);
+  flex: none;
+
+  mat-icon {
+    width: calc(var(--avatar-size) * 0.6);
+    height: calc(var(--avatar-size) * 0.6);
+    font-size: calc(var(--avatar-size) * 0.6);
+  }
+
+  &--female {
+    background: var(--mat-sys-tertiary-container, #ffd8ec);
+    color: var(--mat-sys-on-tertiary-container, #8a0e5c);
+  }
+}

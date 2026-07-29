@@ -19,7 +19,12 @@
         }
         تصدير إلى Excel
       </button>
-      <button mat-flat-button color="primary" (click)="onAddUser()">
+      <button
+        *appHasPermission="Permission.UserCreate"
+        mat-flat-button
+        color="primary"
+        (click)="onAddUser()"
+      >
         <mat-icon>person_add</mat-icon>
         إضافة مستخدم
       </button>

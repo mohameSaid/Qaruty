@@ -25,7 +25,12 @@
           {{ user()!.name.english || "بدون اسم بالإنجليزية" }}
         </p>
       </div>
-      <button mat-flat-button color="primary" (click)="onEdit()">
+      <button
+        *appHasPermission="Permission.UserUpdate"
+        mat-flat-button
+        color="primary"
+        (click)="onEdit()"
+      >
         <mat-icon>edit</mat-icon>
         تعديل البيانات
       </button>
@@ -178,7 +183,10 @@
           </mat-card>
 
           @if (user()!.father; as father) {
-            <mat-card class="section-card">
+            <mat-card
+              *appHasPermission="Permission.UserFathersRead"
+              class="section-card"
+            >
               <mat-card-header>
                 <mat-card-title>بيانات الأب</mat-card-title>
               </mat-card-header>
@@ -239,7 +247,10 @@
           }
 
           @if (user()!.mother; as mother) {
-            <mat-card class="section-card">
+            <mat-card
+              *appHasPermission="Permission.UserMothersRead"
+              class="section-card"
+            >
               <mat-card-header>
                 <mat-card-title>بيانات الأم</mat-card-title>
               </mat-card-header>
