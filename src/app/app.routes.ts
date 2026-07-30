@@ -97,7 +97,7 @@ export const routes: Routes = [
           },
           {
             path: ':nationalId/details',
-            canActivate: [permissionGuard(Permission.UserDetailsRead)],
+            canActivate: [permissionGuard(Permission.UserDetailsRead, Permission.UserDetailsReadSelf)],
             loadComponent: () =>
               import('./features/users/pages/user-detail-page/user-detail-page.component').then(
                 (m) => m.UserDetailPageComponent
@@ -113,7 +113,7 @@ export const routes: Routes = [
           },
           {
             path: ':nationalId/edit',
-            canActivate: [permissionGuard(Permission.UserUpdate)],
+            canActivate: [permissionGuard(Permission.UserUpdate, Permission.UserUpdateSelf)],
             loadComponent: () =>
               import('./features/users/pages/user-form-page/user-form-page.component').then(
                 (m) => m.UserFormPageComponent

@@ -26,7 +26,7 @@
         </p>
       </div>
       <button
-        *appHasPermission="Permission.UserUpdate"
+        *appHasPermission="[Permission.UserUpdate, Permission.UserUpdateSelf]"
         mat-flat-button
         color="primary"
         (click)="onEdit()"
@@ -125,7 +125,7 @@
                     ><mat-icon>apartment</mat-icon> المدينة</span
                   >
                   <span class="detail-value" dir="rtl">{{
-                    user()!.address.city?.name?.arabic
+                    user()!.address.city.name.arabic
                   }}</span>
                 </div>
                 <div class="detail-item">
@@ -133,7 +133,7 @@
                     ><mat-icon>holiday_village</mat-icon> القرية</span
                   >
                   <span class="detail-value" dir="rtl">{{
-                    user()!.address.village?.name?.arabic || "—"
+                    user()!.address.village.name.arabic || "—"
                   }}</span>
                 </div>
                 <div class="detail-item full-width">
@@ -159,7 +159,7 @@
                     ><mat-icon>phone</mat-icon> رقم الهاتف</span
                   >
                   <span class="detail-value">{{
-                    user()!.contact?.mobileNumber || "—"
+                    user()!.contact.mobileNumber || "—"
                   }}</span>
                 </div>
                 <div class="detail-item">
@@ -167,7 +167,7 @@
                     ><mat-icon>phone_iphone</mat-icon> رقم هاتف آخر</span
                   >
                   <span class="detail-value">{{
-                    user()!.contact?.otherMobileNumber || "—"
+                    user()!.contact.otherMobileNumber || "—"
                   }}</span>
                 </div>
                 <div class="detail-item">
@@ -175,7 +175,7 @@
                     ><mat-icon>email</mat-icon> البريد الإلكتروني</span
                   >
                   <span class="detail-value">{{
-                    user()!.contact?.email || "—"
+                    user()!.contact.email || "—"
                   }}</span>
                 </div>
               </div>

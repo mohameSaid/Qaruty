@@ -8,6 +8,8 @@ export enum Permission {
   UserDetailsRead = 'USER_DETAILS_READ',
   UserFathersRead = 'USER_FATHERS_READ',
   UserMothersRead = 'USER_MOTHERS_READ',
+  UserUpdateSelf = 'USER_UPDATE_SELF',
+  UserDetailsReadSelf = 'USER_DETAILS_READ_SELF',
 
   CompetitionsRead = 'COMPETITIONS_READ',
   CompetitionCreate = 'COMPETITION_CREATE',
@@ -22,6 +24,12 @@ export enum Permission {
   ParticipantDelete = 'PARTICIPANT_DELETE',
   ParticipantDeactivate = 'PARTICIPANT_DEACTIVATE',
   ParticipantDetailsRead = 'PARTICIPANT_DETAILS_READ',
+  ParticipantsReadSelf = 'PARTICIPANTS_READ_SELF',
+  ParticipantCreateSelf = 'PARTICIPANT_CREATE_SELF',
+  ParticipantUpdateSelf = 'PARTICIPANT_UPDATE_SELF',
+  ParticipantDeleteSelf = 'PARTICIPANT_DELETE_SELF',
+  ParticipantDeactivateSelf = 'PARTICIPANT_DEACTIVATE_SELF',
+  ParticipantDetailsReadSelf = 'PARTICIPANT_DETAILS_READ_SELF',
 
   InstructorsRead = 'INSTRUCTORS_READ',
   InstructorCreate = 'INSTRUCTOR_CREATE',

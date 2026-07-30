@@ -147,15 +147,15 @@
                           </div>
                           <div class="info-item">
                             <span class="label">رقم الهاتف</span>
-                            <span class="value">{{ candidate.contact.mobileNumber || '—' }}</span>
+                            <span class="value">{{ candidate.contact?.mobileNumber || '—' }}</span>
                           </div>
                           <div class="info-item">
                             <span class="label">رقم هاتف آخر</span>
-                            <span class="value">{{ candidate.contact.otherMobileNumber || '—' }}</span>
+                            <span class="value">{{ candidate.contact?.otherMobileNumber || '—' }}</span>
                           </div>
                           <div class="info-item">
                             <span class="label">البريد الإلكتروني</span>
-                            <span class="value">{{ candidate.contact.email || '—' }}</span>
+                            <span class="value">{{ candidate.contact?.email || '—' }}</span>
                           </div>
                           <div class="info-item info-item--wide">
                             <span class="label">العنوان</span>

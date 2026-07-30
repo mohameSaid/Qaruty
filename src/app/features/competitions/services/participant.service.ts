@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiEnvelope, PagedData } from '../models/api-response.model';
 import { ParticipantFilters, ParticipantListItem } from '../models/participant.model';
+import { UpdateCompetitionRequest } from '../../users/models/competition.model';
 
 export interface GetParticipantsOptions {
   competitionId: number;
@@ -74,7 +75,38 @@ export class ParticipantService {
       params = params.set('search.columnNames', 'user.name.arName,user.name.enName');
     }
 
-      params = params.set('filters.deleted', false); // to be added later,  
+      params = params.set('filters.deleted', false); // to be added later,
     return params;
+  }
+
+  /** Edits an existing competition registration — `PUT /participant/{id}`. */
+  updateParticipant(id: number, payload: UpdateCompetitionRequest): Observable<ParticipantListItem> {
+    return this.http
+      .put<ApiEnvelope<ParticipantListItem>>(`${this.baseUrl}/${id}`, payload)
+      .pipe(map((res) => res.data));
+  }
+
+  /** Deactivates a competition registration — `DELETE /participant/{id}?type=DEACTIVATE`. */
+  deactivateParticipant(id: number): Observable<void> {
+    const params = new HttpParams().set('type', 'DEACTIVATE');
+    return this.http
+      .delete<ApiEnvelope<void>>(`${this.baseUrl}/${id}`, { params })
+      .pipe(map(() => undefined));
+  }
+
+  /** Reactivates a previously deactivated registration — `DELETE /participant/{id}?type=ACTIVATE`. */
+  activateParticipant(id: number): Observable<void> {
+    const params = new HttpParams().set('type', 'ACTIVATE');
+    return this.http
+      .delete<ApiEnvelope<void>>(`${this.baseUrl}/${id}`, { params })
+      .pipe(map(() => undefined));
+  }
+
+  /** Hard-deletes a competition registration — `DELETE /participant/{id}?type=HARD`. */
+  deleteParticipant(id: number): Observable<void> {
+    const params = new HttpParams().set('type', 'HARD');
+    return this.http
+      .delete<ApiEnvelope<void>>(`${this.baseUrl}/${id}`, { params })
+      .pipe(map(() => undefined));
   }
 }

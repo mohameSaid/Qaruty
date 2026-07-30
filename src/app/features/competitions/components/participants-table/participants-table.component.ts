@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
@@ -10,6 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ParticipantListItem } from '../../models/participant.model';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permission } from '../../../../core/models/permission.model';
+import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-participants-table',
@@ -30,6 +32,8 @@ import { Permission } from '../../../../core/models/permission.model';
 })
 export class ParticipantsTableComponent {
   readonly Permission = Permission;
+  private readonly dialog = inject(MatDialog);
+
   readonly participants = input.required<ParticipantListItem[]>();
   readonly totalElements = input<number>(0);
   readonly pageNo = input<number>(0);
@@ -43,6 +47,10 @@ export class ParticipantsTableComponent {
   readonly sortChange = output<Sort>();
   readonly view = output<ParticipantListItem>();
   readonly evaluate = output<ParticipantListItem>();
+  readonly edit = output<ParticipantListItem>();
+  readonly deactivate = output<ParticipantListItem>();
+  readonly activate = output<ParticipantListItem>();
+  readonly delete = output<ParticipantListItem>();
 
   readonly displayedColumns = [
     // 'id',
@@ -85,5 +93,56 @@ export class ParticipantsTableComponent {
 
   onEvaluate(participant: ParticipantListItem): void {
     this.evaluate.emit(participant);
+  }
+
+  onEditItem(participant: ParticipantListItem): void {
+    this.edit.emit(participant);
+  }
+
+  onDeactivate(participant: ParticipantListItem): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'إلغاء تفعيل التسجيل',
+        message: `هل أنت متأكد من إلغاء تفعيل تسجيل "${participant.user?.name?.arabic ?? ''}"؟`,
+        confirmLabel: 'إلغاء التفعيل',
+      },
+    });
+
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.deactivate.emit(participant);
+      }
+    });
+  }
+
+  onActivate(participant: ParticipantListItem): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'تفعيل التسجيل',
+        message: `هل أنت متأكد من إعادة تفعيل تسجيل "${participant.user?.name?.arabic ?? ''}"؟`,
+        confirmLabel: 'تفعيل',
+      },
+    });
+
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.activate.emit(participant);
+      }
+    });
+  }
+
+  onDelete(participant: ParticipantListItem): void {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'حذف التسجيل',
+        message: `هل أنت متأكد من حذف تسجيل "${participant.user?.name?.arabic ?? ''}" نهائيًا؟ لا يمكن التراجع عن هذا الإجراء.`,
+      },
+    });
+
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.delete.emit(participant);
+      }
+    });
   }
 }

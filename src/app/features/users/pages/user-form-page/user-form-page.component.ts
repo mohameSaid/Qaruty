@@ -12,7 +12,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTabsModule } from "@angular/material/tabs";
-import { catchError, finalize, of } from "rxjs";
+import { catchError, finalize, of, tap } from "rxjs";
 
 import { UsersStore } from "../../store/users.store";
 import { UserService } from "../../services/user.service";
@@ -30,6 +30,7 @@ import {
 import {
   CompetitionHistoryItem,
   RegisterCompetitionRequest,
+  UpdateCompetitionRequest,
 } from "../../models/competition.model";
 
 @Component({
@@ -231,6 +232,82 @@ export class UserFormPageComponent implements OnInit {
         }
         this.competitionFormResetCounter.update((v) => v + 1);
       });
+  }
+
+  onEditParticipant(payload: UpdateCompetitionRequest): void {
+    this.registeringCompetition.set(true);
+    this.competitionService
+      .updateParticipant(payload.id, payload)
+      .pipe(
+        catchError(() => of(null)),
+        finalize(() => this.registeringCompetition.set(false)),
+      )
+      .subscribe((result) => {
+        if (!result) {
+          return;
+        }
+        this.snackbar.success("تم تعديل التسجيل بنجاح.");
+        const person = this.finalizedPerson();
+        if (person) {
+          this.loadCompetitionHistory(person.id);
+        }
+        this.competitionFormResetCounter.update((v) => v + 1);
+      });
+  }
+
+  onEvaluate(item: CompetitionHistoryItem): void {
+    const person = this.finalizedPerson();
+    if (person) {
+      this.router.navigate(["/users", person.id, "evaluate", item.id]);
+    }
+  }
+
+  onDeactivateParticipant(item: CompetitionHistoryItem): void {
+    this.competitionService
+      .deactivateParticipant(item.id)
+      .pipe(
+        tap(() => {
+          this.snackbar.success("تم إلغاء تفعيل التسجيل بنجاح.");
+          const person = this.finalizedPerson();
+          if (person) {
+            this.loadCompetitionHistory(person.id);
+          }
+        }),
+        catchError(() => of(null)),
+      )
+      .subscribe();
+  }
+
+  onActivateParticipant(item: CompetitionHistoryItem): void {
+    this.competitionService
+      .activateParticipant(item.id)
+      .pipe(
+        tap(() => {
+          this.snackbar.success("تم إعادة تفعيل التسجيل بنجاح.");
+          const person = this.finalizedPerson();
+          if (person) {
+            this.loadCompetitionHistory(person.id);
+          }
+        }),
+        catchError(() => of(null)),
+      )
+      .subscribe();
+  }
+
+  onDeleteParticipant(item: CompetitionHistoryItem): void {
+    this.competitionService
+      .deleteParticipant(item.id)
+      .pipe(
+        tap(() => {
+          this.snackbar.success("تم حذف التسجيل نهائيًا بنجاح.");
+          const person = this.finalizedPerson();
+          if (person) {
+            this.loadCompetitionHistory(person.id);
+          }
+        }),
+        catchError(() => of(null)),
+      )
+      .subscribe();
   }
 
   /**

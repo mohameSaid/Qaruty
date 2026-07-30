@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
-import { catchError, finalize, of } from 'rxjs';
+import { catchError, finalize, of, tap } from 'rxjs';
 
 import { ParticipantsStore } from '../../store/participants.store';
 import { CompetitionsLookupService } from '../../services/competitions-lookup.service';
@@ -15,6 +16,9 @@ import { ParticipantsTableComponent } from '../../components/participants-table/
 import { ParticipantFilters, ParticipantListItem } from '../../models/participant.model';
 import { LookupRef } from '../../models/lookup.model';
 import { exportParticipantsToExcel } from '../../../../shared/utils/excel-export.util';
+import { ParticipantEditDialogComponent } from '../../components/participant-edit-dialog/participant-edit-dialog.component';
+import { UpdateCompetitionRequest } from '../../../users/models/competition.model';
+import { SnackbarService } from '../../../../core/services/snackbar.service';
 
 @Component({
   selector: 'app-competition-participants-page',
@@ -34,6 +38,8 @@ export class CompetitionParticipantsPageComponent implements OnInit {
   readonly store = inject(ParticipantsStore);
   private readonly lookupService = inject(CompetitionsLookupService);
   private readonly participantService = inject(ParticipantService);
+  private readonly snackbar = inject(SnackbarService);
+  private readonly dialog = inject(MatDialog);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -87,6 +93,79 @@ export class CompetitionParticipantsPageComponent implements OnInit {
       return;
     }
     this.router.navigate(['/users', id, 'evaluate', participant.id]);
+  }
+
+  /** Opens the shared registration form in a modal, pre-filled to edit this participant's registration. */
+  onEditParticipant(participant: ParticipantListItem): void {
+    const exceptionIdList =
+      participant.exceptions
+        ?.map((e) => e.exception?.id)
+        .filter((id): id is number => id != null) ?? [];
+
+    const editRequest: UpdateCompetitionRequest = {
+      id: participant.id,
+      competitionId: this.competitionId,
+      userId: participant.user?.id ?? 0,
+      levelId: participant.level.id,
+      partsCount: participant.partsCount,
+      studyYearId: null,
+      instructorId: participant.instructor?.id ?? null,
+      placeId: participant.place?.id ?? null,
+      exceptionIdList,
+      notes: null,
+    };
+
+    const ref = this.dialog.open(ParticipantEditDialogComponent, {
+      width: '800px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: { userId: editRequest.userId, editRequest },
+    });
+
+    ref.afterClosed().subscribe((updated) => {
+      if (updated) {
+        this.store.loadParticipants();
+      }
+    });
+  }
+
+  onDeactivateParticipant(participant: ParticipantListItem): void {
+    this.participantService
+      .deactivateParticipant(participant.id)
+      .pipe(
+        tap(() => {
+          this.snackbar.success('تم إلغاء تفعيل التسجيل بنجاح.');
+          this.store.loadParticipants();
+        }),
+        catchError(() => of(null))
+      )
+      .subscribe();
+  }
+
+  onActivateParticipant(participant: ParticipantListItem): void {
+    this.participantService
+      .activateParticipant(participant.id)
+      .pipe(
+        tap(() => {
+          this.snackbar.success('تم إعادة تفعيل التسجيل بنجاح.');
+          this.store.loadParticipants();
+        }),
+        catchError(() => of(null))
+      )
+      .subscribe();
+  }
+
+  onDeleteParticipant(participant: ParticipantListItem): void {
+    this.participantService
+      .deleteParticipant(participant.id)
+      .pipe(
+        tap(() => {
+          this.snackbar.success('تم حذف التسجيل نهائيًا بنجاح.');
+          this.store.loadParticipants();
+        }),
+        catchError(() => of(null))
+      )
+      .subscribe();
   }
 
   onFilter(filters: ParticipantFilters): void {

@@ -40,6 +40,8 @@ export interface ParticipantListItem {
   exceptions: ParticipantExceptionEntry[];
   /** Evaluation score set via the "Evaluate" flow — null until the participant has been evaluated. */
   score: number | null;
+  /** Whether this registration has been deactivated — toggles the deactivate/reactivate row action. */
+  deleted: boolean;
 }
 
 /** Optional filter criteria for `GET /participant`, layered onto the paging/sort params. */
