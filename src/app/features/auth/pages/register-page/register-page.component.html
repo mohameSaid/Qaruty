@@ -1,4 +1,7 @@
 <div class="register-shell">
+  <a class="back-link" routerLink="/" matTooltip="العودة للصفحة الرئيسية">
+    <mat-icon>arrow_forward</mat-icon>
+  </a>
   <mat-card class="register-card">
     <div class="brand">
       <mat-icon class="brand-icon">groups</mat-icon>
@@ -141,12 +144,9 @@
             <h3 class="section-heading">بيانات التواصل</h3>
             <div class="form-grid">
               <mat-form-field appearance="outline">
-                <mat-label>البريد الإلكتروني</mat-label>
+                <mat-label>البريد الإلكتروني (اختياري)</mat-label>
                 <mat-icon matPrefix>email</mat-icon>
                 <input matInput formControlName="email" type="email" />
-                @if (form.controls.email.hasError('required') && form.controls.email.touched) {
-                  <mat-error>البريد الإلكتروني مطلوب.</mat-error>
-                }
                 @if (form.controls.email.hasError('email') && form.controls.email.touched) {
                   <mat-error>يرجى إدخال بريد إلكتروني صحيح.</mat-error>
                 }

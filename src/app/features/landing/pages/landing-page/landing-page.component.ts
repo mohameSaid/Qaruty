@@ -18,9 +18,9 @@ interface WinnersLevel {
   winners: Winner[];
 }
 
-interface ContactPerson {
-  name: string;
-  phone: string;
+interface ContactGroup {
+  label: string;
+  phones: string[];
 }
 
 interface PlatformFeature {
@@ -113,11 +113,9 @@ const WINNERS_LEVELS: WinnersLevel[] = [
   },
 ];
 
-const CONTACTS: ContactPerson[] = [
-  { name: 'أحمد عمر', phone: '01003922756' },
-  { name: 'مصطفى سلوم', phone: '01000455073' },
-  { name: 'دعم فني', phone: '01003127737' },
-
+const CONTACTS: ContactGroup[] = [
+  { label: 'أرقام التواصل والاستفسارات الخاصة باللجنة', phones: ['01220918951', '01205553666', '01003922756'] },
+  { label: 'دعم فني', phones: ['01003127737'] },
 ];
 
 const PLATFORM_FEATURES: PlatformFeature[] = [
@@ -155,6 +153,7 @@ export class LandingPageComponent implements AfterViewInit, OnDestroy {
   private revealObserver?: IntersectionObserver;
   private touchStartY = 0;
   private wheelLocked = false;
+  private closingViaPopState = false;
   private readonly SWIPE_THRESHOLD = 60;
 
   ngAfterViewInit(): void {
@@ -173,13 +172,28 @@ export class LandingPageComponent implements AfterViewInit, OnDestroy {
   }
 
   openViewer(index: number): void {
+    if (this.activeIndex() === null) {
+      history.pushState({ videoViewer: true }, '');
+    }
     this.activeIndex.set(index);
     document.body.style.overflow = 'hidden';
   }
 
   closeViewer(): void {
+    if (this.activeIndex() === null) return;
     this.activeIndex.set(null);
     document.body.style.overflow = '';
+    if (!this.closingViaPopState) {
+      history.back();
+    }
+  }
+
+  @HostListener('window:popstate')
+  onPopState(): void {
+    if (this.activeIndex() === null) return;
+    this.closingViaPopState = true;
+    this.closeViewer();
+    this.closingViaPopState = false;
   }
 
   nextVideo(): void {

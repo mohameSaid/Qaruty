@@ -17,6 +17,7 @@ import { MatInputModule } from "@angular/material/input";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
+import { MatTooltipModule } from "@angular/material/tooltip";
 import { catchError, of } from "rxjs";
 
 import { RegisterService } from "../../services/register.service";
@@ -64,6 +65,7 @@ const DEFAULT_ADDRESS = { governorate: 10, city: 1, village: 1, details: "" };
     MatProgressSpinnerModule,
     MatSelectModule,
     MatSlideToggleModule,
+    MatTooltipModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./register-page.component.html",
@@ -95,7 +97,7 @@ export class RegisterPageComponent {
     governorate: this.fb.control<number | null>(null),
     city: this.fb.control<number | null>(null),
     village: this.fb.control<number | null>(null),
-    email: ["", [Validators.required, Validators.email]],
+    email: ["", [Validators.email]],
     mobileNumber: ["", [Validators.required, mobileNumberValidator()]],
     password: ["", [Validators.required, Validators.minLength(8)]],
     confirmPassword: [

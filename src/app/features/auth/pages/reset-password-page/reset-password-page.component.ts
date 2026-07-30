@@ -51,7 +51,7 @@ export class ResetPasswordPageComponent {
     nationalId: ['', [Validators.required, nationalIdValidator()]],
     mobileNumber: ['', [Validators.required, mobileNumberValidator()]],
     otherMobileNumber: ['', mobileNumberValidator()],
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', [Validators.required, passwordMatchValidator('password')]],
   });

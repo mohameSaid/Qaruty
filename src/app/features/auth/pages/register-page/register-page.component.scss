@@ -25,6 +25,27 @@
   pointer-events: none;
 }
 
+.back-link {
+  position: absolute;
+  top: 24px;
+  inset-inline-start: 24px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+  }
+}
+
 .register-card {
   position: relative;
   z-index: 1;
