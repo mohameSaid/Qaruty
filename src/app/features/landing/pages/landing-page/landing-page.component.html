@@ -323,10 +323,20 @@
       <div class="platform-outro reveal">
         <p class="platform-outro__line">سجّل اهتمامك وانتظر إطلاق المنصة قريبًا...</p>
         <p class="platform-outro__line platform-outro__line--accent">رحلة جديدة مع القرآن تبدأ بخطوة 🤍</p>
-        <a href="#contact" (click)="scrollTo('contact', $event)" class="btn-cta">
-          <span>📞</span>
-          <span>تواصل معنا لتسجيل اهتمامك</span>
-        </a>
+        <div class="platform-outro-actions">
+          <!-- <a href="#contact" (click)="scrollTo('contact', $event)" class="btn-cta">
+            <span>📞</span>
+            <span>تواصل معنا لتسجيل اهتمامك</span>
+          </a> -->
+          <a routerLink="/memorization-platform" class="btn-secondary">
+            <span>🌿</span>
+            <span>استكشف منصة التحفيظ</span>
+          </a>
+          <a href="https://wa.me/966504314987" target="_blank" rel="noopener" class="btn-secondary">
+            <span>💬</span>
+            <span>راسلنا عبر واتساب</span>
+          </a>
+        </div>
       </div>
     </div>
   </section>

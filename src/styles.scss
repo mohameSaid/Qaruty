@@ -87,3 +87,111 @@ body {
   text-align: center;
   color: rgba(0, 0, 0, 0.6);
 }
+
+// Mobile tables: below this breakpoint every mat-table row becomes a card
+// (label : value stack) instead of shrinking the desktop grid. Desktop layout
+// is untouched above the breakpoint. Each <td mat-cell> must carry a
+// `data-label` attribute (the column's header text) for the card view.
+$table-mobile-breakpoint: 640px;
+
+@media (max-width: $table-mobile-breakpoint) {
+  .table-wrapper {
+    overflow-x: visible;
+  }
+
+  table.mat-mdc-table {
+    display: block;
+    width: 100%;
+    background: transparent;
+
+    thead,
+    tbody,
+    tfoot {
+      display: block;
+      width: 100%;
+    }
+
+    .mat-mdc-header-row {
+      display: none;
+    }
+
+    .mat-mdc-row {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: auto;
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+      background: var(--mat-sys-surface, #fff);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .mat-mdc-cell {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: unset;
+      width: 100%;
+      padding: 0 !important;
+      border-bottom: none !important;
+
+      &::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.55);
+      }
+
+      // Action buttons get their own row, right-aligned, with no label.
+      &.mat-column-actions {
+        justify-content: flex-end;
+        margin-top: 4px;
+        padding-top: 10px !important;
+        border-top: 1px dashed var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+
+        &::before {
+          content: none;
+        }
+      }
+    }
+  }
+
+  // Loading skeleton mirrors the card layout so nothing jumps once data arrives.
+  table.skeleton-table {
+    display: block;
+    width: 100%;
+
+    tbody {
+      display: block;
+    }
+
+    tr {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    td {
+      display: block;
+      padding: 0 !important;
+    }
+  }
+}

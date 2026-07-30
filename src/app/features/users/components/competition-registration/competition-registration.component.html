@@ -16,33 +16,33 @@
         <table mat-table [dataSource]="history()" class="history-table">
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>المسابقة</th>
-            <td mat-cell *matCellDef="let row" dir="rtl">
+            <td mat-cell *matCellDef="let row" dir="rtl" data-label="المسابقة">
               {{ row.competition.name.arabic }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="level">
             <th mat-header-cell *matHeaderCellDef>المستوى</th>
-            <td mat-cell *matCellDef="let row" dir="rtl">
+            <td mat-cell *matCellDef="let row" dir="rtl" data-label="المستوى">
               {{ row.level.name.arabic }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="partsCount">
             <th mat-header-cell *matHeaderCellDef>عدد الأجزاء</th>
-            <td mat-cell *matCellDef="let row">{{ row.partsCount }}</td>
+            <td mat-cell *matCellDef="let row" data-label="عدد الأجزاء">{{ row.partsCount }}</td>
           </ng-container>
 
           <ng-container matColumnDef="score">
             <th mat-header-cell *matHeaderCellDef>الدرجة</th>
-            <td mat-cell *matCellDef="let row">{{ row.score ?? "—" }}</td>
+            <td mat-cell *matCellDef="let row" data-label="الدرجة">{{ row.score ?? "—" }}</td>
           </ng-container>
 
           <ng-container matColumnDef="status">
             <th class="status-column" mat-header-cell *matHeaderCellDef>
               الحاله
             </th>
-            <td class="status-column" mat-cell *matCellDef="let row">
+            <td class="status-column" mat-cell *matCellDef="let row" data-label="الحالة">
               @if (row.deleted) {
                 <span class="status-chip status-chip--deleted">ملغى </span>
               } @else if (row.score == null && row.competition?.active) {

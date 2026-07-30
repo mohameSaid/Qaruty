@@ -37,17 +37,17 @@
         >
           <ng-container matColumnDef="nationalId">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>الرقم القومي</th>
-            <td mat-cell *matCellDef="let request">{{ request.nationalId }}</td>
+            <td mat-cell *matCellDef="let request" data-label="الرقم القومي">{{ request.nationalId }}</td>
           </ng-container>
 
           <ng-container matColumnDef="type">
             <th mat-header-cell *matHeaderCellDef>نوع الطلب</th>
-            <td mat-cell *matCellDef="let request" dir="rtl">{{ request.type.name.arabic }}</td>
+            <td mat-cell *matCellDef="let request" dir="rtl" data-label="نوع الطلب">{{ request.type.name.arabic }}</td>
           </ng-container>
 
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef>الحالة</th>
-            <td mat-cell *matCellDef="let request">
+            <td mat-cell *matCellDef="let request" data-label="الحالة">
               <span class="status-chip" [class]="statusChipClass(request.status.id)">
                 {{ request.status.name.arabic }}
               </span>
@@ -56,12 +56,12 @@
 
           <ng-container matColumnDef="createdDate">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>تاريخ الإنشاء</th>
-            <td mat-cell *matCellDef="let request">{{ request.createdDate | date: 'yyyy-MM-dd' }}</td>
+            <td mat-cell *matCellDef="let request" data-label="تاريخ الإنشاء">{{ request.createdDate | date: 'yyyy-MM-dd' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="note">
             <th mat-header-cell *matHeaderCellDef>ملاحظات</th>
-            <td mat-cell *matCellDef="let request">{{ request.note ?? '—' }}</td>
+            <td mat-cell *matCellDef="let request" data-label="ملاحظات">{{ request.note ?? '—' }}</td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>

@@ -1014,6 +1014,22 @@
   box-shadow: 0 16px 36px -12px rgba(20, 98, 69, 0.7);
 }
 
+.platform-outro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+}
+.platform .btn-secondary {
+  border-color: rgba(20, 98, 69, 0.35);
+  color: var(--green-800);
+}
+.platform .btn-secondary:hover {
+  background: rgba(20, 98, 69, 0.08);
+  border-color: rgba(20, 98, 69, 0.55);
+}
+
 /* ===== FINAL CTA ===== */
 .final-cta {
   position: relative;

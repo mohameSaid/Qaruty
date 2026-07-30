@@ -12,6 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AuthService } from '../../../../core/services/auth.service';
 import { Role } from '../../../../core/models/role.model';
+import { sanitizeReturnUrl } from '../../../../core/utils/return-url.util';
 
 @Component({
   selector: 'app-login-page',
@@ -60,14 +61,48 @@ export class LoginPageComponent {
     this.auth.login(nationalId, password).subscribe({
       next: () => {
         this.submitting.set(false);
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-        this.router.navigateByUrl(returnUrl || this.resolvePostLoginRoute());
+        this.redirectAfterLogin();
       },
       error: (_error: HttpErrorResponse) => {
         this.submitting.set(false);
         this.loginFailed.set(true);
         this.form.controls.password.reset('');
       },
+    });
+  }
+
+  /**
+   * Navigates to the sanitized `returnUrl` when present and safe, otherwise to
+   * the role-based default route. Falls back to the default route if the
+   * navigation itself fails, so a bad/stale returnUrl can never strand the
+   * user on /login after a successful authentication.
+   */
+  private redirectAfterLogin(): void {
+    const rawReturnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    const safeReturnUrl = sanitizeReturnUrl(rawReturnUrl);
+    const defaultRoute = this.resolvePostLoginRoute();
+    const target = safeReturnUrl ?? defaultRoute;
+
+    console.debug('[Login] post-login redirect decision', {
+      rawReturnUrl,
+      safeReturnUrl,
+      defaultRoute,
+      target,
+    });
+
+    this.router.navigateByUrl(target).then((succeeded) => {
+      if (succeeded) {
+        return;
+      }
+
+      console.warn('[Login] navigateByUrl failed for target, falling back to default route', {
+        target,
+        defaultRoute,
+      });
+
+      if (target !== defaultRoute) {
+        this.router.navigateByUrl(defaultRoute);
+      }
     });
   }
 

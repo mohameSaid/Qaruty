@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
+import { RouterLink } from '@angular/router';
 import { catchError, finalize, of } from 'rxjs';
 
 import { AuthService } from '../../../../core/services/auth.service';
@@ -25,6 +26,7 @@ import { UserService } from '../../../users/services/user.service';
     MatIconModule,
     MatProgressSpinnerModule,
     MatTableModule,
+    RouterLink,
     UserAvatarComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

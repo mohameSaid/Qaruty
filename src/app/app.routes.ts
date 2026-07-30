@@ -13,138 +13,150 @@ export const routes: Routes = [
   },
   {
     path: 'login',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/pages/login-page/login-page.component').then((m) => m.LoginPageComponent),
   },
   {
     path: 'register',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/pages/register-page/register-page.component').then((m) => m.RegisterPageComponent),
   },
   {
     path: 'reset-password',
+    canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/pages/reset-password-page/reset-password-page.component').then(
         (m) => m.ResetPasswordPageComponent
       ),
   },
   {
-    path: 'dashboard',
-    canActivate: [authGuard],
+    path: 'memorization-platform',
     loadComponent: () =>
-      import('./features/dashboard/pages/dashboard-page/dashboard-page.component').then(
-        (m) => m.DashboardPageComponent
+      import('./features/memorization-platform/pages/memorization-platform-page/memorization-platform-page.component').then(
+        (m) => m.MemorizationPlatformPageComponent
       ),
   },
   {
-    path: 'profile',
+    path: '',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/profile/pages/profile-page/profile-page.component').then((m) => m.ProfilePageComponent),
-  },
-  {
-    path: 'competitions',
-    canActivate: [authGuard],
+    loadComponent: () => import('./core/layout/shell/shell.component').then((m) => m.ShellComponent),
     children: [
       {
-        path: '',
-        canActivate: [permissionGuard(Permission.CompetitionsRead)],
+        path: 'dashboard',
         loadComponent: () =>
-          import('./features/competitions/pages/competitions-list-page/competitions-list-page.component').then(
-            (m) => m.CompetitionsListPageComponent
+          import('./features/dashboard/pages/dashboard-page/dashboard-page.component').then(
+            (m) => m.DashboardPageComponent
           ),
       },
       {
-        path: ':id/participants',
-        canActivate: [permissionGuard(Permission.ParticipantsRead)],
+        path: 'profile',
         loadComponent: () =>
-          import(
-            './features/competitions/pages/competition-participants-page/competition-participants-page.component'
-          ).then((m) => m.CompetitionParticipantsPageComponent),
-      },
-    ],
-  },
-  {
-    path: 'users',
-    canActivate: [authGuard],
-    children: [
-      {
-        path: '',
-        canActivate: [permissionGuard(Permission.UsersRead)],
-        loadComponent: () =>
-          import('./features/users/pages/users-list-page/users-list-page.component').then(
-            (m) => m.UsersListPageComponent
-          ),
+          import('./features/profile/pages/profile-page/profile-page.component').then((m) => m.ProfilePageComponent),
       },
       {
-        path: 'new',
-        canActivate: [permissionGuard(Permission.UserCreate)],
-        loadComponent: () =>
-          import('./features/users/pages/user-form-page/user-form-page.component').then(
-            (m) => m.UserFormPageComponent
-          ),
+        path: 'competitions',
+        children: [
+          {
+            path: '',
+            canActivate: [permissionGuard(Permission.CompetitionsRead)],
+            loadComponent: () =>
+              import('./features/competitions/pages/competitions-list-page/competitions-list-page.component').then(
+                (m) => m.CompetitionsListPageComponent
+              ),
+          },
+          {
+            path: ':id/participants',
+            canActivate: [permissionGuard(Permission.ParticipantsRead)],
+            loadComponent: () =>
+              import(
+                './features/competitions/pages/competition-participants-page/competition-participants-page.component'
+              ).then((m) => m.CompetitionParticipantsPageComponent),
+          },
+        ],
       },
       {
-        path: ':nationalId/details',
-        canActivate: [permissionGuard(Permission.UserDetailsRead)],
-        loadComponent: () =>
-          import('./features/users/pages/user-detail-page/user-detail-page.component').then(
-            (m) => m.UserDetailPageComponent
-          ),
+        path: 'users',
+        children: [
+          {
+            path: '',
+            canActivate: [permissionGuard(Permission.UsersRead)],
+            loadComponent: () =>
+              import('./features/users/pages/users-list-page/users-list-page.component').then(
+                (m) => m.UsersListPageComponent
+              ),
+          },
+          {
+            path: 'new',
+            canActivate: [permissionGuard(Permission.UserCreate)],
+            loadComponent: () =>
+              import('./features/users/pages/user-form-page/user-form-page.component').then(
+                (m) => m.UserFormPageComponent
+              ),
+          },
+          {
+            path: ':nationalId/details',
+            canActivate: [permissionGuard(Permission.UserDetailsRead)],
+            loadComponent: () =>
+              import('./features/users/pages/user-detail-page/user-detail-page.component').then(
+                (m) => m.UserDetailPageComponent
+              ),
+          },
+          {
+            path: ':nationalId/evaluate/:competitionUserId',
+            canActivate: [permissionGuard(Permission.ParticipantUpdate)],
+            loadComponent: () =>
+              import('./features/users/pages/evaluation-page/evaluation-page.component').then(
+                (m) => m.EvaluationPageComponent
+              ),
+          },
+          {
+            path: ':nationalId/edit',
+            canActivate: [permissionGuard(Permission.UserUpdate)],
+            loadComponent: () =>
+              import('./features/users/pages/user-form-page/user-form-page.component').then(
+                (m) => m.UserFormPageComponent
+              ),
+          },
+        ],
       },
       {
-        path: ':nationalId/evaluate/:competitionUserId',
-        canActivate: [permissionGuard(Permission.ParticipantUpdate)],
-        loadComponent: () =>
-          import('./features/users/pages/evaluation-page/evaluation-page.component').then(
-            (m) => m.EvaluationPageComponent
-          ),
-      },
-      {
-        path: ':nationalId/edit',
-        canActivate: [permissionGuard(Permission.UserUpdate)],
-        loadComponent: () =>
-          import('./features/users/pages/user-form-page/user-form-page.component').then(
-            (m) => m.UserFormPageComponent
-          ),
-      },
-    ],
-  },
-  {
-    path: 'system-management',
-    canActivate: [authGuard],
-    children: [
-      {
-        path: 'requests',
-        canActivate: [permissionGuard(Permission.UserCreate)],
-        loadComponent: () =>
-          import('./features/system-management/pages/requests-list-page/requests-list-page.component').then(
-            (m) => m.RequestsListPageComponent
-          ),
-      },
-      {
-        path: 'requests/:id/similarities',
-        canActivate: [permissionGuard(Permission.UserCreate)],
-        loadComponent: () =>
-          import(
-            './features/system-management/pages/registration-similarity-request-detail-page/registration-similarity-request-detail-page.component'
-          ).then((m) => m.RegistrationSimilarityRequestDetailPageComponent),
-      },
-      {
-        path: 'requests/:id/reset-password',
-        canActivate: [permissionGuard(Permission.UserCreate)],
-        loadComponent: () =>
-          import(
-            './features/system-management/pages/reset-password-request-detail-page/reset-password-request-detail-page.component'
-          ).then((m) => m.ResetPasswordRequestDetailPageComponent),
-      },
-      {
-        path: 'lookups',
-        canActivate: [permissionGuard(Permission.systemCodesRead)],
-        loadComponent: () =>
-          import(
-            './features/system-management/pages/lookup-management-page/lookup-management-page.component'
-          ).then((m) => m.LookupManagementPageComponent),
+        path: 'system-management',
+        children: [
+          {
+            path: 'requests',
+            canActivate: [permissionGuard(Permission.UserCreate)],
+            loadComponent: () =>
+              import('./features/system-management/pages/requests-list-page/requests-list-page.component').then(
+                (m) => m.RequestsListPageComponent
+              ),
+          },
+          {
+            path: 'requests/:id/similarities',
+            canActivate: [permissionGuard(Permission.UserCreate)],
+            loadComponent: () =>
+              import(
+                './features/system-management/pages/registration-similarity-request-detail-page/registration-similarity-request-detail-page.component'
+              ).then((m) => m.RegistrationSimilarityRequestDetailPageComponent),
+          },
+          {
+            path: 'requests/:id/reset-password',
+            canActivate: [permissionGuard(Permission.UserCreate)],
+            loadComponent: () =>
+              import(
+                './features/system-management/pages/reset-password-request-detail-page/reset-password-request-detail-page.component'
+              ).then((m) => m.ResetPasswordRequestDetailPageComponent),
+          },
+          {
+            path: 'lookups',
+            canActivate: [permissionGuard(Permission.systemCodesRead)],
+            loadComponent: () =>
+              import(
+                './features/system-management/pages/lookup-management-page/lookup-management-page.component'
+              ).then((m) => m.LookupManagementPageComponent),
+          },
+        ],
       },
     ],
   },

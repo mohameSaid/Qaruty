@@ -20,12 +20,121 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+.platform-ad {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: linear-gradient(120deg, rgba(20, 98, 69, 0.08), rgba(212, 175, 55, 0.1));
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.platform-ad:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 0 12px 28px -16px rgba(20, 98, 69, 0.45);
+}
+
+.platform-ad-glow {
+  position: absolute;
+  top: -3rem;
+  inset-inline-end: -2rem;
+  width: 12rem;
+  height: 12rem;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.25);
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+.platform-ad-icon {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(20, 98, 69, 0.12);
+  color: #146245;
+}
+
+.platform-ad-body {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.platform-ad-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #146245;
+  margin-bottom: 4px;
+}
+
+.platform-ad-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1a7d58;
+  animation: platform-ad-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes platform-ad-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+}
+
+.platform-ad-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.platform-ad-desc {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.platform-ad-arrow {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  color: #146245;
+}
+
 .profile-header {
   display: flex;
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
   flex-wrap: wrap;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    justify-content: center;
+  }
 }
 
 .profile-heading {
