@@ -134,9 +134,6 @@
                       <mat-option [value]="item.id">{{ item.name.arabic }}</mat-option>
                     }
                   </mat-select>
-                  @if (form.controls.village.hasError('required') && form.controls.village.touched) {
-                    <mat-error>القرية مطلوبة.</mat-error>
-                  }
                 </mat-form-field>
               </div>
             }

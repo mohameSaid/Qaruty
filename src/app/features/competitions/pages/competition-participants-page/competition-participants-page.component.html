@@ -41,6 +41,7 @@
     [sortDirection]="store.sortDirection()"
     [loading]="store.loading()"
     [isEmpty]="store.isEmpty()"
+    [competitionActive]="store.competition()?.active ?? true"
     (page)="onPage($event)"
     (sortChange)="onSortChange($event)"
     (view)="onView($event)"

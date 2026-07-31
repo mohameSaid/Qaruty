@@ -105,7 +105,7 @@ export const routes: Routes = [
           },
           {
             path: ':nationalId/evaluate/:competitionUserId',
-            canActivate: [permissionGuard(Permission.ParticipantUpdate)],
+            canActivate: [permissionGuard(Permission.CompetitionDetailsRead)],
             loadComponent: () =>
               import('./features/users/pages/evaluation-page/evaluation-page.component').then(
                 (m) => m.EvaluationPageComponent
@@ -113,7 +113,7 @@ export const routes: Routes = [
           },
           {
             path: ':nationalId/evaluate-v2/:competitionUserId',
-            canActivate: [permissionGuard(Permission.ParticipantUpdate)],
+            canActivate: [permissionGuard(Permission.CompetitionDetailsRead)],
             loadComponent: () =>
               import('./features/users/pages/evaluation-page-v2/evaluation-page-v2.component').then(
                 (m) => m.EvaluationPageV2Component

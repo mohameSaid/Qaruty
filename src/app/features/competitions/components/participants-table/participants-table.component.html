@@ -98,58 +98,62 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>إجراءات</th>
             <td mat-cell *matCellDef="let p">
+              @if (canManage()) {
+                <button
+                  *appHasPermission="Permission.UserDetailsRead"
+                  mat-icon-button
+                  matTooltip="عرض بيانات المستخدم"
+                  (click)="onView(p)"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              }
               <button
-                *appHasPermission="Permission.UserDetailsRead"
-                mat-icon-button
-                matTooltip="عرض بيانات المستخدم"
-                (click)="onView(p)"
-              >
-                <mat-icon>visibility</mat-icon>
-              </button>
-              <button
-                *appHasPermission="Permission.TesterEvaluate"
+                *appHasPermission="Permission.CompetitionDetailsRead"
                 mat-icon-button
                 matTooltip="تقييم"
                 (click)="onEvaluate(p)"
               >
                 <mat-icon>grading</mat-icon>
               </button>
-              @if (p.deleted) {
+              @if (canManage()) {
+                @if (p.deleted) {
+                  <button
+                    *appHasPermission="[Permission.ParticipantDeactivate, Permission.ParticipantDeactivateSelf]"
+                    mat-icon-button
+                    matTooltip="إعادة تفعيل التسجيل"
+                    (click)="onActivate(p)"
+                  >
+                    <mat-icon>check_circle</mat-icon>
+                  </button>
+                } @else {
+                  <button
+                    *appHasPermission="[Permission.ParticipantDeactivate, Permission.ParticipantDeactivateSelf]"
+                    mat-icon-button
+                    matTooltip="إلغاء تفعيل التسجيل"
+                    (click)="onDeactivate(p)"
+                  >
+                    <mat-icon>block</mat-icon>
+                  </button>
+                  <button
+                    *appHasPermission="[Permission.ParticipantUpdate, Permission.ParticipantUpdateSelf]"
+                    mat-icon-button
+                    matTooltip="تعديل التسجيل"
+                    (click)="onEditItem(p)"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                }
                 <button
-                  *appHasPermission="[Permission.ParticipantDeactivate, Permission.ParticipantDeactivateSelf]"
+                  *appHasPermission="[Permission.ParticipantDelete, Permission.ParticipantDeleteSelf]"
                   mat-icon-button
-                  matTooltip="إعادة تفعيل التسجيل"
-                  (click)="onActivate(p)"
+                  color="warn"
+                  matTooltip="حذف التسجيل نهائيًا"
+                  (click)="onDelete(p)"
                 >
-                  <mat-icon>check_circle</mat-icon>
-                </button>
-              } @else {
-                <button
-                  *appHasPermission="[Permission.ParticipantDeactivate, Permission.ParticipantDeactivateSelf]"
-                  mat-icon-button
-                  matTooltip="إلغاء تفعيل التسجيل"
-                  (click)="onDeactivate(p)"
-                >
-                  <mat-icon>block</mat-icon>
-                </button>
-                <button
-                  *appHasPermission="[Permission.ParticipantUpdate, Permission.ParticipantUpdateSelf]"
-                  mat-icon-button
-                  matTooltip="تعديل التسجيل"
-                  (click)="onEditItem(p)"
-                >
-                  <mat-icon>edit</mat-icon>
+                  <mat-icon>delete_forever</mat-icon>
                 </button>
               }
-              <button
-                *appHasPermission="[Permission.ParticipantDelete, Permission.ParticipantDeleteSelf]"
-                mat-icon-button
-                color="warn"
-                matTooltip="حذف التسجيل نهائيًا"
-                (click)="onDelete(p)"
-              >
-                <mat-icon>delete_forever</mat-icon>
-              </button>
             </td>
           </ng-container>
 

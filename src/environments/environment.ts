@@ -8,5 +8,5 @@ export const environment = {
 
   // baseUrl: "https://qaryati-java-production.up.railway.app",
   // baseUrl: "https://qaryati-uat.onrender.com",
-  releaseVersion: "0.1.4",
+  releaseVersion: "0.1.6",
 };

@@ -228,7 +228,7 @@ export class EvaluationPageV2Component implements OnInit {
    */
   private loadPreviousGrades(participantEntryId: number): void {
     this.competitionService
-      .getParticipantEvaluation(this.user()?.id ?? 0)
+      .getParticipantEvaluation(this.currentEntry()?.id ?? 0)
       .pipe(catchError(() => of(null)))
       .subscribe((detail) => {
         const grades = detail?.grades ?? [];
@@ -431,7 +431,7 @@ export class EvaluationPageV2Component implements OnInit {
   }
 
   private persist(): void {
-    const participant = this.user();
+    const participant = this.currentEntry();
     const testerId = this.authService.currentUserId();
     if (!participant || !testerId) {
       return;

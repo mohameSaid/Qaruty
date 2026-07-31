@@ -94,8 +94,8 @@ export class RegisterPageComponent {
   readonly form = this.fb.nonNullable.group({
     nationalId: ["", [Validators.required, nationalIdValidator()]],
     arabicName: ["", [Validators.required, minWordsValidator(3)]],
-    governorate: this.fb.control<number | null>(null),
-    city: this.fb.control<number | null>(null),
+    governorate: this.fb.control<number | null>(DEFAULT_ADDRESS.governorate),
+    city: this.fb.control<number | null>(DEFAULT_ADDRESS.city),
     village: this.fb.control<number | null>(null),
     email: ["", [Validators.email]],
     mobileNumber: ["", [Validators.required, mobileNumberValidator()]],
@@ -127,7 +127,7 @@ export class RegisterPageComponent {
       .subscribe((governorateId) => {
         this.cities.set([]);
         this.villages.set([]);
-        this.form.controls.city.reset(null, { emitEvent: false });
+        this.form.controls.city.reset(DEFAULT_ADDRESS.city, { emitEvent: false });
         this.form.controls.village.reset(null, { emitEvent: false });
 
         if (governorateId === null) {
@@ -169,9 +169,10 @@ export class RegisterPageComponent {
       city.clearValidators();
       village.clearValidators();
     } else {
+      governorate.reset(DEFAULT_ADDRESS.governorate);
+      city.reset(DEFAULT_ADDRESS.city);
       governorate.setValidators(Validators.required);
       city.setValidators(Validators.required);
-      village.setValidators(Validators.required);
     }
     governorate.updateValueAndValidity();
     city.updateValueAndValidity();

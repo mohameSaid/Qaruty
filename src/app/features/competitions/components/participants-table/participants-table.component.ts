@@ -11,6 +11,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ParticipantListItem } from '../../models/participant.model';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permission } from '../../../../core/models/permission.model';
+import { Role } from '../../../../core/models/role.model';
+import { AuthService } from '../../../../core/services/auth.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -33,6 +35,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
 export class ParticipantsTableComponent {
   readonly Permission = Permission;
   private readonly dialog = inject(MatDialog);
+  private readonly auth = inject(AuthService);
 
   readonly participants = input.required<ParticipantListItem[]>();
   readonly totalElements = input<number>(0);
@@ -42,6 +45,12 @@ export class ParticipantsTableComponent {
   readonly sortDirection = input<'ASC' | 'DESC'>('DESC');
   readonly loading = input<boolean>(false);
   readonly isEmpty = input<boolean>(false);
+  /** When the competition is inactive, every row action except "evaluate" is hidden — unless the user is an admin. */
+  readonly competitionActive = input<boolean>(true);
+
+  readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
+  /** Admins can always manage registrations; everyone else only while the competition is active. */
+  readonly canManage = computed(() => this.isAdmin() || this.competitionActive());
 
   readonly page = output<PageEvent>();
   readonly sortChange = output<Sort>();
