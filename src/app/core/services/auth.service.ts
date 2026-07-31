@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of, tap } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope } from '../models/api-response.model';
 import { AuthSession, ChangePasswordRequest, LoginRequest, LoginResponse } from '../models/auth.model';
@@ -19,6 +19,8 @@ export class AuthService {
   readonly session = this._session.asReadonly();
   readonly isAuthenticated = computed(() => this._session() !== null);
   readonly nationalId = computed(() => this._session()?.nationalId ?? null);
+  /** `user.id` fetched right after login; use this (not `userId`) to identify the signed-in user elsewhere in the app. */
+  readonly currentUserId = computed(() => this._session()?.currentUserId ?? null);
 
   get token(): string | null {
     return this._session()?.accessToken ?? null;
@@ -41,7 +43,8 @@ export class AuthService {
 
     return this.http.post<ApiEnvelope<LoginResponse>>(`${this.baseUrl}/login`, payload).pipe(
       map((res) => res.data),
-      tap((data) => this.storeSession(data))
+      tap((data) => this.storeSession(data)),
+      switchMap((data) => this.fetchCurrentUserId(data.nationalId).pipe(map(() => data)))
     );
   }
 
@@ -60,6 +63,30 @@ export class AuthService {
     return this.http.post<ApiEnvelope<unknown>>(`${this.baseUrl}/change-password`, payload);
   }
 
+  /** GET /user/{nationalId}?type=NATIONAL_ID (same lookup as the profile page) to resolve `user.id` and persist it as `currentUserId`. */
+  private fetchCurrentUserId(nationalId: number): Observable<void> {
+    const params = new HttpParams().set('type', 'NATIONAL_ID');
+
+    return this.http
+      .get<ApiEnvelope<{ id: number }>>(`${environment.baseUrl}/user/${nationalId}`, { params })
+      .pipe(
+        tap((res) => this.persistSession({ currentUserId: res.data.id })),
+        map(() => void 0),
+        catchError(() => of(void 0))
+      );
+  }
+
+  private persistSession(patch: Partial<AuthSession>): void {
+    const current = this._session();
+    if (!current) {
+      return;
+    }
+
+    const session: AuthSession = { ...current, ...patch };
+    this._session.set(session);
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+  }
+
   private storeSession(data: LoginResponse): void {
     const session: AuthSession = {
       accessToken: data.accessToken,
@@ -68,6 +95,7 @@ export class AuthService {
       nationalId: data.nationalId,
       roles: data.roles,
       permissions: data.permissions,
+      currentUserId: null,
     };
 
     this._session.set(session);

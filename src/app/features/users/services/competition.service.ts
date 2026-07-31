@@ -8,6 +8,7 @@ import {
   RegisterCompetitionRequest,
   UpdateCompetitionRequest,
 } from '../models/competition.model';
+import { ParticipantEvaluationDetail } from '../models/exam.model';
 
 export interface GetCompetitionHistoryOptions {
   pageNo: number;
@@ -34,6 +35,13 @@ export class CompetitionService {
 
     return this.http
       .get<ApiEnvelope<PagedData<CompetitionHistoryItem>>>(this.baseUrl, { params })
+      .pipe(map((res) => res.data));
+  }
+
+  /** Full participant record including previously submitted exam grades — `GET /participant/{id}`. */
+  getParticipantEvaluation(id: number): Observable<ParticipantEvaluationDetail> {
+    return this.http
+      .get<ApiEnvelope<ParticipantEvaluationDetail>>(`${this.baseUrl}/${id}`)
       .pipe(map((res) => res.data));
   }
 

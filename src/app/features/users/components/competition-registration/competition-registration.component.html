@@ -64,6 +64,13 @@
               إجراءات
             </th>
             <td class="text-center" mat-cell *matCellDef="let row">
+              <button
+                mat-icon-button
+                matTooltip="عرض النتيجة"
+                (click)="onViewDetails(row)"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
               @if (row.competition.active) {
                 <!--  <button
                 mat-icon-button

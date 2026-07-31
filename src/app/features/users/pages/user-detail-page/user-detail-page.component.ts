@@ -107,7 +107,14 @@ export class UserDetailPageComponent implements OnInit {
   onEvaluate(item: CompetitionHistoryItem): void {
     const id = this.nationalId();
     if (id) {
-      this.router.navigate(["/users", id, "evaluate", item.id]);
+      this.router.navigate(["/users", id, "evaluate-v2", item.id]);
+    }
+  }
+
+  onViewDetails(item: CompetitionHistoryItem): void {
+    const id = this.nationalId();
+    if (id) {
+      this.router.navigate(["/users", id, "result", item.id]);
     }
   }
 

@@ -50,9 +50,41 @@ export interface QuranQuestion {
   direction?: 'before' | 'after';
 }
 
-/** Fixed number of memorization questions generated per evaluation. */
-export const QURAN_QUESTION_COUNT = 10;
 /** Number of ayahs revealed as the answer for a CONTINUE_NEXT / START_FROM_AYAH question. */
 export const QURAN_CONTINUE_LENGTH = 10;
 /** Score range per Quran question, same 0-10 scale as the other evaluation criteria. */
 export const QURAN_MAX_QUESTION_SCORE = 10;
+
+/** One fixed exam-sheet item as authored in `quran_competition_data.json`. */
+export interface QuranCompetitionItem {
+  number: number;
+  label?: string;
+  surah?: string;
+  ayah?: number | string;
+  text?: string;
+  note?: string;
+}
+
+/** One page of `quran_competition_data.json` — a single level+model exam sheet. */
+export interface QuranCompetitionPage {
+  page: number;
+  level: string | null;
+  levelId: number | null;
+  model: string;
+  note?: string;
+  items: QuranCompetitionItem[];
+}
+
+/** Shape of `assets/quran/quran_competition_data.json`. */
+export interface QuranCompetitionData {
+  competition_title: string;
+  edition: string;
+  pages: QuranCompetitionPage[];
+}
+
+/** One selectable "model" (exam sheet) for a given competition level. */
+export interface QuranModelOption {
+  modelNumber: number;
+  label: string;
+  pageNumber: number;
+}

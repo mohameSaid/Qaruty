@@ -51,4 +51,9 @@ export enum Permission {
   systemCodesCreate = 'SYSTEM_CODES_CREATE',
   systemCodesDelete = 'SYSTEM_CODES_DELETE',
 
+  TestersRead = 'TESTERS_READ',
+  TesterEvaluate = 'TESTER_EVALUATE',
+
+  ExamsRead = 'EXAMS_READ',
+  ExamDetailsRead = 'EXAM_DETAILS_READ',
 }

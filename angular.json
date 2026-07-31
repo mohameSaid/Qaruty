@@ -26,6 +26,11 @@
                 "output": "assets/quran"
               },
               {
+                "glob": "quran_competition_data.json",
+                "input": "src/app/shared/assets/kfgqpc_hafs_smart_font",
+                "output": "assets/quran"
+              },
+              {
                 "glob": "*.mp4",
                 "input": "src/app/shared/assets/quran-vedio",
                 "output": "assets/quran-videos"

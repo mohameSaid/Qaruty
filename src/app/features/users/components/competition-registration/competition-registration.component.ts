@@ -57,6 +57,7 @@ export class CompetitionRegistrationComponent {
   readonly register = output<RegisterCompetitionRequest>();
   readonly edit = output<UpdateCompetitionRequest>();
   readonly evaluate = output<CompetitionHistoryItem>();
+  readonly viewDetails = output<CompetitionHistoryItem>();
   readonly deactivate = output<CompetitionHistoryItem>();
   readonly activate = output<CompetitionHistoryItem>();
   readonly delete = output<CompetitionHistoryItem>();
@@ -92,6 +93,10 @@ export class CompetitionRegistrationComponent {
 
   onEvaluate(item: CompetitionHistoryItem): void {
     this.evaluate.emit(item);
+  }
+
+  onViewDetails(item: CompetitionHistoryItem): void {
+    this.viewDetails.emit(item);
   }
 
   onDeactivate(item: CompetitionHistoryItem): void {

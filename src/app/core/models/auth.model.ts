@@ -22,6 +22,8 @@ export interface AuthSession {
   nationalId: number;
   roles: string[];
   permissions: string[];
+  /** `user.id` from GET /user/{nationalId}?type=NATIONAL_ID, fetched right after login. */
+  currentUserId: number | null;
 }
 
 /** Payload for POST auth/change-password. */

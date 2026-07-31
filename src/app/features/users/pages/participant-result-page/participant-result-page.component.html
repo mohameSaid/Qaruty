@@ -1,0 +1,64 @@
+<div class="result-page">
+  <button mat-button class="back-link" (click)="onBack()">
+    <mat-icon>arrow_forward</mat-icon>
+    العودة إلى بيانات المستخدم
+  </button>
+
+  @if (loading()) {
+    <div class="state-panel">
+      <mat-progress-spinner diameter="36" mode="indeterminate" />
+      <p>جارٍ تحميل النتيجة…</p>
+    </div>
+  } @else if (loadError() || !detail()) {
+    <div class="state-panel">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>تعذر تحميل نتيجة هذا المتسابق.</p>
+      <button mat-stroked-button (click)="onBack()">العودة</button>
+    </div>
+  } @else {
+    <mat-card class="section-card intro-card">
+      <mat-card-header>
+        <mat-card-title dir="rtl">{{ detail()!.user.name.arabic }}</mat-card-title>
+        <mat-card-subtitle dir="rtl">
+          {{ detail()!.competition.name.arabic }} —
+          {{ detail()!.level.name.arabic }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="summary-row">
+          <span class="summary-label">الدرجة الكلية</span>
+          <span class="summary-value">{{ detail()!.score ?? "—" }} / 100</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    @if (examGroups().length === 0) {
+      <p class="empty-hint">لا توجد نتائج مسجلة لهذا المتسابق بعد.</p>
+    } @else {
+      @for (group of examGroups(); track group.examId) {
+        <mat-card class="section-card exam-card">
+          <mat-card-header>
+            <mat-card-title dir="rtl">{{ group.examName }}</mat-card-title>
+            <mat-card-subtitle
+              >مجموع درجات هذا الاختبار: {{ group.total }} /
+              {{ group.max }}</mat-card-subtitle
+            >
+          </mat-card-header>
+          <mat-card-content>
+            <div class="questions-list">
+              @for (row of group.entries; track row.questionId) {
+                <div class="question-row">
+                  <div class="question-info">
+                    <span class="question-index">{{ row.rank }}</span>
+                    <span class="question-name" dir="rtl">{{ row.name }}</span>
+                  </div>
+                  <span class="score-badge">{{ row.grade }} / 10</span>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    }
+  }
+</div>

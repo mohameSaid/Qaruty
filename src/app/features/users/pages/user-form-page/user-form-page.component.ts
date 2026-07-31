@@ -258,7 +258,7 @@ export class UserFormPageComponent implements OnInit {
   onEvaluate(item: CompetitionHistoryItem): void {
     const person = this.finalizedPerson();
     if (person) {
-      this.router.navigate(["/users", person.id, "evaluate", item.id]);
+      this.router.navigate(["/users", person.id, "evaluate-v2", item.id]);
     }
   }
 

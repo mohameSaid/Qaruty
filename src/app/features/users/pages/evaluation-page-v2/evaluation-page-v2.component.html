@@ -37,39 +37,39 @@
                 <div>
                   <mat-card-title>أسئلة الحفظ القرآني</mat-card-title>
                   <mat-card-subtitle>
-                    أسئلة النموذج المختار حسب مستوى المتسابق ({{
+                    أسئلة الاختبار المختار حسب مستوى المتسابق ({{
                       currentEntry()!.level.name.arabic
                     }}) — كل سؤال من {{ maxQuranQuestionScore }} درجات
                   </mat-card-subtitle>
                 </div>
               </div>
-              @if (quranModelOptions().length > 0) {
-                <mat-form-field appearance="outline" class="model-select">
-                  <mat-label>النموذج</mat-label>
+            </mat-card-header>
+
+            <mat-card-content>
+              @if (examOptions().length > 0) {
+                <mat-form-field appearance="outline" class="model-select full-width">
+                  <mat-label>الاختبار</mat-label>
                   <mat-select
-                    [value]="selectedModelNumber()"
-                    (selectionChange)="onModelChange($event.value)"
+                    [value]="selectedExamId()"
+                    (selectionChange)="onExamChange($event.value)"
                   >
-                    @for (opt of quranModelOptions(); track opt.modelNumber) {
-                      <mat-option [value]="opt.modelNumber">{{
-                        opt.label
+                    @for (opt of examOptions(); track opt.id) {
+                      <mat-option [value]="opt.id">{{
+                        opt.name.arabic
                       }}</mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
               }
-            </mat-card-header>
-
-            <mat-card-content>
               @if (quranLoading()) {
                 <div class="state-panel quran-state-panel">
                   <mat-progress-spinner diameter="32" mode="indeterminate" />
-                  <p>جارٍ إعداد أسئلة الحفظ من المصحف الشريف…</p>
+                  <p>جارٍ تحميل أسئلة الاختبار…</p>
                 </div>
               } @else if (quranError()) {
                 <div class="state-panel quran-state-panel">
                   <mat-icon class="error-icon">error_outline</mat-icon>
-                  <p>تعذر تحميل نص القرآن الكريم لإنشاء الأسئلة.</p>
+                  <p>تعذر تحميل أسئلة الاختبار.</p>
                 </div>
               } @else if (quranQuestions().length === 0) {
                 <p class="empty-hint">لا توجد أسئلة متاحة حاليًا.</p>
@@ -84,13 +84,10 @@
                         <mat-panel-title>
                           <span class="quran-question-index">{{ i + 1 }}</span>
                           <span class="quran-question-sura" dir="rtl">
-                            سورة {{ q.suraName }} — الآية {{ q.ayaIndex }}
+                            السؤال {{  i + 1 }}
                           </span>
                         </mat-panel-title>
                         <mat-panel-description>
-                          <span class="type-badge" dir="rtl">{{
-                            quranQuestionTypeLabel[q.type]
-                          }}</span>
                           <span class="score-badge" dir="rtl">
                             {{ quranScores()[q.id] }} /
                             {{ maxQuranQuestionScore }}
@@ -114,79 +111,16 @@
                               : "إظهار السؤال"
                           }}
                         </button>
-                        <!-- <p class="question-reveal-hint" dir="rtl">
-                          يُفضّل توجيه السؤال للمتسابق شفهيًا من الذاكرة أولًا، وإظهار نصه فقط عند الحاجة.
-                        </p> -->
                       </div>
 
                       @if (isQuestionRevealed(q.id)) {
                         <div class="mushaf-frame">
                           <div class="mushaf-heading" dir="rtl">
-                            <span class="sura-name">سورة {{ q.suraName }}</span>
-                            <span class="aya-ref">الآية {{ q.ayaIndex }}</span>
+                            <span class="sura-name">السؤال رقم {{ q.rank }}</span>
                           </div>
-                          @if (q.ayahText) {
-                            <p class="ayah-text" dir="rtl" lang="ar">
-                              {{ q.ayahText }}
-                              <span
-                                class="ayah-number"
-                                [attr.data-num]="q.ayaIndex"
-                              ></span>
-                            </p>
-                          } @else {
-                            <p class="ayah-text ayah-text-hidden" dir="rtl">
-                              — نص الآية مخفي، يبدأ المتسابق من المرجع أعلاه —
-                            </p>
-                          }
-                          <p class="mushaf-instruction" dir="rtl">
-                            {{ quranQuestionInstruction(q) }}
+                          <p class="ayah-text" dir="rtl" lang="ar">
+                            {{ q.name.arabic }}
                           </p>
-                        </div>
-
-                        <div class="answer-reveal">
-                          <button
-                            mat-stroked-button
-                            type="button"
-                            class="reveal-toggle"
-                            (click)="toggleAnswer(q.id)"
-                          >
-                            <mat-icon>{{
-                              isAnswerRevealed(q.id)
-                                ? "visibility_off"
-                                : "visibility"
-                            }}</mat-icon>
-                            {{
-                              isAnswerRevealed(q.id)
-                                ? "إخفاء الإجابة"
-                                : "إظهار الإجابة (للمقيّم فقط)"
-                            }}
-                          </button>
-
-                          @if (isAnswerRevealed(q.id)) {
-                            <div class="mushaf-frame answer-frame" dir="rtl">
-                              <span class="answer-range">{{
-                                quranAnswerRangeLabel(q)
-                              }}</span>
-                              @if (q.answerAyahs.length > 0) {
-                                <p
-                                  class="ayah-text answer-text"
-                                  dir="rtl"
-                                  lang="ar"
-                                >
-                                  @for (
-                                    a of q.answerAyahs;
-                                    track a.globalIndex
-                                  ) {
-                                    {{ a.text }}
-                                    <span
-                                      class="ayah-number"
-                                      [attr.data-num]="a.ayaIndex"
-                                    ></span>
-                                  }
-                                </p>
-                              }
-                            </div>
-                          }
                         </div>
                       }
 
@@ -209,25 +143,11 @@
                           {{ maxQuranQuestionScore }}
                         </span>
                       </div>
-
-                      <mat-form-field
-                        appearance="outline"
-                        class="full-width quran-notes-field"
-                      >
-                        <mat-label>ملاحظات المقيّم على هذا السؤال</mat-label>
-                        <textarea
-                          matInput
-                          rows="2"
-                          dir="rtl"
-                          [ngModel]="quranNotes()[q.id]"
-                          (ngModelChange)="setQuranNotes(q.id, $event)"
-                        ></textarea>
-                      </mat-form-field>
                     </mat-expansion-panel>
                   }
                 </mat-accordion>
 
-                <div class="summary-row quran-summary-row">
+                <!-- <div class="summary-row quran-summary-row">
                   <div class="summary-total">
                     <span class="summary-label">مجموع درجات الحفظ</span>
                     <span class="summary-value"
@@ -240,7 +160,7 @@
                   mode="determinate"
                   [value]="quranProgressPercent()"
                   color="primary"
-                />
+                /> -->
               }
             </mat-card-content>
           </mat-card>
@@ -308,22 +228,6 @@
             إلغاء
           </button>
           <span class="actions-spacer"></span>
-          <button
-            mat-stroked-button
-            color="primary"
-            type="button"
-            [disabled]="busy()"
-            (click)="saveDraft()"
-          >
-            @if (savingDraft()) {
-              <span class="spinner-inline">
-                <mat-progress-spinner diameter="18" mode="indeterminate" />
-                جارٍ الحفظ&hellip;
-              </span>
-            } @else {
-              <span><mat-icon>save</mat-icon> حفظ كمسودة</span>
-            }
-          </button>
           <button
             mat-flat-button
             color="primary"

@@ -112,6 +112,22 @@ export const routes: Routes = [
               ),
           },
           {
+            path: ':nationalId/evaluate-v2/:competitionUserId',
+            canActivate: [permissionGuard(Permission.ParticipantUpdate)],
+            loadComponent: () =>
+              import('./features/users/pages/evaluation-page-v2/evaluation-page-v2.component').then(
+                (m) => m.EvaluationPageV2Component
+              ),
+          },
+          {
+            path: ':nationalId/result/:competitionUserId',
+            canActivate: [permissionGuard(Permission.UserDetailsRead, Permission.UserDetailsReadSelf)],
+            loadComponent: () =>
+              import('./features/users/pages/participant-result-page/participant-result-page.component').then(
+                (m) => m.ParticipantResultPageComponent
+              ),
+          },
+          {
             path: ':nationalId/edit',
             canActivate: [permissionGuard(Permission.UserUpdate, Permission.UserUpdateSelf)],
             loadComponent: () =>

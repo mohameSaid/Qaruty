@@ -92,7 +92,7 @@ export class CompetitionParticipantsPageComponent implements OnInit {
     if (!id) {
       return;
     }
-    this.router.navigate(['/users', id, 'evaluate', participant.id]);
+    this.router.navigate(['/users', id, 'evaluate-v2', participant.id]);
   }
 
   /** Opens the shared registration form in a modal, pre-filled to edit this participant's registration. */

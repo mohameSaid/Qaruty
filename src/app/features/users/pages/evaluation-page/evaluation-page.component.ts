@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { catchError, finalize, of } from 'rxjs';
@@ -34,6 +35,7 @@ import {
 import {
   QURAN_MAX_QUESTION_SCORE,
   QURAN_QUESTION_TYPE_LABELS,
+  QuranModelOption,
   QuranQuestion,
 } from '../../models/quran.model';
 
@@ -58,6 +60,7 @@ type HistoryStatus = 'pending' | 'winner' | 'passed' | 'failed';
     MatInputModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
     MatSliderModule,
     MatTooltipModule,
   ],
@@ -114,6 +117,8 @@ export class EvaluationPageComponent implements OnInit {
   readonly quranLoading = signal(false);
   readonly quranError = signal(false);
   readonly quranQuestions = signal<QuranQuestion[]>([]);
+  readonly quranModelOptions = signal<QuranModelOption[]>([]);
+  readonly selectedModelNumber = signal<number | null>(null);
 
   /** questionId -> score (0-10). */
   readonly quranScores = signal<Record<string, number>>({});
@@ -138,12 +143,15 @@ export class EvaluationPageComponent implements OnInit {
       : Math.min(100, (this.quranTotalScore() / this.quranMaxTotalScore()) * 100)
   );
 
-  /** Overall total across the fixed criteria plus the Quran section (when applicable). */
-  readonly maxTotalScore = computed(
-    () => this.baseMaxTotalScore + (this.isQuranCompetition() ? this.quranMaxTotalScore() : 0)
+  /**
+   * Quran competitions are scored on the 10 memorization questions alone (max 100) — the
+   * fixed criteria section has no UI on this page today, so it must not be added on top.
+   */
+  readonly maxTotalScore = computed(() =>
+    this.isQuranCompetition() ? this.quranMaxTotalScore() : this.baseMaxTotalScore
   );
-  readonly totalScore = computed(
-    () => this.baseTotalScore() + (this.isQuranCompetition() ? this.quranTotalScore() : 0)
+  readonly totalScore = computed(() =>
+    this.isQuranCompetition() ? this.quranTotalScore() : this.baseTotalScore()
   );
   readonly progressPercent = computed(() =>
     this.maxTotalScore() === 0 ? 0 : Math.min(100, (this.totalScore() / this.maxTotalScore()) * 100)
@@ -211,23 +219,61 @@ export class EvaluationPageComponent implements OnInit {
           return;
         }
         if (this.isQuranCompetition()) {
-          this.generateQuranQuestions(current);
+          this.loadQuranModels(current);
         }
       });
   }
 
   /**
-   * Generates 10 random memorization questions scoped to the participant's level
-   * (`current.level.numberOfParts`, the same `level` object returned by
-   * `GET /participant?filters.user.id=...` — already fetched above via `loadHistory`,
-   * so no extra request is needed here).
+   * Loads the available exam-sheet models for the participant's level
+   * (`current.level.id`, matching `levelId` in `quran_competition_data.json`) and
+   * auto-selects the first one so questions appear without an extra click; the
+   * evaluator can still switch models via `onModelChange`.
    */
-  private generateQuranQuestions(current: CompetitionHistoryItem): void {
+  private loadQuranModels(current: CompetitionHistoryItem): void {
     this.quranLoading.set(true);
     this.quranError.set(false);
 
     this.quranService
-      .generateQuestions(current.level?.numberOfParts)
+      .getModelOptions(current.level.id)
+      .pipe(
+        catchError(() => {
+          this.quranError.set(true);
+          return of<QuranModelOption[]>([]);
+        })
+      )
+      .subscribe((options) => {
+        this.quranModelOptions.set(options);
+        if (options.length > 0) {
+          this.selectedModelNumber.set(options[0].modelNumber);
+          this.generateQuranQuestions(current.level.id, options[0].modelNumber);
+        } else {
+          this.selectedModelNumber.set(null);
+          this.quranQuestions.set([]);
+          this.quranScores.set({});
+          this.quranNotes.set({});
+          this.quranLoading.set(false);
+        }
+      });
+  }
+
+  /** Called when the evaluator picks a different model from the dropdown. */
+  onModelChange(modelNumber: number): void {
+    const entry = this.currentEntry();
+    if (!entry) {
+      return;
+    }
+    this.selectedModelNumber.set(modelNumber);
+    this.generateQuranQuestions(entry.level.id, modelNumber);
+  }
+
+  /** Generates the 10 fixed questions from the chosen level+model exam sheet. */
+  private generateQuranQuestions(levelId: number, modelNumber: number): void {
+    this.quranLoading.set(true);
+    this.quranError.set(false);
+
+    this.quranService
+      .generateQuestionsFromModel(levelId, modelNumber)
       .pipe(
         catchError(() => {
           this.quranError.set(true);
