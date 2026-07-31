@@ -411,7 +411,7 @@ export class EvaluationPageV2Component implements OnInit {
   onCancel(): void {
     const hasProgress = this.totalScore() > 0 || this.notes().trim().length > 0;
     if (!hasProgress) {
-      this.goBack();
+      this.goToCompetitionParticipants();
       return;
     }
 
@@ -425,7 +425,7 @@ export class EvaluationPageV2Component implements OnInit {
     });
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
-        this.goBack();
+        this.goToCompetitionParticipants();
       }
     });
   }
@@ -463,7 +463,7 @@ export class EvaluationPageV2Component implements OnInit {
       });
   }
 
-  /** After a successful submission, return to the competition's participants list. */
+  /** After a successful submission (or on cancel), return to the competition's participants list. */
   private goToCompetitionParticipants(): void {
     const competitionId = this.currentEntry()?.competition.id;
     if (competitionId) {
