@@ -39,7 +39,9 @@
             <div class="detail-row">
               <mat-icon>event</mat-icon>
               <dt>تاريخ الإنشاء</dt>
-              <dd>{{ (competition.createdDate | date: "dd/MM/yyyy") ?? "—" }}</dd>
+              <dd>
+                {{ (competition.createdDate | date: "dd/MM/yyyy") ?? "—" }}
+              </dd>
             </div>
           </dl>
 
@@ -59,16 +61,18 @@
                 </span>
               }
             </button> -->
-
-            <button
-              *appHasPermission="Permission.CompetitionDetailsRead"
-              mat-flat-button
-              color="primary" type="button"
-              (click)="onViewParticipants(competition)"
-            >
-              <mat-icon>groups</mat-icon>
-              عرض المشاركين
-            </button>
+            @if (competition.active) {
+              <button
+                *appHasPermission="Permission.CompetitionDetailsRead"
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="onViewParticipants(competition)"
+              >
+                <mat-icon>groups</mat-icon>
+                عرض المشاركين
+              </button>
+            }
           </div>
         </mat-card-content>
       </mat-card>

@@ -49,8 +49,6 @@ export class ParticipantsTableComponent {
   readonly competitionActive = input<boolean>(true);
 
   readonly isAdmin = computed(() => this.auth.hasRole(Role.Admin));
-  /** Admins can always manage registrations; everyone else only while the competition is active. */
-  readonly canManage = computed(() => this.isAdmin() || this.competitionActive());
 
   readonly page = output<PageEvent>();
   readonly sortChange = output<Sort>();
@@ -80,6 +78,18 @@ export class ParticipantsTableComponent {
   readonly skeletonRowIndices = [0, 1, 2, 3, 4, 5];
 
   readonly matSortDirection = computed(() => this.sortDirection().toLowerCase() as 'asc' | 'desc');
+
+  /** Admins can always act; everyone else needs the competition active *and* one of the given permissions. */
+  canPerform(perms: Permission | Permission[]): boolean {
+    if (this.isAdmin()) {
+      return true;
+    }
+    if (!this.competitionActive()) {
+      return false;
+    }
+    const list = Array.isArray(perms) ? perms : [perms];
+    return list.some((perm) => this.auth.hasPermission(perm));
+  }
 
   exceptionNames(participant: ParticipantListItem): string {
     if (!participant.exceptions?.length) {

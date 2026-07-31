@@ -41,10 +41,16 @@
           </ng-container> -->
 
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="user.name.arName">الاسم</th>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header="user.name.arName"
+            >
+              الاسم
+            </th>
             <td mat-cell *matCellDef="let p" data-label="الاسم">
               <div class="name-cell">
-                <span dir="rtl">{{ p.user?.name?.arabic ?? '—' }}</span>
+                <span dir="rtl">{{ p.user?.name?.arabic ?? "—" }}</span>
                 <!-- <span class="secondary-text">{{ p.user?.name?.english ?? '—' }}</span> -->
               </div>
             </td>
@@ -56,40 +62,80 @@
           </ng-container> -->
 
           <ng-container matColumnDef="nationalId">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="user.nationalId">الرقم القومي</th>
-            <td mat-cell *matCellDef="let p" data-label="الرقم القومي">{{ p.user?.nationalId ?? '—' }}</td>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header="user.nationalId"
+            >
+              الرقم القومي
+            </th>
+            <td mat-cell *matCellDef="let p" data-label="الرقم القومي">
+              {{ p.user?.nationalId ?? "—" }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="mobileNumber">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="user.contact.mobileNumber">رقم الهاتف</th>
-            <td mat-cell *matCellDef="let p" data-label="رقم الهاتف">{{ p.user?.mobileNumber ?? '—' }}</td>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header="user.contact.mobileNumber"
+            >
+              رقم الهاتف
+            </th>
+            <td mat-cell *matCellDef="let p" data-label="رقم الهاتف">
+              {{ p.user?.mobileNumber ?? "—" }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="level">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="level.id">المستوى</th>
-            <td mat-cell *matCellDef="let p" data-label="المستوى">{{ p.level?.name?.arabic ?? '—' }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="level.id">
+              المستوى
+            </th>
+            <td mat-cell *matCellDef="let p" data-label="المستوى">
+              {{ p.level?.name?.arabic ?? "—" }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="instructor">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="instructor.id">المعلم</th>
-            <td mat-cell *matCellDef="let p" data-label="المعلم">{{ p.instructor?.name?.arabic ?? '—' }}</td>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header="instructor.id"
+            >
+              المعلم
+            </th>
+            <td mat-cell *matCellDef="let p" data-label="المعلم">
+              {{ p.instructor?.name?.arabic ?? "—" }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="place">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="place.id">المكان</th>
-            <td mat-cell *matCellDef="let p" data-label="المكان">{{ p.place?.name?.arabic ?? '—' }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="place.id">
+              المكان
+            </th>
+            <td mat-cell *matCellDef="let p" data-label="المكان">
+              {{ p.place?.name?.arabic ?? "—" }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="partsCount">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="partsCount">عدد الأجزاء</th>
-            <td mat-cell *matCellDef="let p" data-label="عدد الأجزاء">{{ p.partsCount ?? '—' }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="partsCount">
+              عدد الأجزاء
+            </th>
+            <td mat-cell *matCellDef="let p" data-label="عدد الأجزاء">
+              {{ p.partsCount ?? "—" }}
+            </td>
           </ng-container>
 
-    <ng-container matColumnDef="score">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header="score">  التقييم </th>
-            <td mat-cell *matCellDef="let p" data-label="التقييم">{{ p.score ?? '—' }}</td>
+          <ng-container matColumnDef="score">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="score">
+              التقييم
+            </th>
+            <td mat-cell *matCellDef="let p" data-label="التقييم">
+              {{ p.score ?? "—" }}
+            </td>
           </ng-container>
-      <!--
+          <!--
           <ng-container matColumnDef="exceptions">
             <th mat-header-cell *matHeaderCellDef>الاستثناءات</th>
             <td mat-cell *matCellDef="let p" [matTooltip]="exceptionNames(p)">{{ exceptionNames(p) }}</td>
@@ -98,9 +144,8 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>إجراءات</th>
             <td mat-cell *matCellDef="let p">
-              @if (canManage()) {
+              @if (canPerform(Permission.UserDetailsRead)) {
                 <button
-                  *appHasPermission="Permission.UserDetailsRead"
                   mat-icon-button
                   matTooltip="عرض بيانات المستخدم"
                   (click)="onView(p)"
@@ -116,27 +161,28 @@
               >
                 <mat-icon>grading</mat-icon>
               </button>
-              @if (canManage()) {
-                @if (p.deleted) {
+              @if (p.deleted) {
+                @if (canPerform([Permission.ParticipantDeactivate])) {
                   <button
-                    *appHasPermission="[Permission.ParticipantDeactivate, Permission.ParticipantDeactivateSelf]"
                     mat-icon-button
                     matTooltip="إعادة تفعيل التسجيل"
                     (click)="onActivate(p)"
                   >
                     <mat-icon>check_circle</mat-icon>
                   </button>
-                } @else {
+                }
+              } @else {
+                @if (canPerform([Permission.ParticipantDeactivate])) {
                   <button
-                    *appHasPermission="[Permission.ParticipantDeactivate, Permission.ParticipantDeactivateSelf]"
                     mat-icon-button
                     matTooltip="إلغاء تفعيل التسجيل"
                     (click)="onDeactivate(p)"
                   >
                     <mat-icon>block</mat-icon>
                   </button>
+                }
+                @if (canPerform([Permission.ParticipantUpdate])) {
                   <button
-                    *appHasPermission="[Permission.ParticipantUpdate, Permission.ParticipantUpdateSelf]"
                     mat-icon-button
                     matTooltip="تعديل التسجيل"
                     (click)="onEditItem(p)"
@@ -144,8 +190,9 @@
                     <mat-icon>edit</mat-icon>
                   </button>
                 }
+              }
+              @if (canPerform([Permission.ParticipantDelete])) {
                 <button
-                  *appHasPermission="[Permission.ParticipantDelete, Permission.ParticipantDeleteSelf]"
                   mat-icon-button
                   color="warn"
                   matTooltip="حذف التسجيل نهائيًا"
@@ -157,8 +204,15 @@
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns" class="data-row"></tr>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns; sticky: true"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            class="data-row"
+          ></tr>
         </table>
       }
     </div>
