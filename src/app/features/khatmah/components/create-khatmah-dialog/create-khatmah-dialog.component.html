@@ -1,0 +1,65 @@
+<h2 mat-dialog-title>إنشاء ختمة جديدة</h2>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="form-grid">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>اسم الختمة</mat-label>
+      <input matInput formControlName="title" maxlength="120" placeholder="مثال: ختمة رمضان لعائلتنا" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>الوصف (اختياري)</mat-label>
+      <textarea matInput formControlName="description" rows="2"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>النية (اختياري)</mat-label>
+      <textarea matInput formControlName="intention" rows="2" placeholder="مثال: عن روح والدي رحمه الله"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>تاريخ البدء</mat-label>
+      <input matInput [matDatepicker]="startPicker" formControlName="start_date" />
+      <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
+      <mat-datepicker #startPicker />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>تاريخ الانتهاء</mat-label>
+      <input matInput [matDatepicker]="endPicker" formControlName="end_date" />
+      <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
+      <mat-datepicker #endPicker />
+    </mat-form-field>
+
+    @if (form.errors?.['dateRange']) {
+      <p class="form-error">تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء.</p>
+    }
+
+    <div class="toggle-row">
+      <mat-slide-toggle formControlName="is_public">ختمة عامة (تظهر في قائمة الختمات العامة)</mat-slide-toggle>
+    </div>
+
+    <div class="theme-row">
+      <span class="theme-row__label">لون الختمة</span>
+      <div class="theme-swatches">
+        @for (color of themeColors; track color.value) {
+          <button
+            type="button"
+            class="theme-swatch"
+            [class.theme-swatch--selected]="form.controls.theme_color.value === color.value"
+            [style.background]="color.value"
+            [attr.aria-label]="color.name"
+            (click)="selectThemeColor(color.value)"
+          ></button>
+        }
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button type="button" mat-button (click)="dialogRef.close()">إلغاء</button>
+    <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid">
+      <mat-icon>auto_stories</mat-icon>
+      إنشاء الختمة
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,72 @@
+.part-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+  background: var(--mat-sys-surface, #fff);
+  min-height: 140px;
+
+  &--reserved {
+    border-color: #d9a441;
+    background: color-mix(in srgb, #d9a441 8%, var(--mat-sys-surface, #fff));
+  }
+
+  &--reading {
+    border-color: #2f7dd1;
+    background: color-mix(in srgb, #2f7dd1 8%, var(--mat-sys-surface, #fff));
+  }
+
+  &--completed {
+    border-color: var(--mat-sys-primary, #0a3327);
+    background: color-mix(in srgb, var(--mat-sys-primary, #0a3327) 8%, var(--mat-sys-surface, #fff));
+  }
+}
+
+.part-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.part-card__number {
+  font-weight: 700;
+}
+
+.part-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.part-card__surah {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+.part-card__reader {
+  margin: 0;
+  font-weight: 600;
+}
+
+.part-card__actions {
+  margin-top: auto;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.part-card__done-hint {
+  font-size: 0.85rem;
+  color: var(--mat-sys-primary, #0a3327);
+}

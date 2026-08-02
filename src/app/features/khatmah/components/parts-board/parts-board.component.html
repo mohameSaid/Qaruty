@@ -1,0 +1,14 @@
+<div class="parts-board">
+  @for (part of parts(); track part.id) {
+    <app-part-card
+      [part]="part"
+      [juzLabel]="juzLabelFor(part)"
+      [isMine]="isMine(part)"
+      [isOwner]="isOwner()"
+      (reserve)="reserve.emit(part)"
+      (openReader)="openReader.emit(part)"
+      (cancel)="cancel.emit(part)"
+      (adminRelease)="adminRelease.emit(part)"
+    />
+  }
+</div>

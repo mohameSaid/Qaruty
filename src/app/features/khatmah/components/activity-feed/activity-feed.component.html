@@ -1,0 +1,11 @@
+<ul class="activity-feed">
+  @if (entries().length === 0) {
+    <li class="activity-feed__empty">لا توجد أنشطة بعد.</li>
+  }
+  @for (entry of entries(); track entry.id) {
+    <li class="activity-feed__item">
+      <mat-icon>{{ iconFor(entry) }}</mat-icon>
+      <span>{{ formatEntry(entry) }}</span>
+    </li>
+  }
+</ul>

@@ -34,6 +34,11 @@
                 "glob": "*.mp4",
                 "input": "src/app/shared/assets/quran-vedio",
                 "output": "assets/quran-videos"
+              },
+              {
+                "glob": "HafsSmart_08.ttf",
+                "input": "src/app/shared/assets/kfgqpc_hafs_smart_font",
+                "output": "assets/fonts"
               }
             ],
             "styles": ["src/styles.scss"],

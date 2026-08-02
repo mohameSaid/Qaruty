@@ -1,0 +1,48 @@
+<div class="page-container">
+  @if (khatmahStore.loading()) {
+    <div class="state-panel">
+      <mat-progress-spinner diameter="36" mode="indeterminate" />
+      <p>جارٍ تحميل الختمة…</p>
+    </div>
+  } @else if (khatmahStore.khatmah(); as khatmah) {
+    <app-khatmah-breadcrumb
+      [items]="[{ label: 'الرئيسية', link: '/' }, { label: 'ختمات جماعية', link: '/khatmah' }, { label: khatmah.title }]"
+    />
+
+    <app-khatmah-summary-header
+      [khatmah]="khatmah"
+      [progressPercent]="partsBoardStore.progressPercent()"
+      [completedCount]="partsBoardStore.completedCount()"
+      [totalCount]="partsBoardStore.totalCount()"
+      [isOwner]="isOwner()"
+      (share)="onShare()"
+      (closeKhatmah)="onCloseKhatmah()"
+    />
+
+    <div class="view-layout">
+      <app-parts-board
+        class="view-layout__board"
+        [parts]="partsBoardStore.parts()"
+        [myPartIds]="myPartIds()"
+        [isOwner]="isOwner()"
+        (reserve)="onReserve($event)"
+        (openReader)="onOpenReader($event)"
+        (cancel)="onCancel($event)"
+        (adminRelease)="onAdminRelease($event)"
+      />
+
+      <aside class="view-layout__activity">
+        <h2>
+          <mat-icon>bolt</mat-icon>
+          آخر الأنشطة
+        </h2>
+        <app-activity-feed [entries]="activityFeedStore.entries()" />
+      </aside>
+    </div>
+  } @else {
+    <div class="state-panel">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>تعذر العثور على هذه الختمة.</p>
+    </div>
+  }
+</div>

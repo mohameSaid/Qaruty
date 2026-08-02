@@ -1,0 +1,47 @@
+.share-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.share-link-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+}
+
+.share-link-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: ltr;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.share-qr {
+  width: 180px;
+  height: 180px;
+  border-radius: 8px;
+}
+
+.share-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.share-whatsapp {
+  background: #25d366;
+  color: #fff;
+}
+
+.share-telegram {
+  background: #229ed9;
+  color: #fff;
+}

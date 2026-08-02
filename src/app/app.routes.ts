@@ -39,6 +39,27 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'khatmah',
+    loadComponent: () =>
+      import('./features/khatmah/pages/khatmah-home-page/khatmah-home-page.component').then(
+        (m) => m.KhatmahHomePageComponent
+      ),
+  },
+  {
+    path: 'k/:slug',
+    loadComponent: () =>
+      import('./features/khatmah/pages/khatmah-view-page/khatmah-view-page.component').then(
+        (m) => m.KhatmahViewPageComponent
+      ),
+  },
+  {
+    path: 'k/:slug/read/:partNumber',
+    loadComponent: () =>
+      import('./features/khatmah/pages/khatmah-reader-page/khatmah-reader-page.component').then(
+        (m) => m.KhatmahReaderPageComponent
+      ),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./core/layout/shell/shell.component').then((m) => m.ShellComponent),

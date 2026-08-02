@@ -1,0 +1,46 @@
+<div class="part-card" [class]="'part-card--' + part().status">
+  <div class="part-card__header">
+    <span class="part-card__number">{{ juzLabel().label }}</span>
+    <span class="part-card__status">
+      <mat-icon>{{ statusIcon() }}</mat-icon>
+      {{ statusLabel() }}
+    </span>
+  </div>
+
+  <p class="part-card__surah">يبدأ من سورة {{ juzLabel().startSurah }}</p>
+
+  @if (part().status !== 'available') {
+    <p class="part-card__reader">{{ part().reader_display_name }}</p>
+  }
+
+  @if (part().status === 'reading' || part().status === 'completed') {
+    <mat-progress-bar mode="determinate" [value]="part().progress_percent" />
+  }
+
+  <div class="part-card__actions">
+    @switch (part().status) {
+      @case ('available') {
+        <button mat-flat-button color="primary" (click)="reserve.emit()">احجز هذا الجزء</button>
+      }
+      @case ('reserved') {
+        @if (isMine()) {
+          <button mat-flat-button color="primary" (click)="openReader.emit()">ابدأ القراءة</button>
+          <button mat-button (click)="cancel.emit()">إلغاء الحجز</button>
+        } @else if (isOwner()) {
+          <button mat-button color="warn" (click)="adminRelease.emit()">تحرير الجزء</button>
+        }
+      }
+      @case ('reading') {
+        @if (isMine()) {
+          <button mat-flat-button color="primary" (click)="openReader.emit()">متابعة القراءة</button>
+          <button mat-button (click)="cancel.emit()">إلغاء الحجز</button>
+        } @else if (isOwner()) {
+          <button mat-button color="warn" (click)="adminRelease.emit()">تحرير الجزء</button>
+        }
+      }
+      @case ('completed') {
+        <span class="part-card__done-hint">تم بحمد الله</span>
+      }
+    }
+  </div>
+</div>

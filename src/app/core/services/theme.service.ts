@@ -26,6 +26,7 @@ export class ThemeService {
     if (stored === 'light' || stored === 'dark') {
       return stored;
     }
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    // Default to light regardless of OS preference; users opt into dark via the toggle.
+    return 'light';
   }
 }

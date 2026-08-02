@@ -1,0 +1,32 @@
+<div class="summary-header" [style.--khatmah-theme]="khatmah().theme_color">
+  <app-progress-ring [percent]="progressPercent()" [caption]="completedCount() + ' / ' + totalCount()" />
+
+  <div class="summary-header__body">
+    <h1 class="summary-header__title">{{ khatmah().title }}</h1>
+    @if (khatmah().intention) {
+      <p class="summary-header__intention">{{ khatmah().intention }}</p>
+    }
+    @if (khatmah().description) {
+      <p class="summary-header__description">{{ khatmah().description }}</p>
+    }
+    @if (khatmah().status === 'closed') {
+      <span class="summary-header__closed-badge">
+        <mat-icon>lock</mat-icon>
+        الختمة مغلقة
+      </span>
+    }
+  </div>
+
+  <div class="summary-header__actions">
+    <button mat-stroked-button (click)="share.emit()">
+      <mat-icon>share</mat-icon>
+      مشاركة
+    </button>
+    @if (isOwner() && khatmah().status === 'active') {
+      <button mat-stroked-button color="warn" (click)="closeKhatmah.emit()">
+        <mat-icon>lock</mat-icon>
+        إغلاق الختمة
+      </button>
+    }
+  </div>
+</div>

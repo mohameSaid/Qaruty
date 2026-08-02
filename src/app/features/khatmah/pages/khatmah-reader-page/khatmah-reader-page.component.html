@@ -1,0 +1,99 @@
+<div class="reader-page" [class.reader-page--night]="reader.nightMode()">
+  @if (loading()) {
+    <div class="state-panel">
+      <mat-progress-spinner diameter="36" mode="indeterminate" />
+      <p>جارٍ تحميل الجزء…</p>
+    </div>
+  } @else if (khatmah(); as khatmah) {
+    <header class="reader-toolbar">
+      <button mat-icon-button (click)="goBack()" aria-label="العودة إلى لوحة الختمة">
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+
+      <div class="reader-toolbar__title">
+        <app-khatmah-breadcrumb
+          [items]="[
+            { label: 'الرئيسية', link: '/' },
+            { label: 'ختمات جماعية', link: '/khatmah' },
+            { label: khatmah.title, link: ['/k', khatmah.slug] },
+            { label: juzLabel().label }
+          ]"
+        />
+      </div>
+
+      <div class="reader-toolbar__actions">
+        <button mat-icon-button (click)="reader.decreaseFontSize()" aria-label="تصغير الخط">
+          <mat-icon>text_decrease</mat-icon>
+        </button>
+        <button mat-icon-button (click)="reader.increaseFontSize()" aria-label="تكبير الخط">
+          <mat-icon>text_increase</mat-icon>
+        </button>
+        <button mat-icon-button (click)="reader.toggleNightMode()" aria-label="الوضع الليلي">
+          <mat-icon>{{ reader.nightMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    <main class="reader-content">
+      <div class="reader-page-frame" [style.--reader-font-size.px]="reader.fontSize()">
+        @if (reader.currentPage(); as page) {
+          <div class="reader-page-number">
+            <span class="reader-page-number__ornament">۞</span>
+            صفحة {{ page.page }}
+            <span class="reader-page-number__ornament">۞</span>
+          </div>
+
+          <p class="reader-text" dir="rtl">
+            @for (aya of page.ayahs; track aya.id; let i = $index) {
+              @if (isNewSurah(page.ayahs, i)) {
+                <span class="surah-header">
+                  <span class="surah-header__ornament" aria-hidden="true">۞</span>
+                  <span>سورة {{ aya.sura_name_ar }}</span>
+                  <span class="surah-header__ornament" aria-hidden="true">۞</span>
+                </span>
+              }
+              <span class="reader-aya">{{ aya.aya_text }} <span class="reader-aya__number">﴿{{ aya.aya_no }}﴾</span></span>
+            }
+          </p>
+        } @else {
+          <p class="empty-hint">لا يوجد نص لعرضه.</p>
+        }
+      </div>
+    </main>
+
+    <footer class="reader-footer">
+      <button mat-stroked-button (click)="goToPreviousPage()" [disabled]="reader.currentPageIndex() === 0">
+        <mat-icon>chevron_right</mat-icon>
+        السابق
+      </button>
+
+      <span class="reader-footer__position">
+        {{ reader.currentPageIndex() + 1 }} / {{ reader.pages().length }}
+      </span>
+
+      <button mat-stroked-button (click)="goToNextPage()" [disabled]="reader.currentPageIndex() >= reader.pages().length - 1">
+        التالي
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      @if (isMine()) {
+        <button
+          mat-flat-button
+          color="primary"
+          class="reader-footer__complete"
+          [disabled]="!reachedLastPage()"
+          [matTooltip]="reachedLastPage() ? '' : 'أكمل القراءة حتى نهاية الجزء لتفعيل هذا الزر'"
+          (click)="completePart()"
+        >
+          <mat-icon>check_circle</mat-icon>
+          تم الانتهاء
+        </button>
+      }
+    </footer>
+  } @else {
+    <div class="state-panel">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>تعذر العثور على هذا الجزء.</p>
+    </div>
+  }
+</div>

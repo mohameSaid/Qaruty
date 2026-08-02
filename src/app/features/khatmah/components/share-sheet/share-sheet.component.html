@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>مشاركة «{{ data.title }}»</h2>
+<mat-dialog-content class="share-content">
+  <div class="share-link-row">
+    <span class="share-link-text">{{ url }}</span>
+    <button mat-icon-button (click)="copyLink()" aria-label="نسخ الرابط">
+      <mat-icon>content_copy</mat-icon>
+    </button>
+  </div>
+
+  @if (qrCodeDataUrl(); as qr) {
+    <img class="share-qr" [src]="qr" alt="رمز QR للختمة" />
+  }
+
+  <div class="share-buttons">
+    <a mat-flat-button [href]="whatsAppUrl" target="_blank" rel="noopener" class="share-whatsapp">
+      <mat-icon>chat</mat-icon>
+      واتساب
+    </a>
+    <a mat-flat-button [href]="telegramUrl" target="_blank" rel="noopener" class="share-telegram">
+      <mat-icon>send</mat-icon>
+      تيليجرام
+    </a>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>إغلاق</button>
+</mat-dialog-actions>

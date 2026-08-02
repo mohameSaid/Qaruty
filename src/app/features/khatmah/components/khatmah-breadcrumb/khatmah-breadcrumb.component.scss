@@ -1,0 +1,40 @@
+.khatmah-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.khatmah-breadcrumb__link {
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+  text-decoration: none;
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--mat-sys-primary, #0a3327);
+    text-decoration: underline;
+  }
+}
+
+.khatmah-breadcrumb__sep {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--mat-sys-outline, rgba(0, 0, 0, 0.4));
+  flex-shrink: 0;
+}
+
+.khatmah-breadcrumb__current {
+  color: var(--mat-sys-on-surface, #000);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,0 +1,41 @@
+<div class="page-container">
+  <app-khatmah-breadcrumb [items]="[{ label: 'الرئيسية', link: '/' }, { label: 'ختمات جماعية' }]" />
+
+  <div class="hero-header">
+    <mat-icon class="hero-ornament" aria-hidden="true">auto_stories</mat-icon>
+    <div>
+      <h1 class="page-title">ختمات جماعية</h1>
+      <p class="page-subtitle">شاركوا في ختم القرآن الكريم معًا، بلا تسجيل دخول</p>
+    </div>
+    <button mat-flat-button color="primary" class="create-button" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      إنشاء ختمة جديدة
+    </button>
+  </div>
+
+  @if (khatmahs().length === 0) {
+    <p class="empty-hint">لا توجد ختمات عامة حاليًا، كن أول من ينشئ ختمة.</p>
+  } @else {
+    <div class="khatmah-grid">
+      @for (item of khatmahs(); track item.id) {
+        <a class="khatmah-card-link" [routerLink]="['/k', item.slug]">
+          <mat-card class="khatmah-card">
+            <mat-card-content class="khatmah-card__content">
+              <app-progress-ring
+                [percent]="progressPercent(item.completedCount, item.total_parts)"
+                [caption]="item.completedCount + ' / ' + item.total_parts"
+                [size]="88"
+              />
+              <div class="khatmah-card__body">
+                <h3>{{ item.title }}</h3>
+                @if (item.intention) {
+                  <p class="khatmah-card__intention">{{ item.intention }}</p>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </a>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,36 @@
+.form-error {
+  grid-column: 1 / -1;
+  margin: -8px 0 0;
+  font-size: 0.8rem;
+  color: var(--mat-sys-error, #b3261e);
+}
+
+.toggle-row,
+.theme-row {
+  grid-column: 1 / -1;
+}
+
+.theme-row__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}
+
+.theme-swatches {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.theme-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+
+  &--selected {
+    border-color: var(--mat-sys-on-surface, #000);
+  }
+}
