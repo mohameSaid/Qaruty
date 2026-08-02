@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { KhatmahService } from '../../services/khatmah.service';
 import { ParticipantIdentityService } from '../../services/participant-identity.service';
+import { KhatmahPageMetaService } from '../../services/page-meta.service';
 import { SnackbarService } from '../../../../core/services/snackbar.service';
 import { getKhatmahErrorMessage } from '../../data/error-messages';
 import { CreateKhatmahDialogComponent } from '../../components/create-khatmah-dialog/create-khatmah-dialog.component';
@@ -27,8 +28,15 @@ export class KhatmahHomePageComponent {
   private readonly snackbar = inject(SnackbarService);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
+  private readonly pageMeta = inject(KhatmahPageMetaService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly khatmahs = toSignal(this.khatmahService.listPublic(), { initialValue: [] });
+
+  constructor() {
+    this.pageMeta.set('ختمات جماعية | قريتي', 'أنشئ ختمة جماعية مع عائلتك أو أصدقائك، شاركوا رابطها، واحجزوا أجزاءكم بلا تسجيل دخول.');
+    this.destroyRef.onDestroy(() => this.pageMeta.reset());
+  }
 
   openCreateDialog(): void {
     const dialogRef = this.dialog.open(CreateKhatmahDialogComponent, { width: '520px', maxWidth: '95vw' });

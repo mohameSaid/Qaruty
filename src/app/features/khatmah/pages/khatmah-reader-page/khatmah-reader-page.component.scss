@@ -22,15 +22,32 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 16px;
+  min-height: 100vh;
   padding: 48px 16px;
   color: inherit;
+  font-size: 0.95rem;
 
   .error-icon {
     font-size: 36px;
     width: 36px;
     height: 36px;
     color: var(--mat-sys-error, #b3261e);
+  }
+}
+
+.loading-page-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.1);
+
+  ::ng-deep .mat-mdc-progress-spinner circle {
+    stroke: var(--gold-500, #d4af37);
   }
 }
 
@@ -69,11 +86,60 @@
   flex-shrink: 0;
 }
 
+.reader-full-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  padding-top: max(6px, env(safe-area-inset-top));
+  border-bottom: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+  position: sticky;
+  top: 0;
+  background: var(--mat-sys-surface, #fff);
+  z-index: 1;
+
+  .reader-page--night & {
+    background: #12100c;
+    border-bottom-color: rgba(232, 223, 200, 0.15);
+  }
+}
+
+.reader-full-topbar__sura {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Amiri', serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.reader-full-topbar__page {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+
+  .reader-page--night & {
+    color: rgba(232, 223, 200, 0.65);
+  }
+}
+
 .reader-content {
+  position: relative;
   flex: 1;
   padding: 20px 12px 32px;
   display: flex;
   justify-content: center;
+  // Let the browser handle native vertical scrolling, but hand horizontal gestures to our
+  // own touch handlers instead of the browser's edge-swipe back/forward navigation.
+  touch-action: pan-y;
+
+  .reader-page--full & {
+    padding: 12px 0;
+    align-items: center;
+  }
 }
 
 .reader-page-frame {
@@ -84,11 +150,24 @@
   background: #fffdf7;
   border: 1px solid rgba(212, 175, 55, 0.35);
   box-shadow: 0 4px 24px -8px rgba(10, 51, 39, 0.12);
+  transition: transform 0.25s ease;
+  will-change: transform;
+
+  &--dragging {
+    transition: none;
+  }
 
   .reader-page--night & {
     background: #1a1610;
     border-color: rgba(232, 199, 102, 0.25);
     box-shadow: none;
+  }
+
+  .reader-page--full & {
+    max-width: 720px;
+    border-radius: 0;
+    border-inline: none;
+    min-height: 100%;
   }
 }
 
@@ -182,6 +261,26 @@
 
 .reader-footer__complete {
   margin-inline-start: auto;
+}
+
+.reader-page-frame__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+
+  ::ng-deep .mat-mdc-progress-spinner circle {
+    stroke: var(--gold-500, #d4af37);
+  }
+}
+
+.reader-full-complete {
+  position: fixed;
+  z-index: 2;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.4);
 }
 
 @media (max-width: 480px) {

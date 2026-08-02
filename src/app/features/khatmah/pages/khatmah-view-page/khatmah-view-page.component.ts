@@ -9,6 +9,7 @@ import { KhatmahService } from '../../services/khatmah.service';
 import { PartsService } from '../../services/parts.service';
 import { KhatmahRealtimeService } from '../../services/khatmah-realtime.service';
 import { ParticipantIdentityService } from '../../services/participant-identity.service';
+import { KhatmahPageMetaService } from '../../services/page-meta.service';
 import { KhatmahStore } from '../../store/khatmah.store';
 import { PartsBoardStore } from '../../store/parts-board.store';
 import { ActivityFeedStore } from '../../store/activity-feed.store';
@@ -55,6 +56,7 @@ export class KhatmahViewPageComponent {
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly pageMeta = inject(KhatmahPageMetaService);
 
   private sessionDisplayName: string | null = null;
 
@@ -82,7 +84,10 @@ export class KhatmahViewPageComponent {
         }
       });
 
-    this.destroyRef.onDestroy(() => this.khatmahRealtime.disconnect());
+    this.destroyRef.onDestroy(() => {
+      this.khatmahRealtime.disconnect();
+      this.pageMeta.reset();
+    });
   }
 
   onReserve(part: Part): void {
@@ -171,6 +176,7 @@ export class KhatmahViewPageComponent {
         this.khatmahRealtime.connect(khatmah.id);
         this.partsService.listParts(khatmah.id).subscribe((parts) => this.partsBoardStore.setParts(khatmah.id, parts));
         this.khatmahService.listActivity(khatmah.id).subscribe((entries) => this.activityFeedStore.setInitial(entries));
+        this.pageMeta.set(`${khatmah.title} | ختمات جماعية | قريتي`, khatmah.intention || khatmah.description || undefined);
       },
       error: () => {
         this.khatmahStore.setLoading(false);
