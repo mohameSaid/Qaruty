@@ -19,6 +19,10 @@ export class CompetitionsLookupService {
     return this.getSimple('instructor');
   }
 
+  getTesters(): Observable<PagedData<LookupRef>> {
+    return this.getSimple('tester');
+  }
+
   private getSimple(type: string): Observable<PagedData<LookupRef>> {
     const params = new HttpParams()
       .set('page.pageNo', 0)

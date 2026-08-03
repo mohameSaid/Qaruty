@@ -44,6 +44,20 @@ export interface ParticipantListItem {
   deleted: boolean;
 }
 
+/** One evaluated grade entry, as nested under `ParticipantWithGrades.grades` — mirrors `ParticipantGradeEntry` in the users feature's exam model. */
+export interface ParticipantGradeEntry {
+  examQuestion: {
+    question: { id: number; name: LocalizedName; rank: number };
+    exam: { id: number; name: LocalizedName };
+  };
+  grade: number;
+}
+
+/** One row of `GET /participant/with-grades?filters.score=not_null` — a `ParticipantListItem` plus its per-question evaluation grades. */
+export interface ParticipantWithGrades extends ParticipantListItem {
+  grades: ParticipantGradeEntry[];
+}
+
 /** Optional filter criteria for `GET /participant`, layered onto the paging/sort params. */
 export interface ParticipantFilters {
   genderId?: number | null;
@@ -51,6 +65,8 @@ export interface ParticipantFilters {
   placeId?: number | null;
   levelId?: number | null;
   instructorId?: number | null;
+  /** Tester/grader who scored the participant's evaluation — `filters.grades.tester.id` dot-path. */
+  testerId?: number | null;
   partsCount?: number | null;
   nationalId?: string | null;
   mobileNumber?: string | null;
@@ -59,4 +75,12 @@ export interface ParticipantFilters {
   exceptionId?: number | null;
   /** Free-text search across `user.name.arName` and `user.name.enName`. */
   search?: string | null;
+  /**
+   * Inclusive lower bound on `score` — sent as `filters.score>=` (the `=` is part of the operator
+   * itself, percent-encoded into the param name — see `FullyEncodedParamCodec` in
+   * `ParticipantService`). Set equal to `scoreMax` for an exact-score match.
+   */
+  scoreMin?: number | null;
+  /** Inclusive upper bound on `score` — sent as `filters.score<=`. */
+  scoreMax?: number | null;
 }

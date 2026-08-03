@@ -1,0 +1,155 @@
+<div #captureRoot class="rsc" [class.rsc--rank]="variant() === 'rank'" dir="rtl">
+  <!-- Decorative background -->
+  <div class="rsc__glow rsc__glow--top"></div>
+  <div class="rsc__glow rsc__glow--center"></div>
+  <div class="rsc__glow rsc__glow--bottom"></div>
+
+  <!-- Islamic ornaments -->
+  <span class="rsc__ornament rsc__ornament--tl" aria-hidden="true"></span>
+  <span class="rsc__ornament rsc__ornament--tr" aria-hidden="true"></span>
+  <span class="rsc__ornament rsc__ornament--bl" aria-hidden="true"></span>
+  <span class="rsc__ornament rsc__ornament--br" aria-hidden="true"></span>
+
+  <div class="rsc__border"></div>
+
+  <div class="rsc__content">
+
+    <!-- Brand -->
+    <header class="rsc__brand">
+      <div class="rsc__brand-symbol">۞</div>
+
+      <div class="rsc__brand-text">
+        <span class="rsc__brand-mark">قريتي</span>
+        <span class="rsc__brand-sub">
+          منصة المسابقات القرآنية
+        </span>
+      </div>
+    </header>
+
+    <!-- Competition -->
+    <section class="rsc__competition">
+      <span class="rsc__eyebrow">نتيجة المسابقة</span>
+
+      <h2>
+        {{ competitionName() }}
+      </h2>
+    </section>
+
+    <!-- Achievement -->
+    <section class="rsc__achievement">
+
+      <div class="rsc__medallion">
+
+        <div class="rsc__medallion-outer"></div>
+        <div class="rsc__medallion-ring"></div>
+
+        <div class="rsc__medallion-inner">
+
+          <div class="rsc__medallion-value">
+            {{ resultValue() }}
+
+            @if (resultSuffix()) {
+              <span class="rsc__medallion-suffix">
+                {{ resultSuffix() }}
+              </span>
+            }
+          </div>
+
+          <div class="rsc__medallion-label">
+            {{ resultLabel() }}
+          </div>
+
+        </div>
+      </div>
+
+      @if (variant() === 'rank') {
+        <div class="rsc__achievement-ribbon">
+          <span>🏆</span>
+          <span>إنجاز مميز</span>
+        </div>
+      }
+
+    </section>
+
+    <!-- Participant -->
+    <section class="rsc__participant-section">
+
+      <span class="rsc__participant-label">
+        مبارك للمشارك
+      </span>
+
+      <h1 class="rsc__participant">
+        {{ participantName() }}
+      </h1>
+
+      @if (location() || date()) {
+        <div class="rsc__meta">
+
+          @if (location()) {
+            <span class="rsc__meta-item">
+              <span class="rsc__meta-icon">⌖</span>
+              {{ location() }}
+            </span>
+          }
+
+          @if (location() && date()) {
+            <span class="rsc__meta-separator"></span>
+          }
+
+          @if (date()) {
+            <span class="rsc__meta-item">
+              <span class="rsc__meta-icon">◷</span>
+              {{ date() }}
+            </span>
+          }
+
+        </div>
+      }
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="rsc__footer">
+
+      @if (qrDataUrl(); as qr) {
+
+        <div class="rsc__qr-wrapper">
+          <div class="rsc__qr-frame">
+            <img
+              class="rsc__qr"
+              [src]="qr"
+              alt="رمز الاستجابة السريعة"
+            />
+          </div>
+
+          <span class="rsc__qr-label">
+            تحقق من النتيجة
+          </span>
+        </div>
+
+      }
+
+      <div class="rsc__cta">
+
+        <div class="rsc__cta-title">
+          نتيجة موثقة من قريتي
+        </div>
+
+        <div class="rsc__cta-text">
+          امسح الرمز لعرض النتيجة كاملة
+        </div>
+
+        <div class="rsc__cta-url">
+          qaryati.app
+        </div>
+
+      </div>
+
+      <div class="rsc__footer-mark">
+        ۞
+      </div>
+
+    </footer>
+
+  </div>
+</div>

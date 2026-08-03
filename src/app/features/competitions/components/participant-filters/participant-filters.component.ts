@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { provideNativeDateAdapter } from '@angular/material/core';
@@ -45,6 +45,7 @@ export class ParticipantFiltersComponent {
   readonly exceptions = input<CompetitionException[]>([]);
   readonly places = input<LookupRef[]>([]);
   readonly instructors = input<LookupRef[]>([]);
+  readonly testers = input<LookupRef[]>([]);
 
   readonly search = output<ParticipantFilters>();
   readonly clear = output<void>();
@@ -62,18 +63,23 @@ export class ParticipantFiltersComponent {
     placeId: this.fb.control<number | null>(null),
     levelId: this.fb.control<number | null>(null),
     instructorId: this.fb.control<number | null>(null),
+    testerId: this.fb.control<number | null>(null),
     partsCount: this.fb.control<number | null>(null),
     exceptionId: this.fb.control<number | null>(null),
     privateInstructorNotNull: [false],
+    scoreMin: this.fb.control<number | null>(null, [Validators.min(0), Validators.max(100)]),
+    scoreMax: this.fb.control<number | null>(null, [Validators.min(0), Validators.max(100)]),
   });
 
   private readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
 
   readonly placeSearchCtrl = new FormControl('');
   readonly instructorSearchCtrl = new FormControl('');
+  readonly testerSearchCtrl = new FormControl('');
 
   private readonly placeSearch = toSignal(this.placeSearchCtrl.valueChanges, { initialValue: '' });
   private readonly instructorSearch = toSignal(this.instructorSearchCtrl.valueChanges, { initialValue: '' });
+  private readonly testerSearch = toSignal(this.testerSearchCtrl.valueChanges, { initialValue: '' });
 
   readonly filteredPlaces = computed(() => {
     const term = (this.placeSearch() ?? '').trim().toLowerCase();
@@ -91,11 +97,25 @@ export class ParticipantFiltersComponent {
     return this.instructors().filter((item) => item.name.arabic.toLowerCase().includes(term));
   });
 
+  readonly filteredTesters = computed(() => {
+    const term = (this.testerSearch() ?? '').trim().toLowerCase();
+    if (!term) {
+      return this.testers();
+    }
+    return this.testers().filter((item) => item.name.arabic.toLowerCase().includes(term));
+  });
+
   /** Count of non-empty fields, shown as a live badge on the panel header. */
   readonly activeCount = computed(
     () =>
       Object.values(this.formValue()).filter((v) => v !== null && v !== undefined && v !== '' && v !== false).length
   );
+
+  /** True when both score bounds are set and the range is inverted (min > max) — blocks search. */
+  readonly scoreRangeInvalid = computed(() => {
+    const { scoreMin, scoreMax } = this.formValue();
+    return scoreMin != null && scoreMax != null && scoreMin > scoreMax;
+  });
 
   constructor() {
     effect(() => {
@@ -110,9 +130,12 @@ export class ParticipantFiltersComponent {
           placeId: filters.placeId ?? null,
           levelId: filters.levelId ?? null,
           instructorId: filters.instructorId ?? null,
+          testerId: filters.testerId ?? null,
           partsCount: filters.partsCount ?? null,
           exceptionId: filters.exceptionId ?? null,
           privateInstructorNotNull: filters.privateInstructorNotNull ?? false,
+          scoreMin: filters.scoreMin ?? null,
+          scoreMax: filters.scoreMax ?? null,
         },
         { emitEvent: false }
       );
@@ -120,6 +143,9 @@ export class ParticipantFiltersComponent {
   }
 
   onSearch(): void {
+    if (this.scoreRangeInvalid()) {
+      return;
+    }
     const raw = this.form.getRawValue();
     const filters: ParticipantFilters = {
       search: raw.search.trim() || undefined,
@@ -130,9 +156,12 @@ export class ParticipantFiltersComponent {
       placeId: raw.placeId ?? undefined,
       levelId: raw.levelId ?? undefined,
       instructorId: raw.instructorId ?? undefined,
+      testerId: raw.testerId ?? undefined,
       partsCount: raw.partsCount ?? undefined,
       exceptionId: raw.exceptionId ?? undefined,
       privateInstructorNotNull: raw.privateInstructorNotNull || undefined,
+      scoreMin: raw.scoreMin ?? undefined,
+      scoreMax: raw.scoreMax ?? undefined,
     };
 
     this.search.emit(filters);
@@ -148,9 +177,12 @@ export class ParticipantFiltersComponent {
       placeId: null,
       levelId: null,
       instructorId: null,
+      testerId: null,
       partsCount: null,
       exceptionId: null,
       privateInstructorNotNull: false,
+      scoreMin: null,
+      scoreMax: null,
     });
     this.clear.emit();
   }

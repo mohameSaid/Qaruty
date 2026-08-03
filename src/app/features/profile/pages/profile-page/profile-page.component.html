@@ -128,11 +128,55 @@
               </td>
             </ng-container>
 
+            <ng-container matColumnDef="actions">
+              <th class="actions-column" mat-header-cell *matHeaderCellDef></th>
+              <td class="actions-column" mat-cell *matCellDef="let row" data-label="مشاركة">
+                <!-- @if (!row.deleted && row.score != null) { -->
+                  <button
+                    mat-icon-button
+                    [matMenuTriggerFor]="shareMenu"
+                    [disabled]="sharingRowId() === row.id"
+                    aria-label="مشاركة النتيجة"
+                  >
+                    @if (sharingRowId() === row.id) {
+                      <mat-progress-spinner diameter="20" mode="indeterminate" />
+                    } @else {
+                      <mat-icon>share</mat-icon>
+                    }
+                  </button>
+                  <mat-menu #shareMenu="matMenu">
+                    <button mat-menu-item (click)="shareResult(row, 'whatsapp')">
+                      <mat-icon>chat</mat-icon>
+                      <span>مشاركة عبر واتساب</span>
+                    </button>
+                    <button mat-menu-item (click)="shareResult(row, 'facebook')">
+                      <mat-icon>thumb_up</mat-icon>
+                      <span>مشاركة عبر فيسبوك</span>
+                    </button>
+                  </mat-menu>
+                <!-- } -->
+              </td>
+            </ng-container>
+
             <tr mat-header-row *matHeaderRowDef="historyColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: historyColumns"></tr>
           </table>
         }
       </mat-card-content>
     </mat-card>
+
+    <div class="share-capture-host" aria-hidden="true">
+      @if (shareRow(); as row) {
+        <app-result-share-card
+          [competitionName]="row.competition.name.arabic + ' — ' + row.level.name.arabic"
+          [participantName]="u.name.arabic"
+          [resultValue]="(row.score ?? 0).toString()"
+          resultSuffix="/ 100"
+          location="كفر أبو الحسن"
+          [date]="row.competition.competitionYear ? row.competition.competitionYear.toString() : ''"
+          [qrDataUrl]="shareQr()"
+        />
+      }
+    </div>
   }
 </div>

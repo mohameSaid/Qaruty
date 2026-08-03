@@ -190,6 +190,20 @@
   text-align: center !important;
 }
 
+.actions-column {
+  width: 56px;
+  text-align: center !important;
+}
+
+// Rendered off-canvas (not display:none, which html2canvas can't capture) purely so
+// ShareCardService can walk and rasterize it — never meant to be seen.
+.share-capture-host {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  pointer-events: none;
+}
+
 .empty-note {
   color: rgba(0, 0, 0, 0.6);
 }

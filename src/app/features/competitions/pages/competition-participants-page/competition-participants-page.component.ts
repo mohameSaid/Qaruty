@@ -15,7 +15,7 @@ import { ParticipantFiltersComponent } from '../../components/participant-filter
 import { ParticipantsTableComponent } from '../../components/participants-table/participants-table.component';
 import { ParticipantFilters, ParticipantListItem } from '../../models/participant.model';
 import { LookupRef } from '../../models/lookup.model';
-import { exportParticipantsToExcel } from '../../../../shared/utils/excel-export.util';
+import { ParticipantExcelExportService } from '../../services/participant-excel-export.service';
 import { ParticipantEditDialogComponent } from '../../components/participant-edit-dialog/participant-edit-dialog.component';
 import { UpdateCompetitionRequest } from '../../../users/models/competition.model';
 import { SnackbarService } from '../../../../core/services/snackbar.service';
@@ -38,6 +38,7 @@ export class CompetitionParticipantsPageComponent implements OnInit {
   readonly store = inject(ParticipantsStore);
   private readonly lookupService = inject(CompetitionsLookupService);
   private readonly participantService = inject(ParticipantService);
+  private readonly participantExcelExportService = inject(ParticipantExcelExportService);
   private readonly snackbar = inject(SnackbarService);
   private readonly dialog = inject(MatDialog);
   private readonly route = inject(ActivatedRoute);
@@ -47,6 +48,7 @@ export class CompetitionParticipantsPageComponent implements OnInit {
 
   readonly places = signal<LookupRef[]>([]);
   readonly instructors = signal<LookupRef[]>([]);
+  readonly testers = signal<LookupRef[]>([]);
   readonly exporting = signal(false);
 
   ngOnInit(): void {
@@ -57,25 +59,26 @@ export class CompetitionParticipantsPageComponent implements OnInit {
 
   onExportExcel(): void {
     this.exporting.set(true);
-    const total = this.store.totalElements() || 10000;
-    this.participantService
-      .getParticipants({
+    this.participantExcelExportService
+      .export({
         competitionId: this.competitionId,
-        pageNo: 0,
-        size: total,
-        sortColumn: 'id',
-        sortDirection: 'DESC',
+        competitionName: this.store.competition()?.name?.arabic,
         filters: this.store.filters(),
+        pageSizeHint: this.store.totalElements(),
+        levels: this.store.competition()?.levels ?? [],
+        exceptions: this.store.competition()?.exceptions ?? [],
+        places: this.places(),
+        instructors: this.instructors(),
+        testers: this.testers(),
       })
       .pipe(
-        catchError(() => of(null)),
+        catchError(() => {
+          this.snackbar.error('حدث خطأ أثناء تصدير ملف Excel.');
+          return of(null);
+        }),
         finalize(() => this.exporting.set(false))
       )
-      .subscribe((page) => {
-        if (page) {
-          exportParticipantsToExcel(page.data ?? []);
-        }
-      });
+      .subscribe();
   }
 
   onView(participant: ParticipantListItem): void {
@@ -208,6 +211,15 @@ export class CompetitionParticipantsPageComponent implements OnInit {
       .subscribe((page) => {
         if (page) {
           this.instructors.set(page.data ?? []);
+        }
+      });
+
+    this.lookupService
+      .getTesters()
+      .pipe(catchError(() => of(null)))
+      .subscribe((page) => {
+        if (page) {
+          this.testers.set(page.data ?? []);
         }
       });
   }

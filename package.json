@@ -22,6 +22,8 @@
     "@angular/platform-browser-dynamic": "20.3.25",
     "@angular/router": "20.3.25",
     "@supabase/supabase-js": "^2.109.0",
+    "exceljs": "^4.4.0",
+    "html2canvas": "^1.4.1",
     "ngx-mat-select-search": "^8.0.6",
     "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",

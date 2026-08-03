@@ -1,9 +1,9 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParameterCodec, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiEnvelope, PagedData } from '../models/api-response.model';
-import { ParticipantFilters, ParticipantListItem } from '../models/participant.model';
+import { ParticipantFilters, ParticipantListItem, ParticipantWithGrades } from '../models/participant.model';
 import { UpdateCompetitionRequest } from '../../users/models/competition.model';
 
 export interface GetParticipantsOptions {
@@ -15,13 +15,37 @@ export interface GetParticipantsOptions {
   filters?: ParticipantFilters;
 }
 
+/**
+ * Angular's default `HttpUrlEncodingCodec` un-escapes a handful of "safe" characters — including
+ * `=` — back to their literal form after `encodeURIComponent`. That breaks a param name like
+ * `filters.score>=`: the key ends up as `filters.score%3E=`, and once the `=value` separator is
+ * appended you get a malformed pair (`filters.score%3E==90`, decoding to name `filters.score>`
+ * with a stray leading `=` in the value). This codec does plain `encodeURIComponent`/
+ * `decodeURIComponent` with no un-escaping, so `=` inside the key stays percent-encoded and only
+ * the real separator is a literal `=` — the backend then decodes the key back to `filters.score>=`.
+ */
+class FullyEncodedParamCodec implements HttpParameterCodec {
+  encodeKey(key: string): string {
+    return encodeURIComponent(key);
+  }
+  encodeValue(value: string): string {
+    return encodeURIComponent(value);
+  }
+  decodeKey(key: string): string {
+    return decodeURIComponent(key);
+  }
+  decodeValue(value: string): string {
+    return decodeURIComponent(value);
+  }
+}
+
 @Injectable({ providedIn: 'root' })
 export class ParticipantService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.baseUrl}/participant`;
 
   getParticipants(options: GetParticipantsOptions): Observable<PagedData<ParticipantListItem>> {
-    let params = new HttpParams()
+    let params = new HttpParams({ encoder: new FullyEncodedParamCodec() })
       .set('filters.competition.id', options.competitionId)
       .set('page.pageNo', options.pageNo)
       .set('page.size', options.size)
@@ -32,6 +56,27 @@ export class ParticipantService {
 
     return this.http
       .get<ApiEnvelope<PagedData<ParticipantListItem>>>(this.baseUrl, { params })
+      .pipe(map((res) => res.data));
+  }
+
+  /**
+   * `GET /participant/with-grades` — same rows as {@link getParticipants} but each participant
+   * carries its per-question `grades` array, and only ever includes evaluated participants
+   * (`filters.score=not_null`). Used by the Excel export, which needs individual grade columns.
+   */
+  getParticipantsWithGrades(options: GetParticipantsOptions): Observable<PagedData<ParticipantWithGrades>> {
+    let params = new HttpParams({ encoder: new FullyEncodedParamCodec() })
+      .set('filters.competition.id', options.competitionId)
+      .set('filters.score', 'not_null')
+      .set('page.pageNo', options.pageNo)
+      .set('page.size', options.size)
+      .set('sort.column', options.sortColumn)
+      .set('sort.direction', options.sortDirection);
+
+    params = this.applyFilterParams(params, options.filters);
+
+    return this.http
+      .get<ApiEnvelope<PagedData<ParticipantWithGrades>>>(`${this.baseUrl}/with-grades`, { params })
       .pipe(map((res) => res.data));
   }
 
@@ -55,6 +100,9 @@ export class ParticipantService {
     if (filters.instructorId) {
       params = params.set('filters.instructor.id', filters.instructorId);
     }
+    if (filters.testerId) {
+      params = params.set('filters.grades.tester.id', filters.testerId);
+    }
     if (filters.partsCount) {
       params = params.set('filters.partsCount', filters.partsCount);
     }
@@ -73,6 +121,12 @@ export class ParticipantService {
     if (filters.search) {
       params = params.set('search.columnValues', filters.search);
       params = params.set('search.columnNames', 'user.name.arName,user.name.enName');
+    }
+    if (filters.scoreMin != null) {
+      params = params.set(`filters.score>`, filters.scoreMin);
+    }
+    if (filters.scoreMax != null) {
+      params = params.set(`filters.score<`, filters.scoreMax);
     }
 
       params = params.set('filters.deleted', false); // to be added later,

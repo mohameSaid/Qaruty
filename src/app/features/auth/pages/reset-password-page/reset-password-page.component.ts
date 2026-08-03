@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -46,6 +46,12 @@ export class ResetPasswordPageComponent {
 
   readonly proofFile = signal<File | null>(null);
   readonly proofFileTouched = signal(false);
+
+  readonly whatsAppUrl = computed(() => {
+    const nationalId = this.form.controls.nationalId.value;
+    const text = `مرحبًا، أرغب في متابعة طلب إعادة تعيين كلمة المرور الخاص بي (الرقم القومي: ${nationalId}).`;
+    return `https://wa.me/01003127737?text=${encodeURIComponent(text)}`;
+  });
 
   readonly form = this.fb.nonNullable.group({
     nationalId: ['', [Validators.required, nationalIdValidator()]],

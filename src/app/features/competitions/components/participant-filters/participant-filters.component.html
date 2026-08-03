@@ -1,4 +1,7 @@
-<mat-expansion-panel class="section-card filters-panel" [expanded]="activeCount() > 0">
+<mat-expansion-panel
+  class="section-card filters-panel"
+  [expanded]="activeCount() > 0"
+>
   <mat-expansion-panel-header>
     <mat-panel-title>
       <mat-icon class="title-icon">filter_alt</mat-icon>
@@ -24,7 +27,12 @@
       <mat-form-field appearance="outline">
         <mat-label>الرقم القومي</mat-label>
         <mat-icon matPrefix>badge</mat-icon>
-        <input matInput formControlName="nationalId" maxlength="14" inputmode="numeric" />
+        <input
+          matInput
+          formControlName="nationalId"
+          maxlength="14"
+          inputmode="numeric"
+        />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -46,7 +54,11 @@
       <mat-form-field appearance="outline">
         <mat-label>تاريخ الإنشاء</mat-label>
         <mat-icon matPrefix>event</mat-icon>
-        <input matInput [matDatepicker]="createdDatePicker" formControlName="createdDate" />
+        <input
+          matInput
+          [matDatepicker]="createdDatePicker"
+          formControlName="createdDate"
+        />
         <mat-datepicker-toggle matSuffix [for]="createdDatePicker" />
         <mat-datepicker #createdDatePicker />
       </mat-form-field>
@@ -95,10 +107,54 @@
           </mat-option>
           <mat-option [value]="null">الكل</mat-option>
           @for (instructor of filteredInstructors(); track instructor.id) {
-            <mat-option [value]="instructor.id">{{ instructor.name.arabic }}</mat-option>
+            <mat-option [value]="instructor.id">{{
+              instructor.name.arabic
+            }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>المُقيّم</mat-label>
+        <mat-icon matPrefix>fact_check</mat-icon>
+        <mat-select formControlName="testerId">
+          <mat-option>
+            <ngx-mat-select-search
+              [formControl]="testerSearchCtrl"
+              placeholderLabel="ابحث..."
+              noEntriesFoundLabel="لا توجد نتائج"
+            >
+            </ngx-mat-select-search>
+          </mat-option>
+          <mat-option [value]="null">الكل</mat-option>
+          @for (tester of filteredTesters(); track tester.id) {
+            <mat-option [value]="tester.id">{{
+              tester.name.arabic
+            }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="score-range-field">
+        <div class="score-range-inputs">
+          <mat-form-field appearance="outline">
+            <mat-label>الدرجة من</mat-label>
+            <mat-icon matPrefix>grade</mat-icon>
+            <input matInput type="number" formControlName="scoreMin" min="0" max="100" />
+          </mat-form-field>
+          <span class="score-range-sep">—</span>
+          <mat-form-field appearance="outline">
+            <mat-label>الدرجة إلى</mat-label>
+            <input matInput type="number" formControlName="scoreMax" min="0" max="100" />
+          </mat-form-field>
+        </div>
+        @if (scoreRangeInvalid()) {
+          <div class="score-range-error">
+            <mat-icon inline>error</mat-icon>
+            الدرجة "من" يجب ألا تكون أكبر من "إلى"
+          </div>
+        }
+      </div>
 
       <mat-form-field appearance="outline">
         <mat-label>عدد الأجزاء</mat-label>
@@ -112,7 +168,9 @@
         <mat-select formControlName="exceptionId">
           <mat-option [value]="null">الكل</mat-option>
           @for (exception of exceptions(); track exception.id) {
-            <mat-option [value]="exception.id">{{ exception.name.arabic }}</mat-option>
+            <mat-option [value]="exception.id">{{
+              exception.name.arabic
+            }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -123,10 +181,20 @@
     </mat-checkbox> -->
 
     <div class="form-actions">
-      <button mat-flat-button color="primary" type="submit" [disabled]="searching()">
+      <button
+        mat-flat-button
+        color="primary"
+        type="submit"
+        [disabled]="searching() || scoreRangeInvalid()"
+      >
         <mat-icon>search</mat-icon> بحث
       </button>
-      <button mat-stroked-button type="button" [disabled]="searching()" (click)="onClear()">
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="searching()"
+        (click)="onClear()"
+      >
         <mat-icon>close</mat-icon> مسح الفلاتر
       </button>
     </div>
