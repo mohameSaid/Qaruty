@@ -44,13 +44,12 @@ export interface ParticipantListItem {
   deleted: boolean;
 }
 
-/** One evaluated grade entry, as nested under `ParticipantWithGrades.grades` — mirrors `ParticipantGradeEntry` in the users feature's exam model. */
+/** One evaluated grade entry, as nested under `ParticipantWithGrades.grades` — one per exam question. */
 export interface ParticipantGradeEntry {
-  examQuestion: {
-    question: { id: number; name: LocalizedName; rank: number };
-    exam: { id: number; name: LocalizedName };
-  };
+  rank: number;
   grade: number;
+  /** Tester/grader who scored this specific question. */
+  tester: LookupRef;
 }
 
 /** One row of `GET /participant/with-grades?filters.score=not_null` — a `ParticipantListItem` plus its per-question evaluation grades. */
@@ -83,4 +82,6 @@ export interface ParticipantFilters {
   scoreMin?: number | null;
   /** Inclusive upper bound on `score` — sent as `filters.score<=`. */
   scoreMax?: number | null;
+  /** When true, sends `filters.score=not_null` (only participants that have been evaluated). */
+  scoreNotNull?: boolean;
 }

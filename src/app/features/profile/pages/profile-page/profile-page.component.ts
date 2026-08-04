@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { catchError, finalize, of } from 'rxjs';
 
@@ -15,8 +16,9 @@ import { ChangePasswordDialogComponent } from '../../../auth/components/change-p
 import { ResultShareCardComponent } from '../../../../shared/components/result-share-card/result-share-card.component';
 import { UserAvatarComponent } from '../../../../shared/components/user-avatar/user-avatar.component';
 import { ShareCardService } from '../../../../shared/services/share-card.service';
+import { readFileAsDataUrl } from '../../../../shared/utils/file.util';
 import { CompetitionHistoryItem } from '../../../users/models/competition.model';
-import { UserDetail } from '../../../users/models/user.model';
+import { Gender, UserDetail } from '../../../users/models/user.model';
 import { CompetitionService } from '../../../users/services/competition.service';
 import { UserService } from '../../../users/services/user.service';
 
@@ -31,6 +33,7 @@ import { UserService } from '../../../users/services/user.service';
     MatMenuModule,
     MatProgressSpinnerModule,
     MatTableModule,
+    MatTooltipModule,
     RouterLink,
     ResultShareCardComponent,
     UserAvatarComponent,
@@ -40,6 +43,8 @@ import { UserService } from '../../../users/services/user.service';
   styleUrl: './profile-page.component.scss',
 })
 export class ProfilePageComponent implements OnInit {
+  readonly Gender = Gender;
+
   private readonly auth = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly competitionService = inject(CompetitionService);
@@ -55,11 +60,25 @@ export class ProfilePageComponent implements OnInit {
   readonly loadingHistory = signal(false);
   readonly historyColumns = ['name', 'level', 'partsCount', 'score', 'status', 'actions'];
 
-  /** Row currently rendered into the off-screen `ResultShareCardComponent` for capture — set only while a share is in flight. */
+  /**
+   * Row currently feeding the off-screen `ResultShareCardComponent` for capture — set only while a
+   * share is in flight. The card itself stays permanently mounted in the template (see
+   * `share-capture-host`) so this `viewChild` never races the card's own creation — it used to be
+   * behind an `@if`, which meant `shareCard()` could still be `undefined` by the time `shareResult()`
+   * read it right after setting this signal, since the child hadn't been created by CD yet.
+   */
   readonly shareRow = signal<CompetitionHistoryItem | null>(null);
-  readonly shareQr = signal<string | null>(null);
   readonly sharingRowId = signal<number | null>(null);
   private readonly shareCard = viewChild(ResultShareCardComponent);
+
+  readonly shareCompetitionName = computed(() => {
+    const row = this.shareRow();
+    return row ? `${row.competition.name.arabic} — ${row.level.name.arabic}` : '';
+  });
+  readonly shareEvaluation = computed(() => this.shareRow()?.grade?.name.arabic ?? '');
+
+  /** Photo the user picked for their share card, as a data URL — chosen once via the avatar camera button, reused for every share. */
+  readonly sharePhoto = signal<string | null>(null);
 
   ngOnInit(): void {
     const nationalId = this.auth.nationalId();
@@ -107,18 +126,29 @@ export class ProfilePageComponent implements OnInit {
       return;
     }
 
+    // Most students don't notice the small camera button on their avatar on their own — require
+    // a photo before sharing rather than silently exporting the generic placeholder icon.
+    if (!this.sharePhoto()) {
+      this.snackbar.error('يجب إضافة صورتك الشخصية أولاً عبر زر الكاميرا بجانب صورتك بالأعلى.');
+      return;
+    }
+
     this.sharingRowId.set(row.id);
     try {
       const resultUrl = `${window.location.origin}/users/${user.nationalId}/result/${row.id}`;
-      this.shareQr.set(await this.shareCardService.buildQrCodeDataUrl(resultUrl));
       this.shareRow.set(row);
-      // Let the `@if` above render the off-screen card and the QR <img> (a data: URL — decodes within a frame or two) paint before capturing it.
+      // The card stays permanently mounted (see `share-capture-host`) so this signal write just
+      // updates its inputs — wait a couple of frames for that DOM update (and the participant photo
+      // `<img>` decode, if one was chosen) to actually paint before capturing it.
       await this.waitForNextPaint();
 
       const el = this.shareCard()?.captureRoot().nativeElement;
       if (!el) {
         throw new Error('تعذر تجهيز بطاقة النتيجة.');
       }
+      // The card element is reused across shares, so the service's per-element cache must be
+      // dropped each time or a later share would silently reuse an earlier row's rendered PNG.
+      this.shareCardService.invalidate(el);
 
       const options = {
         fileName: `نتيجتي-${row.competition.name.arabic}.png`,
@@ -126,21 +156,30 @@ export class ProfilePageComponent implements OnInit {
         shareText: `حصلت على ${row.score ?? '—'} / 100 في ${row.competition.name.arabic} عبر قريتي: ${resultUrl}`,
         pageUrl: resultUrl,
       };
-      const outcome =
-        target === 'whatsapp'
-          ? await this.shareCardService.shareToWhatsApp(el, options)
-          : await this.shareCardService.shareToFacebook(el, options);
-
-      if (outcome === 'downloaded') {
-        this.snackbar.info('تم تنزيل صورة النتيجة، يمكنك إرفاقها يدويًا في المحادثة.');
+      if (target === 'whatsapp') {
+        await this.shareCardService.shareToWhatsApp(el, options);
+      } else {
+        await this.shareCardService.shareToFacebook(el, options);
       }
-    } catch {
+      this.snackbar.info('تم تنزيل صورة النتيجة، يمكنك إرفاقها يدويًا في المحادثة بجانب الرابط.');
+    } catch (err) {
+      console.error('shareResult failed', err);
       this.snackbar.error('تعذرت مشاركة النتيجة، حاول مرة أخرى.');
     } finally {
       this.sharingRowId.set(null);
       this.shareRow.set(null);
-      this.shareQr.set(null);
     }
+  }
+
+  /** Reads the chosen file into `sharePhoto` as a data URL, ready to bind to the card's `participantPhoto` input. */
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
+    }
+    readFileAsDataUrl(file).then((dataUrl) => this.sharePhoto.set(dataUrl));
   }
 
   private waitForNextPaint(): Promise<void> {

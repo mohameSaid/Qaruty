@@ -13,10 +13,32 @@
     <mat-card class="section-card profile-card">
       <mat-card-content>
         <div class="profile-header">
-          <app-user-avatar [genderId]="u.gender.id" [size]="96" />
+          <div class="avatar-upload">
+            <app-user-avatar [genderId]="u.gender.id" [size]="96" />
+            @if (sharePhoto(); as photo) {
+              <img [src]="photo" class="avatar-upload__preview" alt="" />
+            }
+            <button
+              type="button"
+              mat-icon-button
+              class="avatar-upload__btn"
+              (click)="photoInput.click()"
+              matTooltip="صورة بطاقة النتيجة عند المشاركة"
+              aria-label="اختيار صورة لبطاقة النتيجة"
+            >
+              <mat-icon>photo_camera</mat-icon>
+            </button>
+            <input #photoInput type="file" accept="image/*" hidden (change)="onPhotoSelected($event)" />
+          </div>
           <div class="profile-heading">
             <h1 class="profile-name" dir="rtl">{{ u.name.arabic }}</h1>
             <p class="profile-subtitle">{{ u.name.english || '—' }}</p>
+            @if (!sharePhoto()) {
+              <p class="photo-required-hint">
+                <mat-icon>info</mat-icon>
+                أضف صورتك الشخصية (زر الكاميرا بجانب صورتك) لتتمكن من مشاركة نتائجك كبطاقة صورة
+              </p>
+            }
           </div>
           <button mat-stroked-button (click)="onChangePassword()">
             <mat-icon>lock_reset</mat-icon>
@@ -130,8 +152,8 @@
 
             <ng-container matColumnDef="actions">
               <th class="actions-column" mat-header-cell *matHeaderCellDef></th>
-              <td class="actions-column" mat-cell *matCellDef="let row" data-label="مشاركة">
-                <!-- @if (!row.deleted && row.score != null) { -->
+               <td class="actions-column" mat-cell *matCellDef="let row" data-label="مشاركة">
+                @if (!row.deleted && row.grade != null) {
                   <button
                     mat-icon-button
                     [matMenuTriggerFor]="shareMenu"
@@ -154,8 +176,8 @@
                       <span>مشاركة عبر فيسبوك</span>
                     </button>
                   </mat-menu>
-                <!-- } -->
-              </td>
+                 } 
+              </td>  
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="historyColumns"></tr>
@@ -166,17 +188,13 @@
     </mat-card>
 
     <div class="share-capture-host" aria-hidden="true">
-      @if (shareRow(); as row) {
-        <app-result-share-card
-          [competitionName]="row.competition.name.arabic + ' — ' + row.level.name.arabic"
-          [participantName]="u.name.arabic"
-          [resultValue]="(row.score ?? 0).toString()"
-          resultSuffix="/ 100"
-          location="كفر أبو الحسن"
-          [date]="row.competition.competitionYear ? row.competition.competitionYear.toString() : ''"
-          [qrDataUrl]="shareQr()"
-        />
-      }
+      <app-result-share-card
+        [competitionName]="shareCompetitionName()"
+        [participantName]="u.name.arabic"
+        [participantLabel]="u.gender.id === Gender.Female ? 'شهادة إنجاز للطالبة' : 'شهادة إنجاز للطالب'"
+        [participantPhoto]="sharePhoto()"
+        [evaluation]="shareEvaluation()"
+      />
     </div>
   }
 </div>

@@ -1,154 +1,89 @@
-<div #captureRoot class="rsc" [class.rsc--rank]="variant() === 'rank'" dir="rtl">
-  <!-- Decorative background -->
-  <div class="rsc__glow rsc__glow--top"></div>
-  <div class="rsc__glow rsc__glow--center"></div>
-  <div class="rsc__glow rsc__glow--bottom"></div>
+<div class="achievement-card-container" dir="rtl">
+  <div class="achievement-card" #captureRoot>
 
-  <!-- Islamic ornaments -->
-  <span class="rsc__ornament rsc__ornament--tl" aria-hidden="true"></span>
-  <span class="rsc__ornament rsc__ornament--tr" aria-hidden="true"></span>
-  <span class="rsc__ornament rsc__ornament--bl" aria-hidden="true"></span>
-  <span class="rsc__ornament rsc__ornament--br" aria-hidden="true"></span>
+    <!-- Background Architectural & Geometric Layer -->
+    <div class="card-background">
+      <div class="arch-pattern"></div>
+      <div class="geometric-overlay"></div>
+      <div class="ambient-glow"></div>
+    </div>
 
-  <div class="rsc__border"></div>
-
-  <div class="rsc__content">
-
-    <!-- Brand -->
-    <header class="rsc__brand">
-      <div class="rsc__brand-symbol">۞</div>
-
-      <div class="rsc__brand-text">
-        <span class="rsc__brand-mark">قريتي</span>
-        <span class="rsc__brand-sub">
-          منصة المسابقات القرآنية
+    <!-- Header: Competition Branding & Quranic Verse -->
+    <header class="card-header">
+      <div class="competition-badge">
+        <span class="competition-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+          </svg>
         </span>
+        <h1 class="competition-title">{{ competitionName() }}</h1>
+      </div>
+
+      <!-- Dedicated Quranic Verse Frame -->
+      <div class="quran-quote-wrapper">
+        <div class="quote-frame">
+          <span class="quote-mark quote-start">﴿</span>
+          <blockquote class="quran-quote">{{ quranQuote() }}</blockquote>
+          <span class="quote-mark quote-end">﴾</span>
+        </div>
       </div>
     </header>
 
-    <!-- Competition -->
-    <section class="rsc__competition">
-      <span class="rsc__eyebrow">نتيجة المسابقة</span>
-
-      <h2>
-        {{ competitionName() }}
-      </h2>
-    </section>
-
-    <!-- Achievement -->
-    <section class="rsc__achievement">
-
-      <div class="rsc__medallion">
-
-        <div class="rsc__medallion-outer"></div>
-        <div class="rsc__medallion-ring"></div>
-
-        <div class="rsc__medallion-inner">
-
-          <div class="rsc__medallion-value">
-            {{ resultValue() }}
-
-            @if (resultSuffix()) {
-              <span class="rsc__medallion-suffix">
-                {{ resultSuffix() }}
-              </span>
-            }
-          </div>
-
-          <div class="rsc__medallion-label">
-            {{ resultLabel() }}
-          </div>
-
-        </div>
-      </div>
-
-      @if (variant() === 'rank') {
-        <div class="rsc__achievement-ribbon">
-          <span>🏆</span>
-          <span>إنجاز مميز</span>
-        </div>
-      }
-
-    </section>
-
-    <!-- Participant -->
-    <section class="rsc__participant-section">
-
-      <span class="rsc__participant-label">
-        مبارك للمشارك
-      </span>
-
-      <h1 class="rsc__participant">
-        {{ participantName() }}
-      </h1>
-
-      @if (location() || date()) {
-        <div class="rsc__meta">
-
-          @if (location()) {
-            <span class="rsc__meta-item">
-              <span class="rsc__meta-icon">⌖</span>
-              {{ location() }}
-            </span>
-          }
-
-          @if (location() && date()) {
-            <span class="rsc__meta-separator"></span>
-          }
-
-          @if (date()) {
-            <span class="rsc__meta-item">
-              <span class="rsc__meta-icon">◷</span>
-              {{ date() }}
-            </span>
-          }
-
-        </div>
-      }
-
-    </section>
-
-    <!-- Footer -->
-    <footer class="rsc__footer">
-
-      @if (qrDataUrl(); as qr) {
-
-        <div class="rsc__qr-wrapper">
-          <div class="rsc__qr-frame">
+    <!-- Main Content: Participant Medallion & Name -->
+    <main class="card-body">
+      <!-- Medallion Photo Frame -->
+      <div class="participant-portrait-wrapper">
+        <div class="portrait-halo"></div>
+        <div class="portrait-frame">
+          @if (participantPhoto(); as photo) {
             <img
-              class="rsc__qr"
-              [src]="qr"
-              alt="رمز الاستجابة السريعة"
+              [src]="photo"
+              [alt]="participantName()"
+              class="participant-photo"
             />
+          } @else {
+            <div class="participant-photo participant-photo--placeholder" [attr.aria-label]="participantName()">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 12c2.71 0 4.9-2.19 4.9-4.9S14.71 2.2 12 2.2 7.1 4.39 7.1 7.1 9.29 12 12 12Zm0 2.45c-3.27 0-9.8 1.64-9.8 4.9v2.45h19.6v-2.45c0-3.26-6.53-4.9-9.8-4.9Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+          }
+        </div>
+        <div class="star-accent star-tl">✦</div>
+        <div class="star-accent star-br">✦</div>
+      </div>
+
+      <!-- Participant Identification -->
+      <div class="participant-info">
+        <span class="participant-label">{{ participantLabel() }}</span>
+        <h2 class="participant-name">{{ participantName() }}</h2>
+      </div>
+
+      <!-- Prominent Evaluation Badge -->
+      <div class="evaluation-container">
+        <div class="evaluation-ribbon">
+          <span class="evaluation-title">التقدير العام</span>
+          <div class="evaluation-badge" [attr.data-grade]="evaluation()">
+            <span class="badge-text">{{ evaluation() }}</span>
           </div>
-
-          <span class="rsc__qr-label">
-            تحقق من النتيجة
-          </span>
         </div>
-
-      }
-
-      <div class="rsc__cta">
-
-        <div class="rsc__cta-title">
-          نتيجة موثقة من قريتي
-        </div>
-
-        <div class="rsc__cta-text">
-          امسح الرمز لعرض النتيجة كاملة
-        </div>
-
-        <div class="rsc__cta-url">
-          qaryati.app
-        </div>
-
       </div>
+    </main>
 
-      <div class="rsc__footer-mark">
-        ۞
+    <!-- Footer: Official Seal & Domain Branding -->
+    <footer class="card-footer">
+      <div class="footer-divider">
+        <span class="line"></span>
+        <span class="diamond">◆</span>
+        <span class="line"></span>
       </div>
-
+      <div class="branding-bar">
+        <span class="brand-subtext">تم الاصدار عبر الموقع الرسمي</span>
+        <a [href]="websiteUrl()" class="website-url" target="_blank" rel="noopener">{{ websiteUrl() }}</a>
+      </div>
     </footer>
 
   </div>

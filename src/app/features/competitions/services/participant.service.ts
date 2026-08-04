@@ -61,13 +61,12 @@ export class ParticipantService {
 
   /**
    * `GET /participant/with-grades` — same rows as {@link getParticipants} but each participant
-   * carries its per-question `grades` array, and only ever includes evaluated participants
-   * (`filters.score=not_null`). Used by the Excel export, which needs individual grade columns.
+   * carries its per-question `grades` array. Pass `filters.scoreNotNull` to restrict to evaluated
+   * participants only (the Excel export always does; the participants table leaves it optional).
    */
   getParticipantsWithGrades(options: GetParticipantsOptions): Observable<PagedData<ParticipantWithGrades>> {
     let params = new HttpParams({ encoder: new FullyEncodedParamCodec() })
       .set('filters.competition.id', options.competitionId)
-      .set('filters.score', 'not_null')
       .set('page.pageNo', options.pageNo)
       .set('page.size', options.size)
       .set('sort.column', options.sortColumn)
@@ -127,6 +126,9 @@ export class ParticipantService {
     }
     if (filters.scoreMax != null) {
       params = params.set(`filters.score<`, filters.scoreMax);
+    }
+    if (filters.scoreNotNull) {
+      params = params.set('filters.score', 'not_null');
     }
 
       params = params.set('filters.deleted', false); // to be added later,

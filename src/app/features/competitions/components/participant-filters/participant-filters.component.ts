@@ -69,6 +69,7 @@ export class ParticipantFiltersComponent {
     privateInstructorNotNull: [false],
     scoreMin: this.fb.control<number | null>(null, [Validators.min(0), Validators.max(100)]),
     scoreMax: this.fb.control<number | null>(null, [Validators.min(0), Validators.max(100)]),
+    scoreNotNull: [false],
   });
 
   private readonly formValue = toSignal(this.form.valueChanges, { initialValue: this.form.getRawValue() });
@@ -136,6 +137,7 @@ export class ParticipantFiltersComponent {
           privateInstructorNotNull: filters.privateInstructorNotNull ?? false,
           scoreMin: filters.scoreMin ?? null,
           scoreMax: filters.scoreMax ?? null,
+          scoreNotNull: filters.scoreNotNull ?? false,
         },
         { emitEvent: false }
       );
@@ -162,6 +164,7 @@ export class ParticipantFiltersComponent {
       privateInstructorNotNull: raw.privateInstructorNotNull || undefined,
       scoreMin: raw.scoreMin ?? undefined,
       scoreMax: raw.scoreMax ?? undefined,
+      scoreNotNull: raw.scoreNotNull || undefined,
     };
 
     this.search.emit(filters);
@@ -183,6 +186,7 @@ export class ParticipantFiltersComponent {
       privateInstructorNotNull: false,
       scoreMin: null,
       scoreMax: null,
+      scoreNotNull: false,
     });
     this.clear.emit();
   }

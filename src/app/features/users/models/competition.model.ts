@@ -72,6 +72,8 @@ export interface CompetitionHistoryItem {
   partsCount: number;
   studyClass: StudyClassRef | null;
   score: number | null;
+  /** Categorical evaluation label (e.g. "جيد جدا" / "Very Good") — null until evaluated. */
+  grade: LookupRef | null;
   /** Only the exceptions granted for this specific registration — not the competition's full exception list. */
   exceptions: LookupRef[];
 }

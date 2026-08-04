@@ -15,17 +15,76 @@ export interface ShareCardOptions {
   pageUrl?: string;
 }
 
-/** How `shareToWhatsApp`/`shareToFacebook` actually handed the image off, for the caller to message the user accordingly. */
-export type ShareOutcome = 'shared' | 'downloaded';
+// ---------------------------------------------------------------------------------------------
+// html2canvas 1.4.1 has a real bug in CanvasRenderer.prototype.renderBackgroundImage (dist/
+// html2canvas.esm.js ~L7184-7199): for a `linear-gradient` background it sets canvas.width/height
+// from the element's unrounded getBoundingClientRect() *before* checking width>0 && height>0, so
+// a sub-pixel positive size (ordinary sub-pixel flex/text layout, common under OS display scaling)
+// truncates the canvas to 0x0 via the IDL setter yet still passes the JS guard, and createPattern
+// throws InvalidStateError. getBoundingClientRect() is routinely fractional, so this can hit ANY
+// linear-gradient element in a captured subtree, not one specific one. Rather than chase which
+// element/condition triggers it next, this makes that one narrow failure mode non-fatal.
+// (Alternative considered: patch-package to fix the source line directly, mirroring html2canvas's
+// own `Math.max(1, width)` guard used at its sibling url()-background call site. Rejected as
+// version-fragile — silently stops applying on any future `npm update html2canvas`. This patches
+// a stable browser API instead, so it keeps working across any html2canvas upgrade and becomes an
+// inert no-op the day upstream fixes it.)
+// ---------------------------------------------------------------------------------------------
+
+let activeCaptures = 0;
+let nativeCreatePattern: typeof CanvasRenderingContext2D.prototype.createPattern | null = null;
+
+/**
+ * Runs `run()` with `createPattern` patched so the html2canvas bug above degrades gracefully
+ * instead of crashing. Reference-counted so overlapping captures can't have one call's cleanup
+ * restore the native function while another is still mid-flight.
+ */
+function withPatchedCreatePattern<T>(run: () => Promise<T>): Promise<T> {
+  if (activeCaptures === 0) {
+    const native = CanvasRenderingContext2D.prototype.createPattern;
+    nativeCreatePattern = native;
+    CanvasRenderingContext2D.prototype.createPattern = function (
+      this: CanvasRenderingContext2D,
+      image: CanvasImageSource,
+      repetition: string | null
+    ): CanvasPattern | null {
+      try {
+        return native.call(this, image, repetition);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'InvalidStateError') {
+          console.warn(
+            'ShareCardService: html2canvas hit the known 0-size-canvas createPattern bug; that gradient rendered unpainted.',
+            err
+          );
+          return null;
+        }
+        throw err;
+      }
+    };
+  }
+  activeCaptures++;
+
+  return run().finally(() => {
+    activeCaptures--;
+    if (activeCaptures === 0) {
+      CanvasRenderingContext2D.prototype.createPattern = nativeCreatePattern!;
+      nativeCreatePattern = null;
+    }
+  });
+}
 
 /**
  * Captures a `ResultShareCardComponent` (or any element) to a PNG and hands it to WhatsApp/Facebook.
  *
  * Neither wa.me nor Facebook's sharer.php can accept a raw image file — wa.me only prefills text,
- * and sharer.php only previews a URL. The only way to hand an image directly to those apps from
- * the web is the OS share sheet (`navigator.share` with `files`), which is mobile-only and not
- * guaranteed to be available. So both share methods try that first, and fall back to downloading
- * the PNG for the user to attach by hand.
+ * and sharer.php only previews a URL. This used to also try the OS share sheet first
+ * (`navigator.share` with the PNG attached, to hand the image over directly on mobile), but that
+ * path is unreliable for the *link*: once a file is attached, Facebook's app deliberately strips
+ * any accompanying caption/text (an anti-spam policy, not a bug — no client-side workaround
+ * exists), and WhatsApp's handling of a combined file+caption is inconsistent too. So both methods
+ * always download the PNG for the user to attach by hand, and always open the platform's own
+ * text/link flow (wa.me's prefilled text, Facebook's link-preview sharer) — the one channel that
+ * reliably carries the result link through to the actual post/message.
  */
 @Injectable({ providedIn: 'root' })
 export class ShareCardService {
@@ -35,7 +94,12 @@ export class ShareCardService {
     return QRCode.toDataURL(url, { margin: 1, width: 240 });
   }
 
-  /** Renders `el` to a PNG blob. Cached per element — call again after changing the card's content. */
+  /** Drops the cached capture for `el` — call before `capture()` whenever the element's content may have changed since the last capture (e.g. a permanently-mounted card reused across shares). */
+  invalidate(el: HTMLElement): void {
+    this.cache.delete(el);
+  }
+
+  /** Renders `el` to a PNG blob. Cached per element — call `invalidate()` after changing the card's content. */
   async capture(el: HTMLElement): Promise<Blob> {
     const cached = this.cache.get(el);
     if (cached) {
@@ -46,11 +110,13 @@ export class ShareCardService {
     // fallback font substituted in — the most common cause of "why does the exported PNG look wrong".
     await document.fonts.ready;
 
-    const canvas = await html2canvas(el, {
-      scale: 3, // 360px design width -> ~1080px export, matching a 1080x1350 share image
-      backgroundColor: null,
-      useCORS: true,
-    });
+    const canvas = await withPatchedCreatePattern(() =>
+      html2canvas(el, {
+        scale: 3, // 360px design width -> ~1080px export, matching a 1080x1350 share image
+        backgroundColor: null,
+        useCORS: true,
+      })
+    );
 
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('تعذر إنشاء صورة النتيجة.'))), 'image/png');
@@ -69,51 +135,21 @@ export class ShareCardService {
     URL.revokeObjectURL(url);
   }
 
-  async shareToWhatsApp(el: HTMLElement, options: ShareCardOptions = {}): Promise<ShareOutcome> {
+  async shareToWhatsApp(el: HTMLElement, options: ShareCardOptions = {}): Promise<void> {
     const { fileName = 'نتيجتي.png', shareTitle = 'نتيجتي', shareText = '' } = options;
     const blob = await this.capture(el);
 
-    if (await this.shareNative(blob, fileName, shareTitle, shareText)) {
-      return 'shared';
-    }
-
     this.download(blob, fileName);
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText || shareTitle)}`, '_blank', 'noopener');
-    return 'downloaded';
   }
 
-  async shareToFacebook(el: HTMLElement, options: ShareCardOptions = {}): Promise<ShareOutcome> {
-    const { fileName = 'نتيجتي.png', shareTitle = 'نتيجتي', shareText = '', pageUrl } = options;
+  async shareToFacebook(el: HTMLElement, options: ShareCardOptions = {}): Promise<void> {
+    const { fileName = 'نتيجتي.png', pageUrl } = options;
     const blob = await this.capture(el);
-
-    if (await this.shareNative(blob, fileName, shareTitle, shareText)) {
-      return 'shared';
-    }
 
     this.download(blob, fileName);
     if (pageUrl) {
       window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`, '_blank', 'noopener');
-    }
-    return 'downloaded';
-  }
-
-  /** Tries the OS share sheet with the image attached. Returns false (never throws) if it's unavailable, unsupported, or fails. */
-  private async shareNative(blob: Blob, fileName: string, title: string, text: string): Promise<boolean> {
-    if (!navigator.share || !navigator.canShare) {
-      return false;
-    }
-
-    const file = new File([blob], fileName, { type: 'image/png' });
-    if (!navigator.canShare({ files: [file] })) {
-      return false;
-    }
-
-    try {
-      await navigator.share({ files: [file], title, text });
-      return true;
-    } catch (err) {
-      // The user closing the share sheet isn't a failure — the app shouldn't also fall back to a download.
-      return (err as DOMException)?.name === 'AbortError';
     }
   }
 }

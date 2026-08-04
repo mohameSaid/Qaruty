@@ -122,6 +122,38 @@
   color: #146245;
 }
 
+.avatar-upload {
+  position: relative;
+  flex: none;
+
+  &__preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  &__btn {
+    position: absolute;
+    bottom: -4px;
+    inset-inline-end: -4px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: var(--mat-sys-surface, #fff);
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
 .profile-header {
   display: flex;
   align-items: center;
@@ -150,6 +182,25 @@
 .profile-subtitle {
   margin: 4px 0 0;
   color: rgba(0, 0, 0, 0.6);
+}
+
+.photo-required-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--mat-sys-secondary-container, #fdf0d5);
+  color: var(--mat-sys-on-secondary-container, #8a6116);
+  font-size: 0.82rem;
+
+  mat-icon {
+    flex-shrink: 0;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
 }
 
 .info-grid {
@@ -201,6 +252,12 @@
   position: fixed;
   top: 0;
   left: -10000px;
+  // Fixed-position with only `left` set sizes via shrink-to-fit, and the card sizes itself with
+  // `width: 100%` — a percentage, which contributes nothing to an ancestor's shrink-to-fit width.
+  // Without a definite width here, that chain can collapse the card to 0px, and every gradient
+  // `background` inside it (there are several) then makes html2canvas fail with "createPattern...
+  // width or height of 0" while trying to rasterize the gradient onto a 0-sized canvas.
+  width: 640px;
   pointer-events: none;
 }
 

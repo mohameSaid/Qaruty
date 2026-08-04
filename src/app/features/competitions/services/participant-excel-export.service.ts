@@ -45,7 +45,8 @@ export class ParticipantExcelExportService {
         size,
         sortColumn: 'id',
         sortDirection: 'DESC',
-        filters: context.filters,
+        // The export always reports evaluated participants only, regardless of the table's current filter state.
+        filters: { ...context.filters, scoreNotNull: true },
       })
       .pipe(
         switchMap((page) => {
@@ -96,6 +97,15 @@ export class ParticipantExcelExportService {
         minWidth: 9,
         colorScale: true,
         value: (p) => p.grades?.[i]?.grade ?? null,
+      });
+    }
+
+    for (let i = 0; i < maxGradeCount; i++) {
+      columns.push({
+        header: `مقيّم الدرجة ${i + 1}`,
+        type: 'text',
+        minWidth: 16,
+        value: (p) => p.grades?.[i]?.tester?.name?.arabic ?? null,
       });
     }
 

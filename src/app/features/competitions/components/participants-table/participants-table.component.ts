@@ -3,12 +3,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { ParticipantListItem } from '../../models/participant.model';
+import { ParticipantListItem, ParticipantWithGrades } from '../../models/participant.model';
 import { HasPermissionDirective } from '../../../../core/directives/has-permission.directive';
 import { Permission } from '../../../../core/models/permission.model';
 import { Role } from '../../../../core/models/role.model';
@@ -25,6 +26,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     MatPaginatorModule,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
     MatTooltipModule,
     HasPermissionDirective,
   ],
@@ -37,7 +39,7 @@ export class ParticipantsTableComponent {
   private readonly dialog = inject(MatDialog);
   private readonly auth = inject(AuthService);
 
-  readonly participants = input.required<ParticipantListItem[]>();
+  readonly participants = input.required<ParticipantWithGrades[]>();
   readonly totalElements = input<number>(0);
   readonly pageNo = input<number>(0);
   readonly pageSize = input<number>(10);
@@ -70,6 +72,7 @@ export class ParticipantsTableComponent {
     'place',
     'partsCount',
     'score',
+    'gradesDetail',
     // 'exceptions',
     'actions',
   ];

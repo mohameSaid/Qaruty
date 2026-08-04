@@ -135,6 +135,44 @@
               {{ p.score ?? "—" }}
             </td>
           </ng-container>
+          <ng-container matColumnDef="gradesDetail">
+            <th mat-header-cell *matHeaderCellDef>تفاصيل الدرجات</th>
+            <td mat-cell *matCellDef="let p" data-label="تفاصيل الدرجات">
+              @if (p.grades?.length) {
+                <button
+                  mat-icon-button
+                  matTooltip="عرض درجات الأسئلة والمقيّمين"
+                  [matMenuTriggerFor]="gradesMenu"
+                  (click)="$event.stopPropagation()"
+                >
+                  <mat-icon>list_alt</mat-icon>
+                </button>
+                <mat-menu #gradesMenu="matMenu">
+                  <table class="grades-mini-table" (click)="$event.stopPropagation()">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>الدرجة</th>
+                        <th>المقيّم</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (g of p.grades; track $index) {
+                        <tr>
+                          <td>{{ $index + 1 }}</td>
+                          <td>{{ g.grade ?? "—" }}</td>
+                          <td>{{ g.tester?.name?.arabic ?? "—" }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </mat-menu>
+              } @else {
+                <span>—</span>
+              }
+            </td>
+          </ng-container>
+
           <!--
           <ng-container matColumnDef="exceptions">
             <th mat-header-cell *matHeaderCellDef>الاستثناءات</th>
