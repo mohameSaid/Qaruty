@@ -3,7 +3,12 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ApiEnvelope, PagedData } from '../models/api-response.model';
-import { ParticipantFilters, ParticipantListItem, ParticipantWithGrades } from '../models/participant.model';
+import {
+  ParticipantFilters,
+  ParticipantGradeEntry,
+  ParticipantListItem,
+  ParticipantWithGrades,
+} from '../models/participant.model';
 import { UpdateCompetitionRequest } from '../../users/models/competition.model';
 
 export interface GetParticipantsOptions {
@@ -77,6 +82,14 @@ export class ParticipantService {
     return this.http
       .get<ApiEnvelope<PagedData<ParticipantWithGrades>>>(`${this.baseUrl}/with-grades`, { params })
       .pipe(map((res) => res.data));
+  }
+
+  /** `GET /participant/grades?filters.participant.id=...` — per-question evaluation grades for one participant, fetched on demand when the grades-detail icon is clicked. */
+  getParticipantGrades(participantId: number): Observable<ParticipantGradeEntry[]> {
+    const params = new HttpParams().set('filters.participant.id', participantId);
+    return this.http
+      .get<ApiEnvelope<PagedData<ParticipantGradeEntry>>>(`${this.baseUrl}/grades`, { params })
+      .pipe(map((res) => res.data?.data ?? []));
   }
 
   /** Appends `filters.*` / `search.*` query params, matching the confirmed curl example for this endpoint. */

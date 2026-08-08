@@ -3,6 +3,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   signal,
 } from "@angular/core";
@@ -47,7 +48,7 @@ type SubmitOutcome =
   | "pendingApproval"
   | "success";
 
-/** Most registrants live here, so this is preselected and sent silently unless the user opts to pick their own address. */
+/** Most registrants live here, so governorate/city are preselected and sent silently unless the user opts to pick their own address; the village is always chosen by the user. */
 const DEFAULT_ADDRESS = { governorate: 10, city: 1, village: 1, details: "" };
 
 @Component({
@@ -81,6 +82,12 @@ export class RegisterPageComponent {
   readonly outcome = signal<SubmitOutcome>("idle");
   readonly resultMessage = signal("");
 
+  readonly whatsAppUrl = computed(() => {
+    const nationalId = this.form.controls.nationalId.value;
+    const text = `مرحبًا، أرغب في متابعة طلب التسجيل الخاص بي (الرقم القومي: ${nationalId}).`;
+    return `https://wa.me/01003127737?text=${encodeURIComponent(text)}`;
+  });
+
   readonly governorates = signal<Governorate[]>([]);
   readonly cities = signal<City[]>([]);
   readonly villages = signal<Village[]>([]);
@@ -96,7 +103,7 @@ export class RegisterPageComponent {
     arabicName: ["", [Validators.required, minWordsValidator(3)]],
     governorate: this.fb.control<number | null>(DEFAULT_ADDRESS.governorate),
     city: this.fb.control<number | null>(DEFAULT_ADDRESS.city),
-    village: this.fb.control<number | null>(null),
+    village: this.fb.control<number | null>(null, Validators.required),
     email: ["", [Validators.email]],
     mobileNumber: ["", [Validators.required, mobileNumberValidator()]],
     password: ["", [Validators.required, Validators.minLength(8)]],
@@ -110,6 +117,8 @@ export class RegisterPageComponent {
     this.loadGovernorates();
     this.wireCascadingDropdowns();
     this.wireNationalIdAutofill();
+    this.loadCities(DEFAULT_ADDRESS.governorate);
+    this.loadVillages(DEFAULT_ADDRESS.city);
   }
 
   private loadGovernorates(): void {
@@ -134,10 +143,7 @@ export class RegisterPageComponent {
           return;
         }
 
-        this.lookupService
-          .getCities(governorateId)
-          .pipe(catchError(() => of(null)))
-          .subscribe((page) => page && this.cities.set(page.data ?? []));
+        this.loadCities(governorateId);
       });
 
     this.form.controls.city.valueChanges
@@ -150,11 +156,22 @@ export class RegisterPageComponent {
           return;
         }
 
-        this.lookupService
-          .getVillages(cityId)
-          .pipe(catchError(() => of(null)))
-          .subscribe((page) => page && this.villages.set(page.data ?? []));
+        this.loadVillages(cityId);
       });
+  }
+
+  private loadCities(governorateId: number): void {
+    this.lookupService
+      .getCities(governorateId)
+      .pipe(catchError(() => of(null)))
+      .subscribe((page) => page && this.cities.set(page.data ?? []));
+  }
+
+  private loadVillages(cityId: number): void {
+    this.lookupService
+      .getVillages(cityId)
+      .pipe(catchError(() => of(null)))
+      .subscribe((page) => page && this.villages.set(page.data ?? []));
   }
 
   onToggleDefaultAddress(useDefault: boolean): void {
@@ -164,16 +181,16 @@ export class RegisterPageComponent {
     if (useDefault) {
       governorate.reset(null);
       city.reset(null);
-      village.reset(null);
       governorate.clearValidators();
       city.clearValidators();
-      village.clearValidators();
+      this.loadVillages(DEFAULT_ADDRESS.city);
     } else {
       governorate.reset(DEFAULT_ADDRESS.governorate);
       city.reset(DEFAULT_ADDRESS.city);
       governorate.setValidators(Validators.required);
       city.setValidators(Validators.required);
     }
+    village.reset(null);
     governorate.updateValueAndValidity();
     city.updateValueAndValidity();
     village.updateValueAndValidity();
@@ -209,7 +226,12 @@ export class RegisterPageComponent {
       nationalId: Number(raw.nationalId),
       name: { arabic: raw.arabicName, english: "" },
       address: this.useDefaultAddress()
-        ? DEFAULT_ADDRESS
+        ? {
+            governorate: DEFAULT_ADDRESS.governorate,
+            city: DEFAULT_ADDRESS.city,
+            village: raw.village!,
+            details: DEFAULT_ADDRESS.details,
+          }
         : {
             governorate: raw.governorate!,
             city: raw.city!,

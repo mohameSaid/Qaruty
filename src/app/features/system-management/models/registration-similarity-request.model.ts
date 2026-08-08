@@ -16,7 +16,8 @@ export interface SimilarityQuranInfo {
 export interface SimilarityAddress {
   governorate: LookupRef;
   city: LookupRef;
-  village: LookupRef;
+  /** Can be null when the candidate's address has no village set. */
+  village: LookupRef | null;
   details: string | null;
 }
 

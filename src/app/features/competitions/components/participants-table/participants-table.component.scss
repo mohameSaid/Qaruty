@@ -13,6 +13,26 @@ table {
   overflow-x: auto;
 }
 
+// Mirrors the $table-mobile-breakpoint in styles.scss where the header row
+// (and its mat-sort-header controls) is hidden in favor of the card layout.
+.mobile-sort-bar {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mobile-sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+
+    .mobile-sort-field {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}
+
 .name-cell {
   display: flex;
   flex-direction: column;
@@ -89,6 +109,18 @@ table {
   tbody tr:not(:last-child) td {
     border-bottom: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.08));
   }
+}
+
+.grades-loading {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.grades-empty {
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .empty-state {

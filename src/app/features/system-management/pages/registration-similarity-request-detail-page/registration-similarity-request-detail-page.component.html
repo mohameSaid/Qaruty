@@ -160,8 +160,10 @@
                           <div class="info-item info-item--wide">
                             <span class="label">العنوان</span>
                             <span class="value" dir="rtl">
-                              {{ candidate.address.governorate.name.arabic }} — {{ candidate.address.city.name.arabic }} —
-                              {{ candidate.address.village.name.arabic }}
+                              {{ candidate.address.governorate.name.arabic }} — {{ candidate.address.city.name.arabic }}
+                              @if (candidate.address.village) {
+                                — {{ candidate.address.village.name.arabic }}
+                              }
                             </span>
                           </div>
                           @if (candidate.quran) {

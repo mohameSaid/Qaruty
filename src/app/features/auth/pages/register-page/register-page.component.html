@@ -29,7 +29,13 @@
             <mat-icon>hourglass_top</mat-icon>
             <p>{{ resultMessage() }}</p>
             <p class="outcome-hint">تم إنشاء طلب تسجيل وهو بانتظار موافقة المسؤول. يرجى التواصل مع مسؤول النظام لاعتماد الطلب.</p>
-            <button mat-flat-button color="primary" type="button" (click)="goToLogin()">الذهاب لتسجيل الدخول</button>
+            <div class="outcome-actions">
+              <a mat-flat-button [href]="whatsAppUrl()" target="_blank" rel="noopener" class="whatsapp-btn">
+                <mat-icon>chat</mat-icon>
+                التواصل عبر واتساب
+              </a>
+              <button mat-stroked-button type="button" (click)="goToLogin()">الذهاب لتسجيل الدخول</button>
+            </div>
           </div>
         }
         @case ('success') {
@@ -125,18 +131,23 @@
                     <mat-error>المدينة مطلوبة.</mat-error>
                   }
                 </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>القرية</mat-label>
-                  <mat-icon matPrefix>holiday_village</mat-icon>
-                  <mat-select formControlName="village">
-                    @for (item of villages(); track item.id) {
-                      <mat-option [value]="item.id">{{ item.name.arabic }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
               </div>
             }
+
+            <div class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>القرية</mat-label>
+                <mat-icon matPrefix>holiday_village</mat-icon>
+                <mat-select formControlName="village">
+                  @for (item of villages(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name.arabic }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.village.hasError('required') && form.controls.village.touched) {
+                  <mat-error>القرية مطلوبة.</mat-error>
+                }
+              </mat-form-field>
+            </div>
 
             <h3 class="section-heading">بيانات التواصل</h3>
             <div class="form-grid">

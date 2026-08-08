@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 
 import { AuthService } from '../../../../core/services/auth.service';
 import { SnackbarService } from '../../../../core/services/snackbar.service';
@@ -32,6 +33,7 @@ export class ChangePasswordDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly snackbar = inject(SnackbarService);
+  private readonly router = inject(Router);
   readonly dialogRef = inject(MatDialogRef<ChangePasswordDialogComponent>);
 
   readonly submitting = signal(false);
@@ -52,10 +54,14 @@ export class ChangePasswordDialogComponent {
     const { oldPassword, newPassword } = this.form.getRawValue();
 
     this.auth.changePassword(oldPassword, newPassword).subscribe({
-      next: (res) => {
+      next: () => {
         this.submitting.set(false);
-        this.snackbar.success(res.message?.arabic ?? 'تم تغيير كلمة المرور بنجاح.');
+        this.snackbar.success('تم تغيير كلمة المرور بنجاح، يرجى تسجيل الدخول مرة أخرى.');
         this.dialogRef.close(true);
+        // Force a fresh login with the new password rather than letting the old session/token
+        // keep working, since the backend doesn't invalidate it server-side on a password change.
+        this.auth.logout();
+        this.router.navigate(['/login']);
       },
       error: (_error: HttpErrorResponse) => {
         this.submitting.set(false);

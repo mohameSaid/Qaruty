@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SupabaseClientService } from './supabase-client.service';
+import { SupabaseClientService } from '../../../core/services/supabase-client.service';
 import { fromSupabase } from './from-supabase.util';
 import { Part } from '../models/part.model';
 

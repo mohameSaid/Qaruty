@@ -7,6 +7,32 @@
   </mat-card-header>
 
   <mat-card-content>
+    @if (!loading() && !isEmpty()) {
+      <div class="mobile-sort-bar">
+        <mat-form-field appearance="outline" class="mobile-sort-field">
+          <mat-label>ترتيب حسب</mat-label>
+          <mat-select
+            [value]="sortColumn()"
+            (selectionChange)="onMobileSortColumnChange($event.value)"
+          >
+            @for (opt of mobileSortOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button
+          mat-icon-button
+          type="button"
+          [matTooltip]="matSortDirection() === 'asc' ? 'تصاعدي' : 'تنازلي'"
+          (click)="onToggleMobileSortDirection()"
+        >
+          <mat-icon>{{
+            matSortDirection() === "asc" ? "arrow_upward" : "arrow_downward"
+          }}</mat-icon>
+        </button>
+      </div>
+    }
+
     <div class="table-wrapper">
       @if (loading()) {
         <table class="skeleton-table">
@@ -138,34 +164,44 @@
           <ng-container matColumnDef="gradesDetail">
             <th mat-header-cell *matHeaderCellDef>تفاصيل الدرجات</th>
             <td mat-cell *matCellDef="let p" data-label="تفاصيل الدرجات">
-              @if (p.grades?.length) {
+              @if (p.score != null) {
                 <button
                   mat-icon-button
                   matTooltip="عرض درجات الأسئلة والمقيّمين"
                   [matMenuTriggerFor]="gradesMenu"
-                  (click)="$event.stopPropagation()"
+                  (click)="onLoadGrades(p); $event.stopPropagation()"
                 >
                   <mat-icon>list_alt</mat-icon>
                 </button>
                 <mat-menu #gradesMenu="matMenu">
-                  <table class="grades-mini-table" (click)="$event.stopPropagation()">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>الدرجة</th>
-                        <th>المقيّم</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (g of p.grades; track $index) {
-                        <tr>
-                          <td>{{ $index + 1 }}</td>
-                          <td>{{ g.grade ?? "—" }}</td>
-                          <td>{{ g.tester?.name?.arabic ?? "—" }}</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
+                  <div (click)="$event.stopPropagation()">
+                    @if (isLoadingGrades(p)) {
+                      <div class="grades-loading">
+                        <mat-spinner diameter="20" />
+                      </div>
+                    } @else if (gradesFor(p)?.length) {
+                      <table class="grades-mini-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>الدرجة</th>
+                            <th>المقيّم</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (g of gradesFor(p); track $index) {
+                            <tr>
+                              <td>{{ $index + 1 }}</td>
+                              <td>{{ g.grade ?? "—" }}</td>
+                              <td>{{ g.tester?.name?.arabic ?? "—" }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <div class="grades-empty">لا توجد درجات</div>
+                    }
+                  </div>
                 </mat-menu>
               } @else {
                 <span>—</span>

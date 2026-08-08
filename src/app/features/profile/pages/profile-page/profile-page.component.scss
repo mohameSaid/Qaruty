@@ -173,6 +173,22 @@
   flex: 1;
 }
 
+.profile-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+
+  mat-progress-spinner {
+    display: inline-block;
+  }
+}
+
 .profile-name {
   margin: 0;
   font-size: 1.4rem;

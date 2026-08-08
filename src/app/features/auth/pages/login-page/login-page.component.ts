@@ -11,7 +11,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AuthService } from '../../../../core/services/auth.service';
-import { Role } from '../../../../core/models/role.model';
 import { sanitizeReturnUrl } from '../../../../core/utils/return-url.util';
 
 @Component({
@@ -106,14 +105,8 @@ export class LoginPageComponent {
     });
   }
 
-  /** ADMIN lands on the dashboard, USER_MANAGER on the users list; everyone else sees their own profile. */
+  /** Without an explicit returnUrl, everyone lands on their own profile regardless of role. */
   private resolvePostLoginRoute(): string {
-    if (this.auth.hasRole(Role.Admin)) {
-      return '/dashboard';
-    }
-    if (this.auth.hasRole(Role.UserManager)) {
-      return '/users';
-    }
     return '/profile';
   }
 }

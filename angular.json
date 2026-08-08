@@ -39,6 +39,11 @@
                 "glob": "HafsSmart_08.ttf",
                 "input": "src/app/shared/assets/kfgqpc_hafs_smart_font",
                 "output": "assets/fonts"
+              },
+              {
+                "glob": "banner.png",
+                "input": "src/app/shared/assets/imges",
+                "output": "assets"
               }
             ],
             "styles": ["src/styles.scss"],

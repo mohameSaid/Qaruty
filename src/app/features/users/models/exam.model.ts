@@ -39,6 +39,17 @@ export interface ParticipantGradeEntry {
   grade: number;
 }
 
+/**
+ * One row of `GET /participant/grades?filters.participant.id=...` — a previously-submitted
+ * grade for one exam question, identified only by its `rank` (this endpoint has no question
+ * id, unlike `ParticipantGradeEntry`).
+ */
+export interface ParticipantRankedGrade {
+  rank: number;
+  grade: number;
+  tester: { id: number; name: LocalizedName };
+}
+
 /** The subset of `GET /participant/{id}` this app reads — to pre-fill a resubmission and to show the results screen. */
 export interface ParticipantEvaluationDetail {
   id: number;

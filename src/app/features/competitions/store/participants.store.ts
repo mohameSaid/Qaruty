@@ -3,7 +3,7 @@ import { catchError, finalize, of, tap } from 'rxjs';
 import { ParticipantService } from '../services/participant.service';
 import { CompetitionService } from '../services/competition.service';
 import { Competition } from '../models/competition.model';
-import { ParticipantFilters, ParticipantWithGrades } from '../models/participant.model';
+import { ParticipantFilters, ParticipantListItem } from '../models/participant.model';
 
 export type SortDirection = 'ASC' | 'DESC';
 
@@ -19,7 +19,7 @@ export class ParticipantsStore {
   private readonly _competitionId = signal<number | null>(null);
   private readonly _competition = signal<Competition | null>(null);
 
-  private readonly _participants = signal<ParticipantWithGrades[]>([]);
+  private readonly _participants = signal<ParticipantListItem[]>([]);
   private readonly _totalElements = signal(0);
   private readonly _pageNo = signal(0);
   private readonly _pageSize = signal(10);
@@ -87,7 +87,7 @@ export class ParticipantsStore {
     }
     this._loading.set(true);
     this.participantService
-      .getParticipantsWithGrades({
+      .getParticipants({
         competitionId,
         pageNo: this._pageNo(),
         size: this._pageSize(),

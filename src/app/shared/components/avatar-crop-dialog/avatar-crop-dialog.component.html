@@ -1,0 +1,56 @@
+<h2 mat-dialog-title>{{ step() === 'preview' ? 'معاينة الصورة' : 'قص الصورة الشخصية' }}</h2>
+
+<mat-dialog-content class="crop-dialog-content">
+  @switch (step()) {
+    @case ('crop') {
+      <image-cropper
+        class="cropper"
+        [imageFile]="file"
+        [aspectRatio]="1"
+        [maintainAspectRatio]="true"
+        [roundCropper]="true"
+        [autoCrop]="false"
+        [output]="'blob'"
+        format="png"
+        [cropperMinWidth]="120"
+        [onlyScaleDown]="true"
+        alignImage="center"
+        (cropperReady)="onCropperReady()"
+        (loadImageFailed)="onLoadImageFailed()"
+      />
+    }
+    @case ('processing') {
+      <div class="processing-state">
+        <mat-progress-spinner mode="indeterminate" diameter="40" />
+        <p>جارٍ ضغط الصورة...</p>
+      </div>
+    }
+    @case ('preview') {
+      @if (previewObjectUrl(); as url) {
+        <div class="preview-state">
+          <img [src]="url" class="preview-image" alt="" />
+          <p class="preview-size">{{ formatFileSize(processedResult()?.sizeBytes ?? 0) }}</p>
+        </div>
+      }
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @switch (step()) {
+    @case ('crop') {
+      <button mat-button type="button" (click)="cancel()">إلغاء</button>
+      <button mat-flat-button type="button" color="primary" [disabled]="!cropperReady()" (click)="confirmCrop()">
+        متابعة
+      </button>
+    }
+    @case ('processing') {
+      <button mat-button type="button" disabled>إلغاء</button>
+      <button mat-flat-button type="button" color="primary" disabled>متابعة</button>
+    }
+    @case ('preview') {
+      <button mat-button type="button" (click)="backToCrop()">إعادة القص</button>
+      <button mat-flat-button type="button" color="primary" (click)="useThisImage()">استخدام هذه الصورة</button>
+    }
+  }
+</mat-dialog-actions>

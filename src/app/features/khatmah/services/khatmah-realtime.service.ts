@@ -1,6 +1,6 @@
 import { Injectable, NgZone, inject } from '@angular/core';
 import { RealtimeChannel } from '@supabase/supabase-js';
-import { SupabaseClientService } from './supabase-client.service';
+import { SupabaseClientService } from '../../../core/services/supabase-client.service';
 import { PartsBoardStore } from '../store/parts-board.store';
 import { ActivityFeedStore } from '../store/activity-feed.store';
 import { KhatmahStore } from '../store/khatmah.store';

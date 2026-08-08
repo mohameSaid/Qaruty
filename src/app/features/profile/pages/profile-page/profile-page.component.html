@@ -15,73 +15,191 @@
         <div class="profile-header">
           <div class="avatar-upload">
             <app-user-avatar [genderId]="u.gender.id" [size]="96" />
-            @if (sharePhoto(); as photo) {
+            @if (photoBlobUrl(); as photo) {
               <img [src]="photo" class="avatar-upload__preview" alt="" />
             }
             <button
               type="button"
               mat-icon-button
               class="avatar-upload__btn"
+              [disabled]="uploadingPhoto()"
               (click)="photoInput.click()"
               matTooltip="صورة بطاقة النتيجة عند المشاركة"
               aria-label="اختيار صورة لبطاقة النتيجة"
             >
-              <mat-icon>photo_camera</mat-icon>
+              @if (uploadingPhoto()) {
+                <mat-progress-spinner diameter="16" mode="indeterminate" />
+              } @else {
+                <mat-icon>photo_camera</mat-icon>
+              }
             </button>
-            <input #photoInput type="file" accept="image/*" hidden (change)="onPhotoSelected($event)" />
+            <input #photoInput type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onPhotoSelected($event)" />
           </div>
           <div class="profile-heading">
             <h1 class="profile-name" dir="rtl">{{ u.name.arabic }}</h1>
             <p class="profile-subtitle">{{ u.name.english || '—' }}</p>
-            @if (!sharePhoto()) {
+            @if (!photoBlobUrl()) {
               <p class="photo-required-hint">
                 <mat-icon>info</mat-icon>
                 أضف صورتك الشخصية (زر الكاميرا بجانب صورتك) لتتمكن من مشاركة نتائجك كبطاقة صورة
               </p>
             }
           </div>
-          <button mat-stroked-button (click)="onChangePassword()">
-            <mat-icon>lock_reset</mat-icon>
-            تغيير كلمة المرور
-          </button>
+          <div class="profile-actions">
+            @if (!editing()) {
+              <button mat-stroked-button (click)="startEdit()">
+                <mat-icon>edit</mat-icon>
+                تعديل البيانات
+              </button>
+            }
+            <button mat-stroked-button (click)="onChangePassword()">
+              <mat-icon>lock_reset</mat-icon>
+              تغيير كلمة المرور
+            </button>
+          </div>
         </div>
 
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="label">الرقم القومي</span>
-            <span class="value">{{ u.nationalId ?? '—' }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">تاريخ الميلاد</span>
-            <span class="value">{{ u.birthDate }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">النوع</span>
-            <span class="value" dir="rtl">{{ u.gender.name.arabic }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">البريد الإلكتروني</span>
-            <span class="value">{{ u.contact.email || '—' }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">رقم الهاتف</span>
-            <span class="value">{{ u.contact.mobileNumber || '—' }}</span>
-          </div>
-          <div class="info-item">
-            <span class="label">رقم هاتف آخر</span>
-            <span class="value">{{ u.contact.otherMobileNumber || '—' }}</span>
-          </div>
-          <div class="info-item info-item--wide">
-            <span class="label">العنوان</span>
-            <span class="value" dir="rtl">
-              {{ u.address.governorate.name.arabic }} — {{ u.address.city.name.arabic }} —
-              {{ u.address.village.name.arabic }}
-              @if (u.address.details) {
-                — {{ u.address.details }}
+        @if (editing()) {
+          <form class="info-grid" [formGroup]="editForm" (ngSubmit)="saveProfile()">
+            <div class="info-item">
+              <span class="label">الرقم القومي</span>
+              <span class="value">{{ u.nationalId ?? '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">تاريخ الميلاد</span>
+              <span class="value">{{ u.birthDate }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">النوع</span>
+              <span class="value" dir="rtl">{{ u.gender.name.arabic }}</span>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>الاسم بالعربية</mat-label>
+              <input matInput dir="rtl" formControlName="arabicName" />
+              @if (editForm.controls.arabicName.hasError('required')) {
+                <mat-error>هذا الحقل مطلوب</mat-error>
               }
-            </span>
+              @if (editForm.controls.arabicName.hasError('minWords')) {
+                <mat-error>يجب إدخال 3 كلمات على الأقل</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>الاسم بالإنجليزية</mat-label>
+              <input matInput formControlName="englishName" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>البريد الإلكتروني</mat-label>
+              <input matInput formControlName="email" />
+              @if (editForm.controls.email.hasError('email')) {
+                <mat-error>بريد إلكتروني غير صالح</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>رقم الهاتف</mat-label>
+              <input matInput formControlName="mobileNumber" />
+              @if (editForm.controls.mobileNumber.hasError('required')) {
+                <mat-error>هذا الحقل مطلوب</mat-error>
+              }
+              @if (editForm.controls.mobileNumber.hasError('mobileNumber')) {
+                <mat-error>رقم هاتف غير صالح</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>رقم هاتف آخر</mat-label>
+              <input matInput formControlName="otherMobileNumber" />
+              @if (editForm.controls.otherMobileNumber.hasError('mobileNumber')) {
+                <mat-error>رقم هاتف غير صالح</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>المحافظة</mat-label>
+              <mat-select formControlName="governorate">
+                @for (g of governorates(); track g.id) {
+                  <mat-option [value]="g.id">{{ g.name.arabic }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>المدينة</mat-label>
+              <mat-select formControlName="city">
+                @for (c of cities(); track c.id) {
+                  <mat-option [value]="c.id">{{ c.name.arabic }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>القرية</mat-label>
+              <mat-select formControlName="village">
+                @for (v of villages(); track v.id) {
+                  <mat-option [value]="v.id">{{ v.name.arabic }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="info-item--wide">
+              <mat-label>تفاصيل العنوان</mat-label>
+              <input matInput formControlName="addressDetails" />
+            </mat-form-field>
+
+            <div class="info-item--wide edit-actions">
+              <button mat-stroked-button type="button" [disabled]="savingProfile()" (click)="cancelEdit()">إلغاء</button>
+              <button mat-flat-button color="primary" type="submit" [disabled]="savingProfile()">
+                @if (savingProfile()) {
+                  <mat-progress-spinner diameter="18" mode="indeterminate" />
+                } @else {
+                  حفظ التغييرات
+                }
+              </button>
+            </div>
+          </form>
+        } @else {
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">الرقم القومي</span>
+              <span class="value">{{ u.nationalId ?? '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">تاريخ الميلاد</span>
+              <span class="value">{{ u.birthDate }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">النوع</span>
+              <span class="value" dir="rtl">{{ u.gender.name.arabic }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">البريد الإلكتروني</span>
+              <span class="value">{{ u.contact.email || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">رقم الهاتف</span>
+              <span class="value">{{ u.contact.mobileNumber || '—' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">رقم هاتف آخر</span>
+              <span class="value">{{ u.contact.otherMobileNumber || '—' }}</span>
+            </div>
+            <div class="info-item info-item--wide">
+              <span class="label">العنوان</span>
+              <span class="value" dir="rtl">
+                {{ u.address.governorate.name.arabic }} — {{ u.address.city.name.arabic }}
+                @if (u.address.village) {
+                  — {{ u.address.village.name.arabic }}
+                }
+                @if (u.address.details) {
+                  — {{ u.address.details }}
+                }
+              </span>
+            </div>
           </div>
-        </div>
+        }
       </mat-card-content>
     </mat-card>
 
@@ -130,9 +248,14 @@
               <td mat-cell *matCellDef="let row" data-label="عدد الأجزاء">{{ row.partsCount }}</td>
             </ng-container>
 
-            <ng-container matColumnDef="score">
+            <!-- <ng-container matColumnDef="score">
               <th mat-header-cell *matHeaderCellDef>الدرجة</th>
               <td mat-cell *matCellDef="let row" data-label="الدرجة">{{ row.score ?? '—' }}</td>
+            </ng-container> -->
+
+            <ng-container matColumnDef="grade">
+              <th mat-header-cell *matHeaderCellDef>التقدير</th>
+              <td mat-cell *matCellDef="let row" dir="rtl" data-label="التقدير">{{ row.grade?.name?.arabic ?? '—' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="status">
@@ -192,7 +315,7 @@
         [competitionName]="shareCompetitionName()"
         [participantName]="u.name.arabic"
         [participantLabel]="u.gender.id === Gender.Female ? 'شهادة إنجاز للطالبة' : 'شهادة إنجاز للطالب'"
-        [participantPhoto]="sharePhoto()"
+        [participantPhoto]="photoBlobUrl()"
         [evaluation]="shareEvaluation()"
       />
     </div>

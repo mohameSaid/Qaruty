@@ -1,4 +1,4 @@
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 
 html {
   color-scheme: light;
@@ -10,7 +10,7 @@ html {
         primary: mat.$green-palette,
         tertiary: mat.$orange-palette,
       ),
-      typography: 'Roboto',
+      typography: "Roboto",
       density: 0,
     )
   );
@@ -25,7 +25,7 @@ html {
           primary: mat.$green-palette,
           tertiary: mat.$orange-palette,
         ),
-        typography: 'Roboto',
+        typography: "Roboto",
         density: 0,
       )
     );
@@ -36,7 +36,7 @@ html,
 body {
   height: 100%;
   margin: 0;
-  font-family: 'Roboto', 'Segoe UI', Tahoma, Arial, sans-serif;
+  font-family: "Roboto", "Segoe UI", Tahoma, Arial, sans-serif;
   background: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   // Stops horizontal overscroll from being interpreted as the browser's edge-swipe
@@ -158,9 +158,11 @@ $table-mobile-breakpoint: 640px;
       // Action buttons get their own row, right-aligned, with no label.
       &.mat-column-actions {
         justify-content: flex-end;
+        flex-wrap: wrap;
         margin-top: 4px;
         padding-top: 10px !important;
-        border-top: 1px dashed var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+        border-top: 1px dashed
+          var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
 
         &::before {
           content: none;
@@ -196,5 +198,19 @@ $table-mobile-breakpoint: 640px;
       display: block;
       padding: 0 !important;
     }
+  }
+}
+
+// Full-screen crop dialog on small viewports (see AvatarCropDialogComponent) — panelClass targets
+// the overlay pane, which sits outside the component's own view encapsulation, so this has to be global.
+.avatar-crop-dialog--fullscreen {
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    max-width: 100vw;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+
+  .mat-mdc-dialog-content {
+    max-height: none;
   }
 }

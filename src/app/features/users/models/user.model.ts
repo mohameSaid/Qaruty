@@ -92,9 +92,9 @@ export interface PersonMatch {
   gender: LookupRef;
   birthDate: string;
   address: {
-    governorate: LookupRef;
-    city: LookupRef;
-    village: LookupRef;
+    governorate: LookupRef | null;
+    city: LookupRef | null;
+    village: LookupRef | null;
     details: string | null;
   };
   contact: {
@@ -147,7 +147,8 @@ export interface UserDetail {
   address: {
     governorate: LookupRef;
     city: LookupRef;
-    village: LookupRef;
+    /** Confirmed live: can be null when the user's address has no village set. */
+    village: LookupRef | null;
     details: string;
   };
   contact: UserContact;
@@ -163,6 +164,12 @@ export interface UserDetail {
   } | null;
   father?: ParentDetail | null;
   mother?: ParentDetail | null;
+  /**
+   * Not currently returned by the backend — speculative field for when profile-photo persistence
+   * is wired up server-side (see `ProfilePageComponent.onPhotoSelected`). Safe to add ahead of
+   * backend support since an absent field is simply `undefined` here.
+   */
+  profileImageUrl?: string | null;
 }
 
 /**

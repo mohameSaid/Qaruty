@@ -133,7 +133,7 @@
                     ><mat-icon>holiday_village</mat-icon> القرية</span
                   >
                   <span class="detail-value" dir="rtl">{{
-                    user()!.address.village.name.arabic || "—"
+                    user()!.address.village?.name?.arabic || "—"
                   }}</span>
                 </div>
                 <div class="detail-item full-width">

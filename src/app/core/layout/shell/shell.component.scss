@@ -22,6 +22,10 @@
 .brand-title {
   font-weight: 500;
   letter-spacing: 0.2px;
+
+  @media (max-width: 720px) {
+    display: none;
+  }
 }
 
 .spacer {
@@ -123,6 +127,10 @@
   flex: 1 1 auto;
   overflow-y: auto;
   padding: 24px;
+
+  @media (max-width: 720px) {
+    padding: 12px;
+  }
 }
 
 .app-content > * {

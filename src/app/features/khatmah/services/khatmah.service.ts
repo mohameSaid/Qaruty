@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map, of, switchMap } from 'rxjs';
-import { SupabaseClientService } from './supabase-client.service';
+import { SupabaseClientService } from '../../../core/services/supabase-client.service';
 import { fromSupabase } from './from-supabase.util';
 import { CreateKhatmahRequest, CreateKhatmahResult, Khatmah, KhatmahWithProgress } from '../models/khatmah.model';
 import { Participant } from '../models/participant.model';

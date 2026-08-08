@@ -25,7 +25,7 @@
             <div class="detail-row">
               <mat-icon>location_city</mat-icon>
               <dt>المحافظة / المدينة</dt>
-              <dd>{{ match.address.governorate.name.arabic }} / {{ match.address.city.name.arabic }}</dd>
+              <dd>{{ match.address.governorate?.name?.arabic ?? '—' }} / {{ match.address.city?.name?.arabic ?? '—' }}</dd>
             </div>
             <div class="detail-row">
               <mat-icon>phone</mat-icon>

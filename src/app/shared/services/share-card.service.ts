@@ -77,14 +77,16 @@ function withPatchedCreatePattern<T>(run: () => Promise<T>): Promise<T> {
  * Captures a `ResultShareCardComponent` (or any element) to a PNG and hands it to WhatsApp/Facebook.
  *
  * Neither wa.me nor Facebook's sharer.php can accept a raw image file — wa.me only prefills text,
- * and sharer.php only previews a URL. This used to also try the OS share sheet first
- * (`navigator.share` with the PNG attached, to hand the image over directly on mobile), but that
- * path is unreliable for the *link*: once a file is attached, Facebook's app deliberately strips
- * any accompanying caption/text (an anti-spam policy, not a bug — no client-side workaround
- * exists), and WhatsApp's handling of a combined file+caption is inconsistent too. So both methods
- * always download the PNG for the user to attach by hand, and always open the platform's own
- * text/link flow (wa.me's prefilled text, Facebook's link-preview sharer) — the one channel that
- * reliably carries the result link through to the actual post/message.
+ * and sharer.php only previews a URL. WhatsApp sharing always downloads the PNG first (so the user
+ * has it to attach by hand) and opens wa.me's prefilled text, since WhatsApp's own share target
+ * (reached via the Web Share API) inconsistently drops the accompanying caption/link once a file is
+ * attached.
+ *
+ * Facebook sharing instead tries the OS share sheet (Web Share API with `files`) first, so the
+ * captured image attaches directly to the Facebook post with no manual download/re-upload — the
+ * trade-off, accepted deliberately, is that Facebook's app drops the accompanying caption/result
+ * link when a file is attached this way. Where the Web Share API isn't available (desktop browsers,
+ * mainly) it falls back to the same download + link-preview sharer.php flow as before.
  */
 @Injectable({ providedIn: 'root' })
 export class ShareCardService {
@@ -143,13 +145,34 @@ export class ShareCardService {
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText || shareTitle)}`, '_blank', 'noopener');
   }
 
-  async shareToFacebook(el: HTMLElement, options: ShareCardOptions = {}): Promise<void> {
-    const { fileName = 'نتيجتي.png', pageUrl } = options;
+  /**
+   * Returns `'native'` when the image was handed directly to the OS share sheet (no download
+   * needed), or `'download'` when it fell back to the download + sharer.php link-preview flow —
+   * callers use this to decide whether the "attach the downloaded image yourself" hint still applies.
+   */
+  async shareToFacebook(el: HTMLElement, options: ShareCardOptions = {}): Promise<'native' | 'download'> {
+    const { fileName = 'نتيجتي.png', shareTitle = 'نتيجتي', shareText = '', pageUrl } = options;
     const blob = await this.capture(el);
+    const file = new File([blob], fileName, { type: 'image/png' });
+
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: shareTitle, text: shareText || shareTitle });
+        return 'native';
+      } catch (err) {
+        // AbortError means the user dismissed the share sheet themselves — respect that instead of
+        // falling back to a download they didn't ask for. Any other failure (e.g. no app on the
+        // sheet actually accepted the file) falls through to the link-preview flow below.
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          return 'native';
+        }
+      }
+    }
 
     this.download(blob, fileName);
     if (pageUrl) {
       window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`, '_blank', 'noopener');
     }
+    return 'download';
   }
 }

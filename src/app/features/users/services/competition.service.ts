@@ -8,7 +8,7 @@ import {
   RegisterCompetitionRequest,
   UpdateCompetitionRequest,
 } from '../models/competition.model';
-import { ParticipantEvaluationDetail } from '../models/exam.model';
+import { ParticipantEvaluationDetail, ParticipantRankedGrade } from '../models/exam.model';
 
 export interface GetCompetitionHistoryOptions {
   pageNo: number;
@@ -34,7 +34,7 @@ export class CompetitionService {
       .set('sort.direction', options.sortDirection);
 
     return this.http
-      .get<ApiEnvelope<PagedData<CompetitionHistoryItem>>>(this.baseUrl, { params })
+      .get<ApiEnvelope<PagedData<CompetitionHistoryItem>>>(`${this.baseUrl}/with-competition`, { params })
       .pipe(map((res) => res.data));
   }
 
@@ -43,6 +43,20 @@ export class CompetitionService {
     return this.http
       .get<ApiEnvelope<ParticipantEvaluationDetail>>(`${this.baseUrl}/${id}`)
       .pipe(map((res) => res.data));
+  }
+
+  /**
+   * Previously-submitted grades for one participant, keyed by exam-question rank (no question
+   * id in this response) — `GET /participant/grades?filters.participant.id=...`.
+   */
+  getParticipantGrades(participantId: number, testerId: number, examId: number): Observable<ParticipantRankedGrade[]> {
+    const params = new HttpParams()
+      .set('filters.participant.id', participantId)
+      .set('filters.tester.id', testerId)
+      .set('filters.examQuestion.exam.id', examId);
+    return this.http
+      .get<ApiEnvelope<PagedData<ParticipantRankedGrade>>>(`${this.baseUrl}/grades`, { params })
+      .pipe(map((res) => res.data?.data ?? []));
   }
 
   registerCompetition(payload: RegisterCompetitionRequest): Observable<CompetitionHistoryItem> {

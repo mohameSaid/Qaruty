@@ -31,6 +31,7 @@ import {
   ExamDetail,
   ExamQuestion,
   ExamSummary,
+  ParticipantRankedGrade,
   TesterEvaluateRequest,
   TesterEvaluationEntry,
 } from '../../models/exam.model';
@@ -115,7 +116,7 @@ export class EvaluationPageV2Component implements OnInit {
   readonly examOptions = signal<ExamSummary[]>([]);
   readonly selectedExamId = signal<number | null>(null);
   readonly quranQuestions = signal<ExamQuestion[]>([]);
-  /** examQuestionId -> previously submitted grade, fetched once on page entry. */
+  /** exam question rank -> previously submitted grade, fetched once on page entry. */
   readonly previousGrades = signal<Map<number, number>>(new Map());
 
   /** questionId -> score (0-10). */
@@ -214,7 +215,6 @@ export class EvaluationPageV2Component implements OnInit {
           this.loadError.set(true);
           return;
         }
-        this.loadPreviousGrades(current.id);
         if (this.isQuranCompetition()) {
           this.loadAvailableExams(current);
         }
@@ -222,22 +222,23 @@ export class EvaluationPageV2Component implements OnInit {
   }
 
   /**
-   * Fetches the participant's record once on page entry to check for previously submitted
-   * grades — `GET /participant/{id}` — so a resubmission starts from what was last sent
-   * instead of blank scores. Applied onto whichever exam's questions are currently loaded.
+   * Fetches the participant's previously submitted grades once on page entry — `GET
+   * /participant/grades?filters.participant.id=...` — so a resubmission starts from what was
+   * last sent instead of blank scores. This endpoint identifies each grade only by its exam
+   * question's `rank` (no question id), so it's applied by matching rank in
+   * {@link applyPreviousGrades}.
    */
   private loadPreviousGrades(participantEntryId: number): void {
     this.competitionService
-      .getParticipantEvaluation(this.currentEntry()?.id ?? 0)
-      .pipe(catchError(() => of(null)))
-      .subscribe((detail) => {
-        const grades = detail?.grades ?? [];
-        this.previousGrades.set(new Map(grades.map((g) => [g.examQuestion.question.id, g.grade])));
+      .getParticipantGrades(participantEntryId, this.authService.currentUserId()!, this.selectedExamId() ?? 0)
+      .pipe(catchError(() => of<ParticipantRankedGrade[]>([])))
+      .subscribe((grades) => {
+        this.previousGrades.set(new Map(grades.map((g) => [g.rank, g.grade])));
         this.applyPreviousGrades();
       });
   }
 
-  /** Overlays any previously submitted grades onto the currently loaded exam questions. */
+  /** Overlays any previously submitted grades onto the currently loaded exam questions, matched by rank. */
   private applyPreviousGrades(): void {
     const previous = this.previousGrades();
     const questions = this.quranQuestions();
@@ -247,8 +248,8 @@ export class EvaluationPageV2Component implements OnInit {
     this.quranScores.update((current) => {
       const next = { ...current };
       for (const q of questions) {
-        if (previous.has(q.id)) {
-          next[q.id] = previous.get(q.id)!;
+        if (previous.has(q.rank)) {
+          next[q.id] = previous.get(q.rank)!;
         }
       }
       return next;
@@ -284,6 +285,7 @@ export class EvaluationPageV2Component implements OnInit {
         if (page.data.length > 0) {
           this.selectedExamId.set(page.data[0].id);
           this.loadExamQuestions(page.data[0].id);
+          this.loadPreviousGrades(current.id);
         } else {
           this.selectedExamId.set(null);
           this.quranQuestions.set([]);
